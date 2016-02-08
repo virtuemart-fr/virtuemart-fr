@@ -171,13 +171,17 @@ class VirtueMartModelUpdatesMigration extends VmModel {
 		vmError(vmText::_('COM_VIRTUEMART_NOT_ABLE_TO_SAVE_USER_DATA')  );
 	}
 
-	$filename = VMPATH_ROOT.DS.'administrator'.DS.'components'.DS.'com_virtuemart'.DS.'install'.DS.'install_sample_data.sql';
 	    if(!VmConfig::$vmlang){
 		    $params = JComponentHelper::getParams('com_languages');
 		    $lang = $params->get('site', 'en-GB');//use default joomla
 		    $lang = strtolower(strtr($lang,'-','_'));
 	    } else {
 		    $lang = VmConfig::$vmlang;
+	    }
+	    $sampleLang='_'.$lang;
+	    $filename = VMPATH_ROOT.DS.'administrator'.DS.'components'.DS.'com_virtuemart'.DS.'install'.DS.'install_sample_data'.$sampleLang.'.sql';
+	    if (!file_exists($filename)) {
+		    $filename = VMPATH_ROOT.DS.'administrator'.DS.'components'.DS.'com_virtuemart'.DS.'install'.DS.'install_sample_data.sql';
 	    }
 	if(!$this->execSQLFile($filename)){
 		vmError(vmText::_('Problems execution of SQL File '.$filename));
