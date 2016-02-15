@@ -148,11 +148,14 @@ class VirtueMartModelUpdatesMigration extends VmModel {
 		vRequest::setVar('phone_1',$fields['phone_1']);
 	//$fields['vendor_phone'] =  '555-555-1212';
 	$fields['vendor_store_name'] =  "VirtueMart 3 Sample store";
-	$fields['vendor_store_desc'] =  '<p>Welcome to VirtueMart the ecommerce managment system. The sample data give you a good insight of the possibilities with VirtueMart. The product description is directly the manual to configure the demonstrated features. \n </p><p>You see here the store description used to describe your store. Check it out!</p> <p>We were established in 1869 in a time when getting good clothes was expensive, but the quality was good. Now that only a select few of those authentic clothes survive, we have dedicated this store to bringing the experience alive for collectors and master carrier everywhere.</p>';
+	$fields['vendor_store_desc'] =  '<p>Bienvenue sur VirtueMart, Solution de ecommerce open source et gratuite. Les données d\'exemple vous donnent un bon aperçu des fonctionnalités de VirtueMart.</p>
+<p>Ce message est la description utilisée pour décrire votre boutique.!</p>
+<p>Nous sommes établis depuis 1869, à une époque où les bons vêtements était chers, mais de bonne qualité.
+Seuls quelques-uns de ces vêtements authentiques ont survécu, cette boutique en ligne est dédié aux collectionneurs amoureux des produits de qualité !</p>';
 	$fields['virtuemart_media_id'] =  1;
 	$fields['vendor_currency'] = '47';
 	$fields['vendor_accepted_currencies'] = '52,26,47,144';
-	$fields['vendor_terms_of_service'] =  '<h5>This is a demo store. Your orders will not proceed. You have not configured any terms of service yet. Click <a href="'.JURI::base(true).'/index.php?option=com_virtuemart&view=user&task=editshop">here</a> to change this text.</h5>';
+	$fields['vendor_terms_of_service'] =  '<h5>Vous êtes sur une boutique de demo. Aucune commande ne sera honorée. Changez ce  <a href="'.JURI::base(true).'/index.php?option=com_virtuemart&view=user&task=editshop">texte</a>.</h5>';
 	$fields['vendor_url'] = JURI::root();
 	$fields['vendor_name'] =  'Sample Company';
 	$fields['vendor_legal_info']="VAT-ID: XYZ-DEMO<br />Reg.Nr: DEMONUMBER";
