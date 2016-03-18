@@ -14,7 +14,7 @@ defined('_JEXEC') or die('');
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
- * @version $Id: mail_raw_notify.php 8508 2014-10-22 18:57:14Z Milbo $
+ * @version $Id: mail_raw_notify.php 8826 2015-04-09 09:58:09Z alatak $
  */
 
 echo str_replace( "<br />", "\n",$this->vendorAddress);

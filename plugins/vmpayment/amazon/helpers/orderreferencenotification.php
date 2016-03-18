@@ -9,7 +9,7 @@ defined('_JEXEC') or die('Direct Access to ' . basename(__FILE__) . 'is not allo
  * @version $Id$
  * @author Valérie Isaksen
  * @link http://www.virtuemart.net
- * @copyright Copyright (c) 2004 - November 10 2015 VirtueMart Team. All rights reserved.
+ * @copyright Copyright (c) 2004 - March 11 2016 VirtueMart Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  *
  */
@@ -31,14 +31,14 @@ class amazonHelperOrderReferenceNotification extends amazonHelper {
 		$order_history = array();
 		$amazonState = "";
 		$reasonCode = "";
-		if (!$this->amazonData->isSetCaptureDetails()) {
+		if (!$this->amazonData->isSetOrderReference()) {
 			return NULL;
 		}
-		$details = $this->amazonData->getCaptureDetails();
-		if (!$details->isSetCaptureStatus()) {
+		$orderReference = $this->amazonData->getOrderReference();
+		if (!$orderReference->isSetAmazonOrderReferenceId()) {
 			return NULL;
 		}
-		$status = $details->getCaptureStatus();
+		$status =$orderReference->isSetOrderReferenceStatus();
 		if (!$status->isSetState()) {
 			return NULL;
 		}
@@ -191,7 +191,7 @@ class amazonHelperOrderReferenceNotification extends amazonHelper {
 				$contents .= $this->getRow("CaptureStatus: ", $more);
 			}
 			if ($orderReference->isSetCreationTimestamp()) {
-				$contents .= $this->getRow("CreationTimestamp: ", $orderReference->getSoftDescriptor());
+				$contents .= $this->getRow("CreationTimestamp: ", $orderReference->getCreationTimestamp());
 			}
 			if ($orderReference->isSetExpirationTimestamp()) {
 				$contents .= $this->getRow("ExpirationTimestamp: ", $orderReference->getExpirationTimestamp());

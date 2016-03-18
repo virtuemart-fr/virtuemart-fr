@@ -13,7 +13,7 @@
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
- * @version $Id: vendor.php 8930 2015-07-28 23:26:17Z Milbo $
+ * @version $Id: vendor.php 9075 2015-12-02 13:56:15Z Milbo $
  */
 
 // Check to ensure this file is included in Joomla!
@@ -197,6 +197,15 @@ class VirtueMartModelVendor extends VmModel {
 			}
 		}
 		if(empty($data['vendor_name'])) $data['vendor_name'] = $data['vendor_store_name'];
+
+		if(!vmAccess::manager('managevendors')){
+			if(empty($oldVendorId)){
+				$data['max_cats_per_product'] = -1;
+			} else {
+				$table->load($oldVendorId);
+				$data['max_cats_per_product'] = $table->max_cats_per_product;
+			}
+		}
 
 		$res = $table->bindChecknStore ($data);
 		if(!$res) {

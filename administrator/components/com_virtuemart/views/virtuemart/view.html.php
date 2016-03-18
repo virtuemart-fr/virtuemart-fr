@@ -13,7 +13,7 @@
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
-* @version $Id: view.html.php 8850 2015-05-13 14:06:11Z Milbo $
+* @version $Id: view.html.php 9077 2015-12-07 13:20:10Z Milbo $
 */
 
 // Check to ensure this file is included in Joomla!
@@ -84,11 +84,15 @@ class VirtuemartViewVirtuemart extends VmViewAdmin {
 			vRequest::setvar('task','');
 			$myCurrencyDisplay = CurrencyDisplay::getInstance();
 			$revenueBasic = $reportModel->getRevenue(60,true);
-			$this->report = $revenueBasic['report'];
+			$this->report = '';
+			if(!empty($revenueBasic['report'])){
+				$this->report = $revenueBasic['report'];
 
-			vmJsApi::addJScript( "jsapi","//google.com/jsapi",false,false,'' );
-			vmJsApi::addJScript('vm.stats_chart',$revenueBasic['js'],false,true);
-			vmTime('Created report','report');
+				vmJsApi::addJScript( "jsapi","//google.com/jsapi",false,false, false, '' );
+				vmJsApi::addJScript('vm.stats_chart',$revenueBasic['js'],false,true);
+				vmTime('Created report','report');
+			}
+
 		}
 
 		//if($layout=='default'){

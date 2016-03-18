@@ -13,7 +13,7 @@
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
-* @version $Id: default.php 9047 2015-11-05 18:49:04Z Milbo $
+* @version $Id: default.php 9182 2016-02-19 09:10:08Z Milbo $
 */
 
 // Check to ensure this file is included in Joomla!
@@ -39,6 +39,9 @@ AdminUIHelper::startAdminArea($this);
 				<option value=""><?php echo vmText::sprintf( 'COM_VIRTUEMART_SELECT' ,  vmText::_('COM_VIRTUEMART_CATEGORY_FORM_TOP_LEVEL')) ; ?></option>
 				<?php echo $this->category_tree; ?>
 			</select>
+			</td>
+			<td>
+				<?php echo $this->catpagination->getLimitBox(); ?>
 			</td>
 		</tr>
 	</table>
@@ -182,7 +185,7 @@ AdminUIHelper::startAdminArea($this);
 		<tfoot>
 			<tr>
 				<td colspan="10">
-					<?php echo $this->catpagination->getListFooter(); ?>
+					<?php echo $this->catpagination->getListFooter(false); ?>
 				</td>
 			</tr>
 		</tfoot>

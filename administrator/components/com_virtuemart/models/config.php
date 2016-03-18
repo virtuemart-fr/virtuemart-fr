@@ -14,7 +14,7 @@
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
- * @version $Id: config.php 9032 2015-11-02 09:19:56Z Milbo $
+ * @version $Id: config.php 9147 2016-02-08 23:18:53Z Milbo $
  */
 
 // Check to ensure this file is included in Joomla!
@@ -350,9 +350,13 @@ class VirtueMartModelConfig extends VmModel {
 			vmWarn('Insufficient permissions to delete product');
 			return false;
 		}
+		//$oldLangs = $config->get('active_languages');
+		$oldLangs = VmConfig::get('active_languages');
 
 		//We create a fresh config
 		$config = VmConfig::loadConfig(false,true);
+
+
 
 		//We load the config file
 		$_raw = self::readConfigFile(FALSE);
@@ -365,8 +369,8 @@ class VirtueMartModelConfig extends VmModel {
 		$config->_params = array_merge($config->_params,$data);
 
 		//We need this to know if we should delete the cache
-		$browse_cat_orderby_field = $config->get('browse_cat_orderby_field');
-		$cat_brws_orderby_dir = $config->get('cat_brws_orderby_dir');
+		//$browse_cat_orderby_field = $config->get('browse_cat_orderby_field');
+		//$cat_brws_orderby_dir = $config->get('cat_brws_orderby_dir');
 
 		$urls = array('assets_general_path','media_category_path','media_product_path','media_manufacturer_path','media_vendor_path');
 		foreach($urls as $urlkey){
@@ -459,7 +463,8 @@ class VirtueMartModelConfig extends VmModel {
 
 		$active_langs = $config->get('active_languages');
 		if(empty($active_langs)){
-			$config->set('active_languages',array(VmConfig::$vmlangTag));
+			$active_langs = array(VmConfig::$vmlangTag);
+			$config->set('active_languages',$active_langs);
 		}
 
 		//ATM we want to ensure that only one config is used
@@ -472,9 +477,12 @@ class VirtueMartModelConfig extends VmModel {
 
 		VmConfig::loadConfig(true);
 
-		if(!class_exists('GenericTableUpdater')) require(VMPATH_ADMIN . DS . 'helpers' . DS . 'tableupdater.php');
-		$updater = new GenericTableUpdater();
-		$result = $updater->createLanguageTables();
+		$d = array_diff($oldLangs,$active_langs);
+		if(!empty($d)){
+			if(!class_exists('GenericTableUpdater')) require(VMPATH_ADMIN . DS . 'helpers' . DS . 'tableupdater.php');
+			$updater = new GenericTableUpdater();
+			$result = $updater->createLanguageTables();
+		}
 
 		$cache = JFactory::getCache();
 		$cache->clean('com_virtuemart_cats');
@@ -594,6 +602,12 @@ class VirtueMartModelConfig extends VmModel {
 			}
 			if (!$_switch) {
 				continue; // Outside a section or inside the wrong one.
+			}
+
+			$pos = strpos($_line, '//');
+			if ($pos !== FALSE) {
+				$_line = substr($_line,0,$pos);
+				$_line = trim($_line);
 			}
 
 			if (strpos($_line, '=') !== FALSE) {

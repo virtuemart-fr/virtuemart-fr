@@ -13,7 +13,7 @@
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
- * @version $Id: orders.php 9029 2015-10-28 12:51:49Z Milbo $
+ * @version $Id: orders.php 9074 2015-11-26 15:28:54Z Milbo $
  */
 
 // Check to ensure this file is included in Joomla!
@@ -50,6 +50,9 @@ class VirtuemartControllerOrders extends VmController {
 		parent::edit($layout);
 	}
 
+/*
+ * @deprecated ?
+ */
 	public function updateCustomsOrderItems(){
 
 		$q = 'SELECT `product_attribute` FROM `#__virtuemart_order_items` LIMIT ';
@@ -155,32 +158,6 @@ class VirtuemartControllerOrders extends VmController {
 		// back from order
 		$this->setRedirect('index.php?option=com_virtuemart&view=orders' );
 	}
-	/**
-	 * Shows the order details
-	 * @deprecated
-	 */
-	public function editOrderStatus() {
-
-		$view = $this->getView('orders', 'html');
-
-		if($this->getPermOrderStatus()){
-			$model = VmModel::getModel('orders');
-			$model->updateOrderStatus();
-		} else {
-			vmInfo('Restricted');
-		}
-
-		$view->display();
-	}
-
-	function getPermOrderStatus(){
-
-		if(vmAccess::manager('orders.status')){
-			return true;
-		} else {
-			return false;
-		}
-	}
 
 	/**
 	 * Update an order status
@@ -192,11 +169,9 @@ class VirtuemartControllerOrders extends VmController {
 		$app = Jfactory::getApplication();
 		$lastTask = vRequest::getCmd('last_task');
 
-		/* Load the view object */
-		$view = $this->getView('orders', 'html');
-
-		if(!$this->getPermOrderStatus()){
+		if(!vmAccess::manager('orders.status')){
 			vmInfo('Restricted');
+			$view = $this->getView('orders', 'html');
 			$view->display();
 			return true;
 		}
@@ -237,6 +212,12 @@ class VirtuemartControllerOrders extends VmController {
 	 */
 	public function saveItemStatus() {
 
+		if(!vmAccess::manager('orders.status')){
+			vmInfo('Restricted');
+			$view = $this->getView('orders', 'html');
+			$view->display();
+			return false;
+		}
 		$mainframe = Jfactory::getApplication();
 
 		$data = vRequest::getRequest();
@@ -259,66 +240,76 @@ class VirtuemartControllerOrders extends VmController {
 
 
 	/**
-	 * correct position, working with json? actually? WHat ist that?
-	 *
-	 * Get a list of related products
-	 * @author Max Milbers
-	 */
-	public function getProducts() {
-
-		$view = $this->getView('orders', 'json');
-		$view->setLayout('orders_editorderitem');
-
-		$view->display();
-	}
-
-
-	/**
 	 * Update status for the selected order items
 	 */
-	public function updateOrderItemStatus()
-	{
+	public function updateOrderItemStatus() {
 
-		$mainframe = Jfactory::getApplication();
+		$_orderID = vRequest::getInt('virtuemart_order_id', false);
+		if(!vmAccess::manager('orders.status')) {
+			vmInfo('Restricted');
+			$view = $this->getView('orders', 'html');
+			$view->display();
+			return false;
+		}
+
 		$model = VmModel::getModel();
-
 
 		$_items = vRequest::getVar('item_id',  0, '', 'array');
 
-		$_orderID = vRequest::getInt('virtuemart_order_id', false);
 		$model->updateStatusForOneOrder($_orderID,$_items,true);
 
 		$model->deleteInvoice($_orderID);
-		$mainframe->redirect('index.php?option=com_virtuemart&view=orders&task=edit&virtuemart_order_id='.$_orderID);
+
+		$app = Jfactory::getApplication();
+		$app->redirect('index.php?option=com_virtuemart&view=orders&task=edit&virtuemart_order_id='.$_orderID);
 	}
 
-	public function updateOrderHead()
-	{
+	public function updateOrderHead() {
 		$mainframe = Jfactory::getApplication();
+		if(!vmAccess::manager('orders.edit')) {
+			vmInfo('Restricted');
+			$view = $this->getView('orders', 'html');
+			$view->display();
+			return false;
+		}
 		$model = VmModel::getModel();
 		$_items = vRequest::getVar('item_id',  0, '', 'array');
 		$_orderID = vRequest::getInt('virtuemart_order_id', '');
 		$model->UpdateOrderHead((int)$_orderID, vRequest::getRequest());
 		$model->deleteInvoice($_orderID);
+
 		$mainframe->redirect('index.php?option=com_virtuemart&view=orders&task=edit&virtuemart_order_id='.$_orderID);
 	}
 
-	public function CreateOrderHead()
-	{
+	public function CreateOrderHead() {
 		$mainframe = Jfactory::getApplication();
+		if(!vmAccess::manager('orders.create')) {
+			vmInfo( 'Restricted' );
+			$view = $this->getView( 'orders', 'html' );
+			$view->display();
+			return false;
+		}
 		$model = VmModel::getModel();
 		$orderid = $model->CreateOrderHead();
+
 		$mainframe->redirect('index.php?option=com_virtuemart&view=orders&task=edit&virtuemart_order_id='.$orderid );
 	}
 
 	public function newOrderItem() {
 
 		$orderId = vRequest::getInt('virtuemart_order_id', '');
-		$model = VmModel::getModel();
 		$msg = '';
+		if(!vmAccess::manager('orders.edit')) {
+			vmInfo( 'Restricted' );
+			$view = $this->getView( 'orders', 'html' );
+			$view->display();
+			return false;
+		}
+		$model = VmModel::getModel();
 		$data = vRequest::getRequest();
 		$model->saveOrderLineItem($data);
 		$model->deleteInvoice($orderId);
+
 		$editLink = 'index.php?option=com_virtuemart&view=orders&task=edit&virtuemart_order_id=' . $orderId;
 		$this->setRedirect($editLink, $msg);
 	}
@@ -331,12 +322,18 @@ class VirtuemartControllerOrders extends VmController {
 		$model = VmModel::getModel();
 		$msg = '';
 		$orderId = vRequest::getInt('orderId', '');
-		// TODO $orderLineItem as int ???
+		if(!vmAccess::manager('orders.edit')) {
+			vmInfo( 'Restricted' );
+			$view = $this->getView( 'orders', 'html' );
+			$view->display();
+			return false;
+		}
 		$orderLineItem = vRequest::getInt('orderLineId', '');
 
 		$model->removeOrderLineItem($orderLineItem);
 
 		$model->deleteInvoice($orderId);
+
 		$editLink = 'index.php?option=com_virtuemart&view=orders&task=edit&virtuemart_order_id=' . $orderId;
 		$this->setRedirect($editLink, $msg);
 	}

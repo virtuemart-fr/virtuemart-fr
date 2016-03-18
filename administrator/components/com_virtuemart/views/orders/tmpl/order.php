@@ -12,7 +12,7 @@
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
- * @version $Id$
+ * @version $Id: order.php 9188 2016-02-27 23:10:51Z Milbo $
  */
 
 // Check to ensure this file is included in Joomla!
@@ -168,11 +168,10 @@ vmJsApi::addJScript('ordergui',$j);
 		<a href="#" onClick="javascript:resetOrderHead(event);" ><span class="icon-nofloat vmicon vmicon-16-cancel"></span>
 		<?php echo vmText::_('COM_VIRTUEMART_ORDER_RESET'); ?></a>
 					</span>
-		<!--
-		&nbsp;&nbsp;
-		<a class="createOrder" href="#"><span class="icon-nofloat vmicon vmicon-16-new"></span>
-		<?php echo vmText::_('COM_VIRTUEMART_ORDER_CREATE'); ?></a>
-		-->
+		<?php // echo vmText::_('COM_VIRTUEMART_ORDER_CREATE'); ?></a>
+
+		<?php $this->createPrintLinks($this->orderbt,$print_link,$deliverynote_link,$invoice_link);
+		echo '<span style="float:right">'.$print_link; echo $deliverynote_link; echo $invoice_link.'</span'; ?>
 		</td>
 	</tr>
 </table>
@@ -188,13 +187,18 @@ vmJsApi::addJScript('ordergui',$j);
 			</tr>
 			</thead>
 			<?php
-				$print_url = juri::root().'index.php?option=com_virtuemart&view=invoice&layout=invoice&tmpl=component&virtuemart_order_id=' . $this->orderbt->virtuemart_order_id . '&order_number=' .$this->orderbt->order_number. '&order_pass=' .$this->orderbt->order_pass;
+			/*	$print_url = juri::root().'index.php?option=com_virtuemart&view=invoice&layout=invoice&tmpl=component&virtuemart_order_id=' . $this->orderbt->virtuemart_order_id . '&order_number=' .$this->orderbt->order_number. '&order_pass=' .$this->orderbt->order_pass;
 				$print_link = "<a title=\"".vmText::_('COM_VIRTUEMART_PRINT')."\" href=\"javascript:void window.open('$print_url', 'win2', 'status=no,toolbar=no,scrollbars=yes,titlebar=no,menubar=no,resizable=yes,width=640,height=480,directories=no,location=no');\"  >";
-				$print_link .=   $this->orderbt->order_number . ' </a>';
+				$print_link .=   $this->orderbt->order_number . ' </a>';	*/
 			?>
 			<tr>
 				<td class="key"><strong><?php echo vmText::_('COM_VIRTUEMART_ORDER_PRINT_PO_NUMBER') ?></strong></td>
-				<td><?php echo  $print_link;?></td>
+				<?php
+
+
+				?>
+				<td><?php echo $this->orderbt->order_number; ?></td>
+				<?php /*<td><?php echo  $print_link;?></td> */ ?>
 			</tr>
 			<tr>
 				<td class="key"><strong><?php echo vmText::_('COM_VIRTUEMART_ORDER_PRINT_PO_PASS') ?></strong></td>
@@ -694,8 +698,6 @@ vmJsApi::addJScript('ordergui',$j);
 		}
 		?>
 
-
-
 			<tr>
 				<td align="right" colspan="5"><strong><?php echo vmText::_('COM_VIRTUEMART_ORDER_PRINT_SHIPPING') ?>:</strong></td>
 				<td  align="right" style="padding-right: 5px;"><?php echo $this->currency->priceDisplay($this->orderbt->order_shipment); ?>
@@ -710,22 +712,35 @@ vmJsApi::addJScript('ordergui',$j);
 				<td  align="right" style="padding-right: 5px;"><?php echo $this->currency->priceDisplay($this->orderbt->order_shipment+$this->orderbt->order_shipment_tax); ?></td>
 
 			</tr>
-			 <tr>
+			<tr>
 				<td align="right" colspan="5"><strong><?php echo vmText::_('COM_VIRTUEMART_ORDER_PRINT_PAYMENT') ?>:</strong></td>
-				<td  align="right" style="padding-right: 5px;"><?php echo $this->currency->priceDisplay($this->orderbt->order_payment); ?>
+				<td align="right" style="padding-right: 5px;"><?php echo $this->currency->priceDisplay($this->orderbt->order_payment); ?>
 					<input class='orderedit' type="text" size="8" name="order_payment" value="<?php echo $this->orderbt->order_payment; ?>"/>
 				</td>
-				<td  align="right" style="padding-right: 5px;">&nbsp;</td>
-				<td  align="right" style="padding-right: 5px;">&nbsp;</td>
-				<td  align="right" style="padding-right: 5px;"><?php echo $this->currency->priceDisplay($this->orderbt->order_payment_tax); ?>
+				<td align="right" style="padding-right: 5px;">&nbsp;</td>
+				<td align="right" style="padding-right: 5px;">&nbsp;</td>
+				<td align="right" style="padding-right: 5px;"><?php echo $this->currency->priceDisplay($this->orderbt->order_payment_tax); ?>
 					<input class='orderedit' type="text" size="12" name="order_payment_tax" value="<?php echo $this->orderbt->order_payment_tax; ?>"/>
 				</td>
-				<td  align="right" style="padding-right: 5px;">&nbsp;</td>
-				<td  align="right" style="padding-right: 5px;"><?php echo $this->currency->priceDisplay($this->orderbt->order_payment+$this->orderbt->order_payment_tax); ?></td>
+				<td align="right" style="padding-right: 5px;">&nbsp;</td>
+				<td align="right" style="padding-right: 5px;"><?php echo $this->currency->priceDisplay($this->orderbt->order_payment+$this->orderbt->order_payment_tax); ?></td>
 
-			 </tr>
+			</tr>
 
-
+			<?php
+				foreach($this->orderdetails['calc_rules'] as $rule){
+					if($rule->calc_kind!='VatTax') continue;
+					?><tr >
+					<td colspan="5" align="right"  ><?php echo $rule->calc_rule_name ?> </td>
+					<td align="right" colspan="3" > </td>
+					<td align="right"  style="padding-right: 5px;">
+						<?php echo  $this->currency->priceDisplay($rule->calc_amount);  ?>
+						<input class='orderedit' type="text" size="8" name="calc_rules[<?php echo $rule->calc_kind ?>][<?php echo $rule->virtuemart_order_calc_rule_id ?>]" value="<?php echo $rule->calc_amount; ?>"/>
+					</td>
+					<td align="right" colspan="2" > </td>
+					</tr><?php
+				}
+			?>
 			<tr>
 				<td align="right" colspan="5"><strong><?php echo vmText::_('COM_VIRTUEMART_ORDER_PRINT_TOTAL') ?>:</strong></td>
 				<td align="right" style="padding-right: 5px;">&nbsp;</td>

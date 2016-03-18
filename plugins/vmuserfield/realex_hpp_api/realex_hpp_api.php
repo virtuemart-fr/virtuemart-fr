@@ -10,7 +10,7 @@ defined('_JEXEC') or die();
  * @version $Id: realex_hpp_api.php 9023 2015-10-21 09:49:30Z alatak $
  * @package VirtueMart
  * @subpackage userfield
- * Copyright (C) 2004-2015 Virtuemart Team. All rights reserved.
+ * Copyright (C) 2004-2016 Virtuemart Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or

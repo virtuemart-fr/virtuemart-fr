@@ -4,10 +4,10 @@
  * Amazon payment plugin
  *
  * @author Valerie Isaksen
- * @version $Id: ipnurl.php 8703 2015-02-15 17:11:16Z alatak $
+ * @version $Id: ipnurl.php 9185 2016-02-25 13:51:01Z Milbo $
  * @package VirtueMart
  * @subpackage payment
- * Copyright (C) 2004-2015 Virtuemart Team. All rights reserved.
+ * Copyright (C) 2004-2016 Virtuemart Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
@@ -26,10 +26,11 @@ jimport('joomla.form.formfield');
 class JFormFieldIpnURL extends JFormField {
 
 	var $type = 'ipnurl';
+	var $class = 'ipnurl level3';
 
 	protected function getInput() {
 		$cid = vRequest::getvar('cid', NULL, 'array');
-		if (is_Array($cid)) {
+		if (is_array($cid)) {
 			$virtuemart_paymentmethod_id = $cid[0];
 		} else {
 			$virtuemart_paymentmethod_id = $cid;
@@ -39,10 +40,10 @@ class JFormFieldIpnURL extends JFormField {
 		$https = str_replace('http://', 'https://', $http);
 
 		$string = '<div class="' . $this->class . '">';
-		$string .= '<div class="ipn-sandbox">' . $http . ' <br /></div>';
+		$string .= '<div class="">' . $https . ' <br /></div>';
 		if (strcmp($https,$http) !==0){
-			$string .= '<div class="ipn-sandbox">' . vmText::_('VMPAYMENT_AMAZON_OR') . '<br /></div>';
-			$string .= $https;
+			$string .= '<div class="ipn-sandbox">' . vmText::_('VMPAYMENT_AMAZON_OR') . '<br />';
+			$string .= $http. '</div>';
 		}
 		$string .= "</div>";
 			return $string;

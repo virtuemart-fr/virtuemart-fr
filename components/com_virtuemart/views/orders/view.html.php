@@ -13,7 +13,7 @@
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
- * @version $Id: view.html.php 9012 2015-10-09 11:49:32Z Milbo $
+ * @version $Id: view.html.php 9075 2015-12-02 13:56:15Z Milbo $
  */
 
 // Check to ensure this file is included in Joomla!
@@ -140,7 +140,7 @@ class VirtuemartViewOrders extends VmView {
 			}
 			$this->prepareVendor();
 
-			$vendorId = 1;
+
 			$emailCurrencyId = $orderDetails['details']['BT']->user_currency_id;
 			$exchangeRate = FALSE;
 			if (!class_exists ('vmPSPlugin')) {
@@ -152,7 +152,8 @@ class VirtuemartViewOrders extends VmView {
 			if (!class_exists ('CurrencyDisplay')) {
 				require(VMPATH_ADMIN . DS . 'helpers' . DS . 'currencydisplay.php');
 			}
-			$currency = CurrencyDisplay::getInstance ($emailCurrencyId, $vendorId);
+
+			$currency = CurrencyDisplay::getInstance ($emailCurrencyId, $orderDetails['details']['BT']->virtuemart_vendor_id);
 			if ($emailCurrencyId) {
 				$currency->exchangeRateShopper = $orderDetails['details']['BT']->user_currency_rate;
 			}

@@ -8,7 +8,7 @@ if (!defined ('_JEXEC')) {
  * Report Model
  *
  * @author Max Milbers, Wicksj
- * @version $Id: report.php 8947 2015-08-06 20:23:30Z Milbo $
+ * @version $Id: report.php 9077 2015-12-07 13:20:10Z Milbo $
  * @package VirtueMart
  * @subpackage Report
  * @copyright Copyright (C) 2011 - 2014VirtueMart Team - All rights reserved.
@@ -350,7 +350,7 @@ class VirtuemartModelReport extends VmModel {
 // 		$this->whereItem;
 		/* WHERE differences with orders and items from orders are only date periods and ordering */
 		$whereString = $this->whereItem . $this->dates;
-		vmdebug('getRevenueSortListOrderQuery '.$select,$whereString);
+		//vmdebug('getRevenueSortListOrderQuery '.$select,$whereString);
 		return $this->exeSortSearchListQuery (1, $select, $joinedTables, $whereString, $groupBy, $orderBy);
 
 	}

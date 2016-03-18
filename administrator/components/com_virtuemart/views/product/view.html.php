@@ -13,7 +13,7 @@
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
- * @version $Id: view.html.php 9041 2015-11-05 11:59:38Z Milbo $
+ * @version $Id: view.html.php 9159 2016-02-11 17:02:47Z Milbo $
  */
 
 // Check to ensure this file is included in Joomla!
@@ -355,6 +355,11 @@ class VirtuemartViewProduct extends VmViewAdmin {
 
 			//Get the list of products
 			$productlist = $model->getProductListing(false,false,false,false,true);
+			$this->filter_product = $model->filter_product;
+
+			$now = getdate();
+			$nowstring = $now["hours"].":".substr('0'.$now["minutes"], -2).' '.$now["mday"].".".$now["mon"].".".$now["year"];
+			$this->search_date = vRequest::getVar('search_date', $nowstring);
 
 			//The pagination must now always set AFTER the model load the listing
 			$this->pagination = $model->getPagination();
@@ -381,7 +386,12 @@ class VirtuemartViewProduct extends VmViewAdmin {
 
 
 			foreach ($productlist as $virtuemart_product_id => $product) {
-				$product->mediaitems = count($product->virtuemart_media_id);
+				if(empty($product->virtuemart_media_id)){
+					$product->mediaitems = 0;
+				} else {
+					$product->mediaitems = count($product->virtuemart_media_id);
+				}
+
 				$product->reviews = $productreviews->countReviewsForProduct($product->virtuemart_product_id);
 
 				$vendor_model->setId($product->virtuemart_vendor_id);
@@ -422,13 +432,13 @@ class VirtuemartViewProduct extends VmViewAdmin {
 							'price' => vmText::_('COM_VIRTUEMART_PRODUCT_LIST_SEARCH_BY_DATE_TYPE_PRICE'),
 							'withoutprice' => vmText::_('COM_VIRTUEMART_PRODUCT_LIST_SEARCH_BY_DATE_TYPE_WITHOUTPRICE')
 			);
-			$this->lists['search_type'] = VmHTML::selectList('search_type', vRequest::getVar('search_type'),$options);
+			$this->lists['search_type'] = VmHTML::selectList('search_type', $model->search_type,$options);
 
 			/* Search order */
 			$options = array( 	'bf' => vmText::_('COM_VIRTUEMART_PRODUCT_LIST_SEARCH_BY_DATE_BEFORE'),
 								'af' => vmText::_('COM_VIRTUEMART_PRODUCT_LIST_SEARCH_BY_DATE_AFTER')
 			);
-			$this->lists['search_order'] = VmHTML::selectList('search_order', vRequest::getVar('search_order'),$options);
+			$this->lists['search_order'] = VmHTML::selectList('search_order', $model->search_order,$options);
 
 			// Toolbar
 			if (vmAccess::manager('product.edit')) {

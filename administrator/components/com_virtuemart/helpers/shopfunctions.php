@@ -11,7 +11,7 @@ defined ('_JEXEC') or die('Direct Access to ' . basename (__FILE__) . ' is not a
  * @author Max Milbers
  * @author Patrick Kohl
  * @copyright Copyright (c) 2004-2008 Soeren Eberhardt-Biermann, 2009 VirtueMart Team. All rights reserved.
- * @version $Id: shopfunctions.php 9012 2015-10-09 11:49:32Z Milbo $
+ * @version $Id: shopfunctions.php 9179 2016-02-18 21:32:33Z Milbo $
  */
 class ShopFunctions {
 
@@ -549,12 +549,14 @@ class ShopFunctions {
 		$hash = crc32(implode('.',$selectedCategories).':'.$cid.':'.$level.implode('.',$disabledFields));
 		if (empty(self::$categoryTree[$hash])) {
 
+			$app = JFactory::getApplication ();
 			$cache = JFactory::getCache ('com_virtuemart_cats');
 			$cache->setCaching (1);
-			$app = JFactory::getApplication ();
+
 			$vendorId = vmAccess::isSuperVendor();
 			self::$categoryTree[$hash] = $cache->call (array('ShopFunctions', 'categoryListTreeLoop'), $selectedCategories, $cid, $level, $disabledFields,$app->isSite(),$vendorId,VmConfig::$vmlang);
 
+			//self::$categoryTree[$hash] = ShopFunctions::categoryListTreeLoop($selectedCategories, $cid, $level, $disabledFields,$app->isSite(),$vendorId,VmConfig::$vmlang);
 		}
 
 		return self::$categoryTree[$hash];
@@ -574,12 +576,12 @@ class ShopFunctions {
 	 */
 	static public function categoryListTreeLoop ($selectedCategories = array(), $cid = 0, $level = 0, $disabledFields = array(), $isSite, $vendorId, $vmlang,$categoryParentName='') {
 
-		self::$counter++;
-
 		static $categoryTree = '';
-
-		$virtuemart_vendor_id = 1;
-
+		if($level==0) {
+			$categoryTree = '';
+			self::$counter = 0;
+		}
+		self::$counter++;
 		$categoryModel = VmModel::getModel ('category');
 		$level++;
 

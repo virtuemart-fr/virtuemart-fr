@@ -68,6 +68,8 @@ class VirtuemartControllerPlugin extends JControllerLegacy {
 				$document->setMimeEncoding ('application/json');
 				// Change the suggested filename.
 				JResponse::setHeader ('Content-Disposition', 'attachment;filename="' . $type . '.json"');
+				JResponse::setHeader("Content-type","application/json");
+				JResponse::sendHeaders();
 				echo json_encode ($render);
 				jExit();
 			}

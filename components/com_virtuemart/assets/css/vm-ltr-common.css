@@ -60,15 +60,15 @@ span.bold, div.bold{
   font-weight: 700;
 }
 
-.text-left{
+.text-left, .left{
   text-align: left;
 }
 
-.text-right{
+.text-right, .right{
   text-align: right;
 }
 
-.text-center{
+.text-center, .center{
   text-align: center;
 }
 /* hide inline style as class */
@@ -149,10 +149,6 @@ span.variant-name, span.custom-variant-name{
 .browse-view .row .product .spacer img,.related-products-view .row .product .spacer img{
   width: auto;
   height: auto;
-}
-
-.display-number,.control-buttons,.right{
-  text-align:right !important;
 }
 
 .general-bg, input.custom-attribute, input.quantity-input,.manufacturer-product-link a, a.ask-a-question, input.vm-default, a.product-details, a.details, div.details, button.default{

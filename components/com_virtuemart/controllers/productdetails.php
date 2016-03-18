@@ -13,7 +13,7 @@
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
- * @version $Id: productdetails.php 8963 2015-09-01 15:56:03Z Milbo $
+ * @version $Id: productdetails.php 9074 2015-11-26 15:28:54Z Milbo $
  */
 
 // Check to ensure this file is included in Joomla!
@@ -66,7 +66,7 @@ class VirtueMartControllerProductdetails extends JControllerLegacy {
 		JSession::checkToken () or jexit ('Invalid Token');
 
 		$app = JFactory::getApplication ();
-		if(!VmConfig::get('ask_question',false)){
+		if(!VmConfig::get('ask_question',false) and !VmConfig::get ('askprice', 1)){
 			$app->redirect (JRoute::_ ('index.php?option=com_virtuemart&tmpl=component&view=productdetails&task=askquestion&virtuemart_product_id=' . vRequest::getInt ('virtuemart_product_id', 0)), 'Function disabled');
 		}
 

@@ -14,7 +14,7 @@
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
- * @version $Id: product_edit_information.php 8982 2015-09-14 09:45:02Z Milbo $
+ * @version $Id: product_edit_information.php 9178 2016-02-17 20:21:12Z Milbo $
  */
 
 // Check to ensure this file is included in Joomla!
@@ -277,7 +277,11 @@ if ($link) {
 }
 ?>
 	</div>
-</div><div class="clear"></div>
+</div>
+<span class="hastip" title="<?php echo vmText::_('COM_VIRTUEMART_PRODUCT_PARENTID_TIP') ?>"><?php echo vmText::_('COM_VIRTUEMART_PRODUCT_PARENTID') ?></span>
+<input type="text" class="inputbox" name="product_parent_id" id="product_parent_id" value="<?php echo $this->product->product_parent_id; ?>" size="16" maxlength="64" />
+
+<div class="clear"></div>
 
 		<fieldset>
 			<legend>

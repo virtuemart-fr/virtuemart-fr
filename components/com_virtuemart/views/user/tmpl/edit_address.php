@@ -13,7 +13,7 @@
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
- * @version $Id: edit_address.php 8768 2015-03-02 12:22:14Z Milbo $
+ * @version $Id: edit_address.php 9164 2016-02-14 00:09:35Z Milbo $
  */
 // Check to ensure this file is included in Joomla!
 defined ('_JEXEC') or die('Restricted access');
@@ -83,7 +83,7 @@ $task = '';
 if ($this->cart->getInCheckOut()){
 	//$task = '&task=checkout';
 }
-$url = JRoute::_ ('index.php?option=com_virtuemart&view='.$rview.$task, $this->useXHTML, $this->useSSL);
+$url = 'index.php?option=com_virtuemart&view='.$rview.$task;
 
 echo shopFunctionsF::getLoginForm (TRUE, FALSE, $url);
 
@@ -105,7 +105,7 @@ echo shopFunctionsF::getLoginForm (TRUE, FALSE, $url);
 	<?php renderControlButtons($this,$rview); ?>
 
 <?php // captcha addition
-	if(VmConfig::get ('reg_captcha')){
+	if(VmConfig::get ('reg_captcha') && JFactory::getUser()->guest == 1){
 		JHTML::_('behavior.framework');
 		JPluginHelper::importPlugin('captcha');
 		$captcha_visible = vRequest::getVar('captcha');

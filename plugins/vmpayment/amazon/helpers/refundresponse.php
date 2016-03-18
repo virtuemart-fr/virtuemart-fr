@@ -9,7 +9,7 @@ defined('_JEXEC') or die('Direct Access to ' . basename(__FILE__) . 'is not allo
  * @version $Id$
  * @author Valérie Isaksen
  * @link http://www.virtuemart.net
- * @copyright Copyright (c) 2004 - November 10 2015 VirtueMart Team. All rights reserved.
+ * @copyright Copyright (c) 2004 - March 11 2016 VirtueMart Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  *
  */
@@ -21,7 +21,6 @@ class amazonHelperRefundResponse extends amazonHelper {
 	}
 
 	public function onResponseUpdateOrderHistory ($order) {
-
 	}
 
 	function getStoreInternalData () {

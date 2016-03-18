@@ -7,7 +7,7 @@
  * @version $Id$
  * @package VirtueMart
  * @subpackage payment
- * @copyright Copyright (c) 2004 - November 10 2015 VirtueMart Team. All rights reserved.
+ * @copyright Copyright (c) 2004 - March 11 2016 VirtueMart Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
@@ -776,7 +776,7 @@ jQuery().ready(function($) {
 	function stringifyArray ($array) {
 		$string = '';
 		foreach ($array as $key => $value) {
-			$string .= $key . "=" . $value . '&';
+			$string .= trim($key) . "=" . trim($value) . '&';
 		}
 		return substr($string, 0, -1);
 	}

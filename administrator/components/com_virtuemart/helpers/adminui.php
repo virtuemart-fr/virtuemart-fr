@@ -146,6 +146,9 @@ class AdminUIHelper {
 
 		$html = '<div id="admin-ui-tabs">';
 
+		$dispatcher = JDispatcher::getInstance();
+		$returnValues = $dispatcher->trigger('plgVmBuildTabs', array(&$view, &$load_template));
+
 		foreach ( $load_template as $tab_content => $tab_title ) {
 			$html .= '<div class="tabs" title="' . vmText::_ ( $tab_title ) . '">';
 			$html .= $view->loadTemplate ( $tab_content );

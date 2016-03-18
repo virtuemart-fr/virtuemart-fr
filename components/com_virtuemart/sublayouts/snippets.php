@@ -25,7 +25,7 @@ if($viewData['showRating']){
   <?php } elseif (!empty($product->product_desc)) { ?>
   "description": "<?php echo strip_tags($product->product_desc); ?>",
   <?php } ?>
-  <?php if ($viewData['showRating']) { ?>
+  <?php if ($viewData['showRating'] && !empty($product->rating)) { ?>
   "aggregateRating":{
     "@type": "AggregateRating",
     "ratingValue": "<?php echo $product->rating; ?>",

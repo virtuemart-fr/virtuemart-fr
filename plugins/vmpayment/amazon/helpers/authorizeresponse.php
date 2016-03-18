@@ -9,7 +9,7 @@ defined('_JEXEC') or die('Direct Access to ' . basename(__FILE__) . 'is not allo
  * @version $Id: authorizeresponse.php 8585 2014-11-25 11:11:13Z alatak $
  * @author Valérie Isaksen
  * @link http://www.virtuemart.net
- * @copyright Copyright (c) 2004 - November 10 2015 VirtueMart Team. All rights reserved.
+ * @copyright Copyright (c) 2004 - March 11 2016 VirtueMart Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  *
  */
@@ -66,8 +66,7 @@ class amazonHelperAuthorizeResponse extends amazonHelper {
 			$order_history['comments'] = vmText::_('VMPAYMENT_AMAZON_COMMENT_STATUS_AUTHORIZATION_OPEN');
 		} elseif ($amazonState == 'Closed') {
 			// it should always be the case if the CaptureNow == true
-			if (!($authorizationDetails->isSetCaptureNow() and $authorizationDetails->getCaptureNow())) {
-				$this->debugLog('SYNCHRONOUS , capture Now, and Amazon State is NOT CLOSED' . __FUNCTION__ . var_export($authorizeResponse, true), 'error');
+			if ($authorizationDetails->isSetCaptureNow() and !$authorizationDetails->getCaptureNow()===false) {
 				return $amazonState;
 			}
 			$order_history['order_status'] = $this->_currentMethod->status_capture;

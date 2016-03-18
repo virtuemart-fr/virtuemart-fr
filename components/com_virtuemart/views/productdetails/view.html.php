@@ -14,7 +14,7 @@
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
- * @version $Id: view.html.php 9031 2015-10-29 20:20:33Z Milbo $
+ * @version $Id: view.html.php 9188 2016-02-27 23:10:51Z Milbo $
  */
 // Check to ensure this file is included in Joomla!
 defined('_JEXEC') or die('Restricted access');
@@ -176,12 +176,15 @@ class VirtueMartViewProductdetails extends VmView {
 			}
 			// Load the category
 			$category_model = VmModel::getModel('category');
+			$seo_full = VmConfig::get('seo_full',true);
+			if(in_array($last_category_id,$product->categories) && !$seo_full) $product->virtuemart_category_id = $last_category_id;
 
 			shopFunctionsF::setLastVisitedCategoryId($product->virtuemart_category_id);
 
 			if ($category_model) {
 
 				$category = $category_model->getCategory($product->virtuemart_category_id);
+				if(in_array($last_category_id,$product->categories) && !$seo_full) $product->category_name = $category->category_name;
 
 				$category_model->addImages($category, 1);
 				$this->assignRef('category', $category);
@@ -216,12 +219,13 @@ class VirtueMartViewProductdetails extends VmView {
 						break;
 					}
 				}
+
 				// Set Canonic link
 				if($isCustomVariant !==false and !empty($isCustomVariant->usecanonical) and !empty($product->product_parent_id)){
 					$parent = $product_model ->getProduct($product->product_parent_id);
-					$document->addHeadLink($parent->canonical, 'canonical', 'rel', '');
+					$document->addHeadLink( JUri::getInstance()->toString(array('scheme', 'host', 'port')).JRoute::_($parent->canonical), 'canonical', 'rel', '');
 				} else {
-					$document->addHeadLink($product->canonical, 'canonical', 'rel', '');
+					$document->addHeadLink( JUri::getInstance()->toString(array('scheme', 'host', 'port')).JRoute::_($product->canonical), 'canonical', 'rel', '');
 				}
 
 			} else if($format == 'pdf'){
@@ -240,8 +244,8 @@ class VirtueMartViewProductdetails extends VmView {
 			$this->showReview = $ratingModel->showReview($product->virtuemart_product_id);
 			$this->rating_reviews='';
 			if ($this->showReview) {
-				$this->review = $ratingModel->getReviewByProduct($product->virtuemart_product_id);
-				$this->rating_reviews = $ratingModel->getReviews($product->virtuemart_product_id);
+				$this->review = $ratingModel->getProductReviewForUser($product->virtuemart_product_id);
+				$this->rating_reviews = $ratingModel->getReviews($product->virtuemart_product_id, 0, VmConfig::get( 'vm_num_ratings_show', 3 ));
 			}
 
 			if ($this->showRating) {

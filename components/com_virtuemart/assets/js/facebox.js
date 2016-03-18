@@ -84,8 +84,8 @@
     settings: {
       opacity      : 0.2,
       overlay      : true,
-      loadingImage : '/components/com_virtuemart/assets/images/vm-preloader.gif',
-      closeImage   : '/components/com_virtuemart/assets/images/fancybox/fancy_close.png',
+      loadingImage : Virtuemart.vmSiteurl+'/components/com_virtuemart/assets/images/vm-preloader.gif',
+      closeImage   : Virtuemart.vmSiteurl+'/components/com_virtuemart/assets/images/fancybox/fancy_close.png',
       imageTypes   : [ 'png', 'jpg', 'jpeg', 'gif' ],
       faceboxHtml  : '\
     <div id="facebox" style="display:none;"> \

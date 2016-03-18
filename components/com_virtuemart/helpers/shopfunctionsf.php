@@ -14,7 +14,7 @@
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
- * @version $Id: shopfunctionsf.php 9052 2015-11-09 11:23:24Z Milbo $
+ * @version $Id: shopfunctionsf.php 9078 2015-12-07 15:47:29Z Milbo $
  */
 
 // Check to ensure this file is included in Joomla!
@@ -148,14 +148,15 @@ class shopFunctionsF {
 	 * @param string $_prefix Optional prefix for the formtag name attribute
 	 * @return string HTML containing the <select />
 	 */
-	static public function renderCountryList ($countryId = 0, $multiple = FALSE, $_attrib = array(), $_prefix = '', $required = 0) {
+	static public function renderCountryList ($countryId = 0, $multiple = FALSE, $_attrib = array(), $_prefix = '', $required = 0, $idTag = 'virtuemart_country_id') {
 
 		$countryModel = VmModel::getModel ('country');
 		$countries = $countryModel->getCountries (TRUE, TRUE, FALSE);
 		$attrs = array();
-		$name = 'country_name';
-		$id = 'virtuemart_country_id';
-		$idA = $_prefix . 'virtuemart_country_id';
+		$optText = 'country_name';
+		$optKey = 'virtuemart_country_id';
+		$name = $_prefix.'virtuemart_country_id';
+		$idTag = $_prefix.$idTag;
 		$attrs['class'] = 'virtuemart_country_id';
 		$attrs['class'] = 'vm-chzn-select';
 		// Load helpers and  languages files
@@ -179,8 +180,8 @@ class shopFunctionsF {
 		$i=0;
 		foreach ($sorted_countries as  $key=>$value) {
 			$countries_list[$i] = new stdClass();
-			$countries_list[$i]->$id = $key;
-			$countries_list[$i]->$name = $value;
+			$countries_list[$i]->$optKey = $key;
+			$countries_list[$i]->$optText = $value;
 			$i++;
 		}
 
@@ -190,9 +191,9 @@ class shopFunctionsF {
 
 		if ($multiple) {
 			$attrs['multiple'] = 'multiple';
-			$idA .= '[]';
+			$name .= '[]';
 		} else {
-			$emptyOption = JHtml::_ ('select.option', '', vmText::_ ('COM_VIRTUEMART_LIST_EMPTY_OPTION'), $id, $name);
+			$emptyOption = JHtml::_ ('select.option', '', vmText::_ ('COM_VIRTUEMART_LIST_EMPTY_OPTION'), $optKey, $optText);
 			array_unshift ($countries_list, $emptyOption);
 		}
 
@@ -203,7 +204,7 @@ class shopFunctionsF {
 			$attrs[$_a[0]] = $_a[1];
 		}
 
-		return JHtml::_ ('select.genericlist', $countries_list, $idA, $attrs, $id, $name, $countryId);
+		return JHtml::_ ('select.genericlist', $countries_list, $name, $attrs, $optKey, $optText, $countryId, $idTag);
 	}
 
 	/**
@@ -217,7 +218,7 @@ class shopFunctionsF {
 	 * @param string $_prefix Optional prefix for the formtag name attribute
 	 * @return string HTML containing the <select />
 	 */
-	static public function renderStateList ($stateId = '0', $_prefix = '', $multiple = FALSE, $required = 0,$attribs=array()) {
+	static public function renderStateList ($stateId = '0', $_prefix = '', $multiple = FALSE, $required = 0,$attribs=array(),$idTag = 'virtuemart_state_id') {
 
 		if (is_array ($stateId)) {
 			$stateId = implode (",", $stateId);
@@ -225,7 +226,13 @@ class shopFunctionsF {
 
 		vmJsApi::JcountryStateList ($stateId,$_prefix);
 
-		$attrs['class'] = 'vm-chzn-select';
+		if(!isset($attrs['class'])){
+			$attrs['class'] = '';
+		}
+		if(!empty($required)){
+			$attrs['class'] .= ' required';
+		}
+		$attrs['class'] .= ' vm-chzn-select';
 		if ($multiple) {
 			$attrs['name'] = $_prefix . 'virtuemart_state_id[]';
 			$attrs['multiple'] = 'multiple';
@@ -238,7 +245,7 @@ class shopFunctionsF {
 		}
 
 		$attrString= JArrayHelper::toString($attrs);
-		$listHTML = '<select  id="'.$_prefix.'virtuemart_state_id" ' . $attrString . '>
+		$listHTML = '<select  id="'.$_prefix.$idTag.'" ' . $attrString . '>
 						<option value="">' . vmText::_ ('COM_VIRTUEMART_LIST_EMPTY_OPTION') . '</option>
 						</select>';
 
@@ -437,6 +444,15 @@ class shopFunctionsF {
 			} else {
 				$customs = 0;
 			}
+			$position = 'ontop';
+			if(!empty($product->customfieldsSorted[$position])){
+				foreach($product->customfieldsSorted[$position] as $custom){
+					if($custom->field_type=='A'){
+						$customs++;
+					}
+				}
+			}
+
 			$rowHeights[$row]['customfields'][] = $customs;
 			$rowHeights[$row]['product_s_desc'][] = empty($product->product_s_desc)? 0:1;
 			$rowHeights[$row]['avail'][] = empty($product->product_availability)? 0:1;

@@ -9,7 +9,7 @@ defined('_JEXEC') or die('Direct Access to ' . basename(__FILE__) . 'is not allo
  * @version $Id: authorizationnotification.php 8685 2015-02-05 18:40:30Z alatak $
  * @author Valérie Isaksen
  * @link http://www.virtuemart.net
- * @copyright Copyright (c) 2004 - November 10 2015 VirtueMart Team. All rights reserved.
+ * @copyright Copyright (c) 2004 - March 11 2016 VirtueMart Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  *
  */
@@ -41,18 +41,15 @@ class amazonHelperAuthorizationNotification extends amazonHelper {
 		$previousAmazonState = $lastPayment->amazon_response_state;
 
 		if (!$this->amazonData->isSetAuthorizationDetails()) {
-			$this->debugLog('NO isSetAuthorizationDetails' . __FUNCTION__ . var_export($this->amazonData, true), 'error');
 			return false;
 		}
 		$authorizationDetails = $this->amazonData->getAuthorizationDetails();
 		if (!$authorizationDetails->isSetAuthorizationStatus()) {
-			$this->debugLog('NO isSetAuthorizationStatus' . __FUNCTION__ . var_export($this->amazonData, true), 'error');
 			return false;
 		}
 
 		$authorizationStatus = $authorizationDetails->getAuthorizationStatus();
 		if (!$authorizationStatus->isSetState()) {
-			$this->debugLog('NO isSetState' . __FUNCTION__ . var_export($this->amazonData, true), 'error');
 			return false;
 		}
 		$amazonState = $authorizationStatus->getState();
@@ -70,17 +67,17 @@ class amazonHelperAuthorizationNotification extends amazonHelper {
 				$order_history['order_status'] = $this->_currentMethod->status_authorization;
 				$order_history['comments'] = vmText::_('VMPAYMENT_AMAZON_COMMENT_STATUS_AUTHORIZATION_OPEN');
 			} elseif ($amazonState == 'Declined') {
+				$order_history['customer_notified'] = 1;
 				if ($reasonCode == 'InvalidPaymentMethod') {
-					$order_history['customer_notified'] = 0;
 					if ($this->_currentMethod->soft_decline == 'soft_decline_enabled') {
 						$order_history['comments'] = $this->getSoftDeclinedComment();
 						$order_history['order_status'] = $this->_currentMethod->status_orderconfirmed;
-						$order_history['customer_notified'] = 1;
 					} else {
 						$order_history['comments'] = vmText::sprintf('VMPAYMENT_AMAZON_COMMENT_STATUS_AUTHORIZATION_INVALIDPAYMENTMETHOD', $reasonCode);
 						$order_history['order_status'] = $this->_currentMethod->status_cancel;
 					}
 				} elseif ($reasonCode == 'AmazonRejected') {
+					$order_history['customer_notified'] = 1;
 					$order_history['order_status'] = $this->_currentMethod->status_cancel;
 					$order_history['comments'] = vmText::sprintf('VMPAYMENT_AMAZON_COMMENT_STATUS_AUTHORIZATION_DECLINED', $reasonCode);
 				} elseif ($reasonCode == 'TransactionTimedOut') {
@@ -178,9 +175,12 @@ class amazonHelperAuthorizationNotification extends amazonHelper {
 	 * @return bool|string
 	 */
 	public function onNotificationNextOperation($order, $payments, $amazonState) {
-		$state = array('Pending', 'Open', 'Declined', 'Closed');
-		if (in_array($amazonState, $state)) {
+		$getAuthorizationDetailsState = array('Pending', 'Open', 'Closed');
+		$cancelPaymentState = array('Declined');
+		if (in_array($amazonState, $getAuthorizationDetailsState)) {
 			return 'onNotificationGetAuthorizationDetails';
+		} elseif (in_array($amazonState, $cancelPaymentState)) {
+			return 'cancelPayment';
 		}
 		return false;
 	}

@@ -13,7 +13,7 @@
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
-* @version $Id: vendors.php 8749 2015-02-24 10:31:08Z Milbo $
+* @version $Id: vendors.php 9075 2015-12-02 13:56:15Z Milbo $
 */
 
 defined('_JEXEC') or die('Restricted access');
@@ -78,6 +78,7 @@ class TableVendors extends VmTableData {
 		);
 
 		$varsToPushParam = array(
+			'max_cats_per_product'=>array(-1,'int'),
 			'vendor_min_pov'=>array(0.0,'float'),
 			'vendor_min_poq'=>array(1,'int'),
 			'vendor_freeshipment'=>array(0.0,'float'),

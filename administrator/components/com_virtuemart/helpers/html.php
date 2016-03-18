@@ -374,21 +374,21 @@ static function vmGetCharset() {
 			}
 			elseif (is_object($element))
 			{
-				$key = $options['option.key'] === null ? $elementKey : $element->$options['option.key'];
-				$text = $element->$options['option.text'];
-				if (isset($element->$options['option.attr']))
+				$key = $options['option.key'] === null ? $elementKey : $element->{$options['option.key']};
+				$text = $element->{$options['option.text']};
+				if (isset($element->{$options['option.attr']}))
 				{
-					$attr = $element->$options['option.attr'];
+					$attr = $element->{$options['option.attr']};
 				}
-				if (isset($element->$options['option.id']))
+				if (isset($element->{$options['option.id']}))
 				{
-					$id = $element->$options['option.id'];
+					$id = $element->{$options['option.id']};
 				}
-				if (isset($element->$options['option.label']))
+				if (isset($element->{$options['option.label']}))
 				{
-					$label = $element->$options['option.label'];
+					$label = $element->{$options['option.label']};
 				}
-				if (isset($element->$options['option.disable']) && $element->$options['option.disable'])
+				if (isset($element->{$options['option.disable']}) && $element->{$options['option.disable']})
 				{
 					$extra .= ' disabled="disabled"';
 				}
@@ -437,7 +437,7 @@ static function vmGetCharset() {
 			{
 				foreach ($options['list.select'] as $val)
 				{
-					$key2 = is_object($val) ? $val->$options['option.key'] : $val;
+					$key2 = is_object($val) ? $val->{$options['option.key']} : $val;
 					if ($key == $key2)
 					{
 						$extra .= ' selected="selected"';

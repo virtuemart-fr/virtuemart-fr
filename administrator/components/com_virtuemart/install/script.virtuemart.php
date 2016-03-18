@@ -302,9 +302,10 @@ if (!defined('_VM_SCRIPT_INCLUDED')) {
 			}
 
 			$model->updateJoomlaUpdateServer('component','com_virtuemart', $this->path.DS.'virtuemart.xml');
+
 			//fix joomla BE menu
-			//$model = VmModel::getModel('updatesmigration');
-			//$model->checkFixJoomlaBEMenuEntries();
+			$this->checkFixJoomlaBEMenuEntries();
+
 			$this->deleteSwfUploader();
 			if($loadVm) $this->displayFinished(true);
 
@@ -407,6 +408,57 @@ if (!defined('_VM_SCRIPT_INCLUDED')) {
 
 		}
 
+		/**
+		 *
+		 */
+		public function checkFixJoomlaBEMenuEntries(){
+
+			$db = JFactory::getDbo();
+			$db->setQuery('SELECT `extension_id` FROM `#__extensions` WHERE `type` = "component" AND `element`="com_virtuemart"');
+			$jId = $db->loadResult();
+
+			if($jId){
+				$mId = false;
+				$qME = 'SELECT * FROM `#__menu` WHERE `component_id` = "'.$jId.'" AND `type` = "component" AND `parent_id` = "1" AND `client_id` = "1" AND id > 1';
+				//now lets check if there are menue entries
+				$db->setQuery($qME);
+				$mEntries = $db->loadAssocList();
+
+				if(!$mEntries){
+					$db->setQuery('SELECT `id` FROM `#__menu` WHERE `path`="com-virtuemart" AND `type` = "component" AND `parent_id` = "1" AND `client_id` = "1" AND id > 1');
+					if($id = $db->loadResult()){
+						$db->setQuery('UPDATE `#__menu` SET `component_id`="'.$jId.'", `language`="*" WHERE `id` = "'.$id.'" ');
+						$db->execute();
+
+						$db->setQuery($qME);
+						$mEntries = $db->loadAssocList();
+
+					} else {
+						vmError('Could not find VirtueMart submenues, please install VirtueMart again');
+					}
+				}
+
+				if($mEntries){
+					if(is_array($mEntries)){
+						if(count($mEntries)>1){
+							vmError('Multiple menues found');
+						} else if(isset($mEntries[0])) {
+							$mId = $mEntries[0]['id'];
+						}
+					}
+				} else {
+					vmError('Could not find VirtueMart submenues, please install VirtueMart again');
+				}
+
+				if($mId){
+					$db->setQuery('UPDATE `#__menu` SET `component_id`="'.$jId.'", `language`="*", `menutype`="vmadmin" WHERE `parent_id` = "'.$mId.'" ');
+					$db->execute();
+					$db->setQuery('UPDATE `#__menu` SET `language`="*", `menutype`="vmadmin" WHERE `id` = "'.$mId.'" ');
+					$db->execute();
+				}
+
+			}
+		}
 
 		private function updateAdminMenuEntries(){
 
@@ -492,7 +544,7 @@ if (!defined('_VM_SCRIPT_INCLUDED')) {
 							vmWarn( 'JInstaller::install: '.$sqlfile.' '.vmText::_('COM_VIRTUEMART_SQL_ERROR')." ".$db->stderr(true));
 							$ok = false;
 						}
-						//vmdebug('Update Admin menu entries value $updateQuery',$updateBase.$updateQuery);
+						vmdebug('Update Admin menu entries value $updateQuery',$updateBase.$updateQuery);
 					}
 				}
 

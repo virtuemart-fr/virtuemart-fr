@@ -5,7 +5,7 @@ defined ('_JEXEC') or die('Restricted access');
 /**
  * Shipment plugin for weight_countries shipments, like regular postal services
  *
- * @version $Id: weight_countries.php 8963 2015-09-01 15:56:03Z Milbo $
+ * @version $Id: weight_countries.php 9193 2016-03-11 10:17:04Z Milbo $
  * @package VirtueMart
  * @subpackage Plugins - shipment
  * @copyright Copyright (C) 2004-2012 VirtueMart Team - All rights reserved.
@@ -569,13 +569,10 @@ class plgVmShipmentWeight_countries extends vmPSPlugin {
 		if (!empty($this->_psType) and !$this->selectedThis ($this->_psType, $name, $id)) {
 			return FALSE;
 		} else {
-			$toConvert = array('weight_start','weight_stop','orderamount_start','orderamount_stop');
-			foreach($toConvert as $field){
-
-				if(!empty($data[$field])){
-					$data[$field] = str_replace(array(',',' '),array('.',''),$data[$field]);
-				} else {
-					unset($data[$field]);
+			$tCon = array('weight_start','weight_stop','orderamount_start','orderamount_stop','shipment_cost','package_fee');
+			foreach($tCon as $f){
+				if(!empty($data[$f])){
+					$data[$f] = str_replace(array(',',' '),array('.',''),$data[$f]);
 				}
 			}
 

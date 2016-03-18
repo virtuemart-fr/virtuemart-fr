@@ -5,7 +5,7 @@ defined('_JEXEC') or  die( 'Direct Access to '.basename(__FILE__).' is not allow
 *
 * NOTE: THIS MODULE REQUIRES THE VIRTUEMART COMPONENT!
 /*
-* @version $Id: mod_virtuemart_currencies.php 8060 2014-06-22 17:57:58Z Milbo $
+* @version $Id: mod_virtuemart_currencies.php 9084 2015-12-14 18:04:37Z yourgeek $
 * @package VirtueMart
 * @subpackage modules
 *
@@ -45,5 +45,5 @@ $currencyDisplay = CurrencyDisplay::getInstance();
 
 $virtuemart_currency_id = $mainframe->getUserStateFromRequest( "virtuemart_currency_id", 'virtuemart_currency_id',vRequest::getInt('virtuemart_currency_id',$currencyDisplay->_vendorCurrency) );
 
-require(JModuleHelper::getLayoutPath('mod_virtuemart_currencies'));
-    ?>
+require JModuleHelper::getLayoutPath('mod_virtuemart_currencies', $params->get('layout', 'default'));
+

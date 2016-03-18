@@ -15,7 +15,7 @@
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
- * @version $Id: view.html.php 9058 2015-11-10 18:30:54Z Milbo $
+ * @version $Id: view.html.php 9078 2015-12-07 15:47:29Z Milbo $
  */
 // Check to ensure this file is included in Joomla!
 defined('_JEXEC') or die('Restricted access');
@@ -130,7 +130,7 @@ class VirtuemartViewUser extends VmView {
 
 			$userFields = $userFields[$virtuemart_userinfo_id];
 		}
-
+		//vmdebug('my userfields ',$userFields);
 		$this->virtuemart_userinfo_id = $virtuemart_userinfo_id;
 
 		$this->assignRef('userFields', $userFields);
@@ -188,11 +188,11 @@ class VirtuemartViewUser extends VmView {
 		$pathway_text = vmText::_('COM_VIRTUEMART_YOUR_ACCOUNT_DETAILS');
 		if (!$this->userDetails->JUser->get('id')) {
 			if ($this->cart->_fromCart or $this->cart->getInCheckOut()) {
-			if ($this->address_type == 'BT') {
-				$vmfield_title = vmText::_('COM_VIRTUEMART_USER_FORM_EDIT_BILLTO_LBL');
-			} else {
-				$vmfield_title = vmText::_('COM_VIRTUEMART_USER_FORM_ADD_SHIPTO_LBL');
-			}
+				if ($this->address_type == 'BT') {
+					$vmfield_title = vmText::_('COM_VIRTUEMART_USER_FORM_EDIT_BILLTO_LBL');
+				} else {
+					$vmfield_title = vmText::_('COM_VIRTUEMART_USER_FORM_ADD_SHIPTO_LBL');
+				}
 			} else {
 			if ($this->address_type == 'BT') {
 				$vmfield_title = vmText::_('COM_VIRTUEMART_USER_FORM_EDIT_BILLTO_LBL');
@@ -209,8 +209,13 @@ class VirtuemartViewUser extends VmView {
 				$vmfield_title = vmText::_('COM_VIRTUEMART_USER_FORM_ADD_SHIPTO_LBL');
 			}
 		}
+		//vmdebug('My fields',$userFields['fields']);
 
-		vmJsApi::vmValidator($this->userDetails->JUser->guest);
+		$prefiks = '';
+		if($this->address_type=='ST'){
+			$prefiks = 'shipto_';
+		}
+		vmJsApi::vmValidator($this->userDetails->JUser->guest,$userFields['fields'],$prefiks);
 
 		$this->add_product_link="";
 		$this->manage_link="";
@@ -358,7 +363,11 @@ class VirtuemartViewUser extends VmView {
     }
 
 	public function vmValidator (){
-		vmJsApi::vmValidator($this->userDetails->JUser->guest);
+		$prefiks = '';
+		if($this->address_type['ST']){
+			$prefiks = 'shipto_';
+		}
+		vmJsApi::vmValidator($this->userDetails->JUser->guest,$this->userFields['fields'],$prefiks);
 	}
 
     /**

@@ -15,7 +15,7 @@
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
- * @version $Id: user.php 9021 2015-10-20 23:54:07Z Milbo $
+ * @version $Id: user.php 9096 2015-12-18 12:35:07Z alatak $
  */
 
 // Check to ensure this file is included in Joomla!
@@ -263,6 +263,7 @@ class VirtueMartModelUser extends VmModel {
 		$gid = $user->get('gid'); // Save original gid
 
 		// Preformat and control user datas by plugin
+		JPluginHelper::importPlugin('vmextended');
 		JPluginHelper::importPlugin('vmuserfield');
 		$dispatcher = JDispatcher::getInstance();
 
@@ -284,7 +285,7 @@ class VirtueMartModelUser extends VmModel {
 				$data['email'] = $email;
 			}
 		} else {
-			$data['email'] =  vRequest::getEmail('email', '');
+			$data['email'] =  vRequest::filter($data['email'],FILTER_VALIDATE_EMAIL,FILTER_FLAG_STRIP_LOW|FILTER_FLAG_STRIP_HIGH);
 		}
 		//$data['email'] = str_replace(array('\'','"',',','%','*','/','\\','?','^','`','{','}','|','~'),array(''),$data['email']);
 
@@ -299,7 +300,7 @@ class VirtueMartModelUser extends VmModel {
 			}
 
 		} else {
-			$data['name'] = vRequest::getWord('name', '');
+			$data['name'] = vRequest::filter($data['name'],FILTER_SANITIZE_STRING,FILTER_FLAG_STRIP_LOW);
 
 		}
 		$data['name'] = str_replace(array('\'','"',',','%','*','/','\\','?','^','`','{','}','|','~'),array(''),$data['name']);
@@ -309,7 +310,7 @@ class VirtueMartModelUser extends VmModel {
 			if(!empty($username)){
 				$data['username'] = $username;
 			} else {
-				$data['username'] = vRequest::getWord('username', '');
+				$data['username'] = vRequest::filter($data['username'],FILTER_SANITIZE_STRING,FILTER_FLAG_STRIP_LOW);
 			}
 		}
 
@@ -437,6 +438,9 @@ class VirtueMartModelUser extends VmModel {
 				if ($usersConfig->get('sendpassword', 1)) {
 					$password=$user->password_clear;
 				}
+
+				//$doVendor = (boolean) $usersConfig->get('mail_to_admin', true);
+
 				$this->sendRegistrationEmail($user,$password, $doUserActivation);
 				if ($doUserActivation ) {
 					vmInfo('COM_VIRTUEMART_REG_COMPLETE_ACTIVATE');
@@ -514,21 +518,23 @@ class VirtueMartModelUser extends VmModel {
 			}
 		}
 
-		unset($data['customer_number']);
+		if(!vmAccess::manager('user.edit')){
+			unset($data['customer_number']);
+		}
 		if(empty($alreadyStoredUserData->customer_number)){
-			//if(!class_exists('vmUserPlugin')) require(VMPATH_SITE.DS.'helpers'.DS.'vmuserplugin.php');
-			///if(!$returnValues){
-			$data['customer_number'] = strtoupper(substr($data['username'],0,2)).substr(md5($data['username']),0,9);
-			//We set this data so that vmshopper plugin know if they should set the customer nummer
-			$data['customer_number_bycore'] = 1;
-			//}
+			if(empty($data['customer_number'])){
+				$data['customer_number'] = strtoupper(substr($data['username'],0,2)).substr(md5($data['username']),0,9);
+				//We set this data so that vmshopper plugin know if they should set the customer number
+				$data['customer_number_bycore'] = 1;
+			}
 		} else {
-			if(!vmAccess::manager()){
+			if(!vmAccess::manager('user.edit')){
 				$data['customer_number'] = $alreadyStoredUserData->customer_number;
 			}
 		}
 
 		if($trigger){
+			JPluginHelper::importPlugin('vmextended');
 			JPluginHelper::importPlugin('vmshopper');
 			$dispatcher = JDispatcher::getInstance();
 
@@ -1065,11 +1071,9 @@ class VirtueMartModelUser extends VmModel {
 
 			$vars['activationLink'] = $activationLink;
 		}
-		$vars['doVendor']=true;
+		//$vars['doVendor']=!$doVendor;
 		// public function renderMail ($viewName, $recipient, $vars=array(),$controllerName = null)
 		shopFunctionsF::renderMail('user', $user->get('email'), $vars);
-
-
 
 	}
 
@@ -1134,7 +1138,7 @@ class VirtueMartModelUser extends VmModel {
 			$q = 'DELETE FROM #__virtuemart_userinfos  WHERE virtuemart_user_id="'. $this->_id .'" AND virtuemart_userinfo_id="'. (int)$virtuemart_userinfo_id .'"';
 			$db->setQuery($q);
 			if($db->execute()){
-				vmInfo('Address has been successfully deleted.');
+				vmInfo('COM_VIRTUEMART_ADDRESS_DELETED');
 				return true;
 			}
 		}

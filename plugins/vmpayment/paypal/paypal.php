@@ -8,7 +8,7 @@
  * @version $Id: paypal.php 7217 2013-09-18 13:42:54Z alatak $
  * @package VirtueMart
  * @subpackage payment
- * Copyright (C) 2004-2015 Virtuemart Team. All rights reserved.
+ * Copyright (C) 2004-2016 Virtuemart Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
@@ -404,7 +404,8 @@ class plgVmPaymentPaypal extends vmPSPlugin {
 			require(VMPATH_ADMIN . DS . 'models' . DS . 'currency.php');
 		}
 		$html='';
-		$this->getPaymentCurrency($this->_currentMethod);
+		//$this->getPaymentCurrency($this->_currentMethod);
+		$this->_currentMethod->payment_currency=$order['details']['BT']->user_currency_id;
 		$email_currency = $this->getEmailCurrency($this->_currentMethod);
 
 		$payment_name = $this->renderPluginName($this->_currentMethod, $order);
@@ -424,13 +425,14 @@ class plgVmPaymentPaypal extends vmPSPlugin {
 		$dbValues['paypal_custom'] = $paypalInterface->getContext();
 		$dbValues['cost_per_transaction'] = $this->_currentMethod->cost_per_transaction;
 		$dbValues['cost_percent_total'] = $this->_currentMethod->cost_percent_total;
-		$dbValues['payment_currency'] = $this->_currentMethod->payment_currency;
+		$dbValues['payment_currency'] = $order['details']['BT']->user_currency_id;;
 		$dbValues['email_currency'] = $email_currency;
 		$dbValues['payment_order_total'] = $paypalInterface->getTotal();
 		$dbValues['tax_id'] = $this->_currentMethod->tax_id;
 		$this->storePSPluginInternalData($dbValues);
 		VmConfig::loadJLang('com_virtuemart_orders', TRUE);
 
+		$paypalInterface->debugLog('Amount/Currency stored ' . $dbValues['payment_order_total'].' '.$dbValues['payment_currency'], 'plgVmConfirmedOrder', 'message');
 
 		if ($this->_currentMethod->paypalproduct == 'std') {
 			$html = $paypalInterface->ManageCheckout();

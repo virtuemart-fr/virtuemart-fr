@@ -13,7 +13,7 @@
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
- * @version $Id: product.php 8970 2015-09-06 23:19:17Z Milbo $
+ * @version $Id: product.php 9074 2015-11-26 15:28:54Z Milbo $
  */
 
 // Check to ensure this file is included in Joomla!
@@ -92,15 +92,6 @@ class VirtuemartControllerProduct extends VmController {
 				if(isset($data['field'])){
 					$data['field'] = vRequest::getString('field');
 				}
-			}
-
-			//Why we have this?
-			$multix = Vmconfig::get('multix','none');
-			if( $multix != 'none' ){
-				//in fact this shoudl be used, when the mode is administrated and the system is so that
-				//every product must be approved by an admin.
-				unset($data['published']);
-				//unset($data['childs']);
 			}
 
 		}

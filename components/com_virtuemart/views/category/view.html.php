@@ -13,7 +13,7 @@
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
-* @version $Id: view.html.php 9029 2015-10-28 12:51:49Z Milbo $
+* @version $Id: view.html.php 9097 2016-01-04 14:35:46Z Milbo $
 */
 
 // Check to ensure this file is included in Joomla!
@@ -131,7 +131,8 @@ class VirtuemartViewCategory extends VmView {
 
 				$this->products = $productModel->getProducts ($ids);
 				//$products = $productModel->getProductsInCategory($this->categoryId);
-				$productModel->addImages($this->products, VmConfig::get('prodimg_browse',1) );
+				$imgAmount = VmConfig::get('prodimg_browse',1);
+				$productModel->addImages($this->products, $imgAmount );
 
 				if ($this->products) {
 					$currency = CurrencyDisplay::getInstance( );
@@ -211,8 +212,8 @@ class VirtuemartViewCategory extends VmView {
 					$pathway->addItem(strip_tags(vmText::_($c->category_name)),JRoute::_('index.php?option=com_virtuemart&view=category&virtuemart_category_id='.$c->virtuemart_category_id, FALSE));
 				}
 			}
-
-			$categoryModel->addImages($category,1);
+			$catImgAmount = VmConfig::get('catimg_browse',1);
+			$categoryModel->addImages($category,$catImgAmount);
 
 			if(!isset($menu->query['showcategory'])) $menu->query['showcategory'] = 1;
 			$this->showcategory = vRequest::getInt('showcategory',$menu->query['showcategory']);
@@ -220,7 +221,7 @@ class VirtuemartViewCategory extends VmView {
 			if($this->showcategory){
 			//if($category->category_layout == 'categories' or ($this->categoryId >0 and $virtuemart_manufacturer_id <1)){
 				$category->children = $categoryModel->getChildCategoryList( $vendorId, $this->categoryId, $categoryModel->getDefaultOrdering(), $categoryModel->_selectedOrderingDir );
-				$categoryModel->addImages($category->children,1);
+				$categoryModel->addImages($category->children,$catImgAmount);
 			} else {
 				$category->children = false;
 			}
@@ -229,18 +230,31 @@ class VirtuemartViewCategory extends VmView {
 				shopFunctionsF::triggerContentPlugin($category, 'category','category_description');
 			}
 
+			$metadesc = '';
+			$metakey = '';
+			$metarobot = '';
+
+			if(isset($menu->params)){
+				$metadesc = $menu->params->get('menu-meta_description');
+				$metakey = $menu->params->get('menu-meta_keywords');
+				$metarobot = $menu->params->get('robots');
+			}
+
 			if ($category->metadesc) {
-				$document->setDescription( $category->metadesc );
+				$metadesc = $category->metadesc;
 			}
 			if ($category->metakey) {
-				$document->setMetaData('keywords', $category->metakey);
+				$metakey = $category->metakey;
 			}
 			if ($category->metarobot) {
-				$document->setMetaData('robots', $category->metarobot);
+				$metarobot = $category->metarobot;
 			}
 
+			$document->setDescription( $metadesc );
+			$document->setMetaData('keywords', $metakey);
+			$document->setMetaData('robots', $metarobot);
 
-			if ($app->getCfg('MetaAuthor') == '1') {
+			if ($app->getCfg('MetaAuthor') == '1' and !empty($category->metaauthor)) {
 				$document->setMetaData('author', $category->metaauthor);
 			}
 
@@ -345,7 +359,7 @@ class VirtuemartViewCategory extends VmView {
 				$link .= '&virtuemart_manufacturer_id='.$manId;
 			}
 
-			$document->addHeadLink( JRoute::_($link, FALSE) , 'canonical', 'rel', '' );
+			$document->addHeadLink( JUri::getInstance()->toString(array('scheme', 'host', 'port')).JRoute::_($link, FALSE) , 'canonical', 'rel', '' );
 
 		}
 	}

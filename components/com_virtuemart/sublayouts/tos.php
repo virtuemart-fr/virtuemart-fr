@@ -30,7 +30,11 @@ if($app->isSite()){
 }
 
 if(!class_exists('VmHtml')) require(VMPATH_ADMIN.DS.'helpers'.DS.'html.php');
-echo VmHtml::checkbox ($_prefix.$field['name'], $tos, 1, 0, 'class="terms-of-service required"', 'tos');
+$class = 'terms-of-service';
+if(!empty($field['required'])){
+	$class .= ' required';
+}
+echo VmHtml::checkbox ($_prefix.$field['name'], $tos, 1, 0, 'class="'.$class.'"', 'tos');
 
 if ( $app->isSite() ) {
 ?>

@@ -21,21 +21,16 @@ defined('_JEXEC') or die('Restricted access');
 AdminUIHelper::startAdminArea($this);
 
 /* Load some variables */
-$search_date = vRequest::getVar('search_date', null); // Changed search by date
-$now = getdate();
-$nowstring = $now["hours"].":".substr('0'.$now["minutes"], -2).' '.$now["mday"].".".$now["mon"].".".$now["year"];
-$search_order = vRequest::getVar('search_order', '>');
-$search_type = vRequest::getVar('search_type', 'product');
+
+
 // OSP in view.html.php $virtuemart_category_id = vRequest::getInt('virtuemart_category_id', false);
 if ($product_parent_id=vRequest::getInt('product_parent_id', false))   $col_product_name='COM_VIRTUEMART_PRODUCT_CHILDREN_LIST'; else $col_product_name='COM_VIRTUEMART_PRODUCT_NAME';
 
 ?>
 <form action="index.php" method="post" name="adminForm" id="adminForm">
 <div id="header">
-<div id="filterbox">
-	<table class="">
-		<tr>
-			<td align="left">
+<span id="filterbox">
+	<span>
 			<?php echo vmText::_('COM_VIRTUEMART_FILTER') ?>:
 				<select class="inputbox" id="virtuemart_category_id" name="virtuemart_category_id" onchange="this.form.submit(); return false;">
 					<option value=""><?php echo vmText::sprintf( 'COM_VIRTUEMART_SELECT' ,  vmText::_('COM_VIRTUEMART_CATEGORY')) ; ?></option>
@@ -46,21 +41,18 @@ if ($product_parent_id=vRequest::getInt('product_parent_id', false))   $col_prod
 					?>
 
 				<?php echo vmText::_('COM_VIRTUEMART_PRODUCT_LIST_SEARCH_BY_DATE') ?>&nbsp;
-					<input type="text" value="<?php echo vRequest::getVar('filter_product'); ?>" name="filter_product" size="25" />
+					<input type="text" value="<?php echo $this->filter_product ?>" name="filter_product" size="25" />
 				<?php
 					echo $this->lists['search_type'];
 					echo $this->lists['search_order'];
-					echo vmJsApi::jDate(vRequest::getVar('search_date', $nowstring), 'search_date');
+					echo vmJsApi::jDate($this->search_date, 'search_date');
 					echo $this->lists['vendors'];
 				?>
 				<button  class="btn btn-small" onclick="this.form.submit();"><?php echo vmText::_('COM_VIRTUEMART_GO'); ?></button>
 				<button  class="btn btn-small" onclick="document.adminForm.filter_product.value=''; document.adminForm.search_type.options[0].selected = true;"><?php echo vmText::_('COM_VIRTUEMART_RESET'); ?></button>
 
-			</td>
-
-		</tr>
-	</table>
-	</div>
+				<?php echo $this->pagination->getLimitBox(); ?>
+	</span>
 	<div id="resultscounter"><?php echo $this->pagination->getResultsCounter(); ?></div>
 
 </div>
@@ -224,7 +216,7 @@ if($this->pagination->limit<=$mediaLimit or $totalList<=$mediaLimit){
 	<tfoot>
 		<tr>
 		<td colspan="16">
-			<?php echo $this->pagination->getListFooter(); ?>
+			<?php echo $this->pagination->getListFooter(false); ?>
 		</td>
 		</tr>
 	</tfoot>

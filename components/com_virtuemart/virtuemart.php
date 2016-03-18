@@ -2,7 +2,7 @@
 if( !defined( '_JEXEC' ) ) die( 'Direct Access to '.basename(__FILE__).' is not allowed.' );
 /**
 *
-* @version $Id$
+* @version $Id: virtuemart.php 9169 2016-02-16 12:17:25Z Milbo $
 * @package VirtueMart
 * @subpackage core
 * @author Max Milbers
@@ -24,7 +24,8 @@ if (!class_exists( 'VmConfig' )) require(JPATH_ROOT.DS.'administrator'.DS.'compo
 VmConfig::loadConfig();
 
 vmRam('Start');
-vmSetStartTime('Start');
+//vmTime('joomla start until Vm is called','joomlaStart');
+vmSetStartTime('vmStart');
 
 VmConfig::loadJLang('com_virtuemart', true);
 
@@ -126,7 +127,7 @@ if (class_exists($_class)) {
     //vmTime($_class.' Finished task '.$task,'Start');
     vmRam('End');
     vmRamPeak('Peak');
-
+	vmTime('vm view Finished task ','vmStart');
     /* Redirect if set by the controller */
     $controller->redirect();
 } else {

@@ -29,20 +29,22 @@ jQuery(function($) {
             url: url,
             dataType: 'html',
             success: function(data) {
-                var el = $(data).find(Virtuemart.containerSelector);
-				if (! el.length) el = $(data).filter(Virtuemart.containerSelector);
-				if (el.length) {
-					Virtuemart.container.html(el.html());
-                    Virtuemart.updateCartListener();
-                    Virtuemart.updateDynamicUpdateListeners();
+              var title = $(data).filter('title').text();
+              jQuery('title').text(title);
+              var el = $(data).find(Virtuemart.containerSelector);
+      				if (! el.length) el = $(data).filter(Virtuemart.containerSelector);
+      				if (el.length) {
+      					Virtuemart.container.html(el.html());
+                Virtuemart.updateCartListener();
+                Virtuemart.updateDynamicUpdateListeners();
 
-					if (Virtuemart.updateImageEventListeners) Virtuemart.updateImageEventListeners();
-					if (Virtuemart.updateChosenDropdownLayout) Virtuemart.updateChosenDropdownLayout();
-				}
-				Virtuemart.isUpdatingContent = false;
-				if (callback && typeof(callback) === "function") {
-					callback();
-				}
+      					if (Virtuemart.updateImageEventListeners) Virtuemart.updateImageEventListeners();
+      					if (Virtuemart.updateChosenDropdownLayout) Virtuemart.updateChosenDropdownLayout();
+      				}
+      				Virtuemart.isUpdatingContent = false;
+      				if (callback && typeof(callback) === "function") {
+      					callback();
+      				}
             }
         });
         Virtuemart.isUpdatingContent = false;

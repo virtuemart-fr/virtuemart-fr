@@ -9,7 +9,7 @@ defined('_JEXEC') or die('Direct Access to ' . basename(__FILE__) . 'is not allo
  * @version $Id: authorizeresponse.php 8259 2014-08-31 13:43:36Z alatak $
  * @author Valérie Isaksen
  * @link http://www.virtuemart.net
- * @copyright Copyright (c) 2004 - November 10 2015 VirtueMart Team. All rights reserved.
+ * @copyright Copyright (c) 2004 - March 11 2016 VirtueMart Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  */
 class amazonHelperGetCaptureDetailsResponse extends amazonHelper {
@@ -54,7 +54,6 @@ class amazonHelperGetCaptureDetailsResponse extends amazonHelper {
 				} elseif ($amazonState == 'Closed') {
 					// it should always be the case if the CaptureNow == true
 					if (!($captureDetails->isSetCaptureNow() and $captureDetails->getCaptureNow())) {
-						$this->debugLog('SYNCHRONOUS , capture Now, and Amazon State is NOT CLOSED' . __FUNCTION__ . var_export($authorizeResponse, true), 'error');
 						return $amazonState;
 					}
 					$order_history['order_status'] = $this->_currentMethod->status_capture;

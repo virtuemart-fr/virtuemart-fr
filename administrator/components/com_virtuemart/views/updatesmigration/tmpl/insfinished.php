@@ -50,7 +50,7 @@ if($option=='com_virtuemart'){
 					target="_blank"> <img
 						border="0"
 						align="left" style="margin-right: 20px"
-						src="components/com_virtuemart/assets/images/virtuemart-fr.jpg"
+						src="components/com_virtuemart/assets/images/vm_menulogo.png"
 						alt="Cart" /> </a>
 				<h2 style="overflow: hidden;">
 					<?php echo vmText::_('COM_VIRTUEMART_INSTALLATION_WELCOME') ?>
@@ -95,23 +95,17 @@ if($option=='com_virtuemart'){
 		<?php
 		}
 		$class="";
+		if (vRequest::get('view','')=='install') {
 			if (JVM_VERSION < 3) {
 				$class = "button";
 			} else {
 				$class = "btn";
 			}
+		}
 		?>
 		<tr>
-			<td><p>
-				<?php
-				if (vRequest::get('layout','')=='insfinished') {
-					VmConfig::loadJLang('com_virtuemart_install');
-
-					echo vmText::_('COM_VIRTUEMART_INSTALL_MORE_LANGUAGES');
-				} ?>
-				</p>
-				<span class="<?php echo $class ?>">
-					<?php echo vmText::sprintf('COM_VIRTUEMART_MORE_LANGUAGES','http://virtuemart.net/community/translations'); ?>
+			<td><span class="<?php echo $class ?>">
+				<?php echo vmText::sprintf('COM_VIRTUEMART_MORE_LANGUAGES','http://virtuemart.net/community/translations'); ?>
 				</span>
 			</td>
 		</tr>

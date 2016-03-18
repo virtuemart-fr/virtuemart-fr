@@ -127,13 +127,6 @@ abstract class vmPlugin extends JPlugin {
 		$this->_cryptedFields = $fieldNames;
 	}
 
-	/**
-	 * @return array
-	 */
-	function getTableSQLFields () {
-
-		return false;
-	}
 
 	function getOwnUrl(){
 
@@ -439,6 +432,14 @@ abstract class vmPlugin extends JPlugin {
 	}
 
 	/**
+	 * @return array
+	 */
+	function getTableSQLFields () {
+
+		return false;
+	}
+
+	/**
 	 * Set with this function the provided plugin parameters
 	 *
 	 * @param string $paramsFieldName
@@ -635,6 +636,7 @@ abstract class vmPlugin extends JPlugin {
 		}
 
 		if($this->_cryptedFields){
+			//I think that should be set on $table, not _vmpCtable
 			$this->_vmpCtable->setCryptedFields($this->_cryptedFields);
 		}
 

@@ -14,7 +14,7 @@
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
- * @version $Id: updatesmigration.php 9008 2015-10-04 20:41:08Z Milbo $
+ * @version $Id: updatesmigration.php 9153 2016-02-09 20:40:15Z Milbo $
  */
 // Check to ensure this file is included in Joomla!
 defined('_JEXEC') or die('Restricted access');
@@ -679,23 +679,6 @@ class VirtuemartControllerUpdatesMigration extends VmController{
 		$this->setRedirect($this->redirectPath, $msg);
 	}
 
-	function reOrderChilds(){
-
-		$this->checkPermissionForTools();
-
-		if(!VmConfig::get('dangeroustools', true)){
-			$msg = $this->_getMsgDangerousTools();
-			$this->setRedirect($this->redirectPath, $msg);
-			return false;
-		}
-
-		$this->storeMigrationOptionsInSession();
-		if(!class_exists('GenericTableUpdater')) require(VMPATH_ADMIN . DS . 'helpers' . DS . 'tableupdater.php');
-		$updater = new GenericTableUpdater();
-		$result = $updater->reOrderChilds();
-
-		$this->setRedirect($this->redirectPath, $result);
-	}
 
 	function storeMigrationOptionsInSession(){
 

@@ -32,11 +32,13 @@ if ($products_per_row > 1) {
 					}
 					echo JHTML::_ ('link', JRoute::_ ('index.php?option=com_virtuemart&view=productdetails&virtuemart_product_id=' . $product->virtuemart_product_id . '&virtuemart_category_id=' . $product->virtuemart_category_id), $image, array('title' => $product->product_name));
 					echo '<div class="clear"></div>';
-					$url = JRoute::_ ('index.php?option=com_virtuemart&view=productdetails&virtuemart_product_id=' . $product->virtuemart_product_id . '&virtuemart_category_id=' .
-						$product->virtuemart_category_id); ?>
+					$url = JRoute::_ ('index.php?option=com_virtuemart&view=productdetails&virtuemart_product_id=' . $product->virtuemart_product_id . '&virtuemart_category_id=' .$product->virtuemart_category_id); ?>
 					<a href="<?php echo $url ?>"><?php echo $product->product_name ?></a>        <?php    echo '<div class="clear"></div>';
 
+					echo '<div class="productdetails">';
 					if ($show_price) {
+
+						echo '<div class="product-price">';
 						// 		echo $currency->priceDisplay($product->prices['salesPrice']);
 						if (!empty($product->prices['salesPrice'])) {
 							echo $currency->createPriceDiv ('salesPrice', '', $product->prices, FALSE, FALSE, 1.0, TRUE);
@@ -45,10 +47,13 @@ if ($products_per_row > 1) {
 						if (!empty($product->prices['salesPriceWithDiscount'])) {
 							echo $currency->createPriceDiv ('salesPriceWithDiscount', '', $product->prices, FALSE, FALSE, 1.0, TRUE);
 						}
+						echo '</div>';
+
 					}
 					if ($show_addtocart) {
 						echo shopFunctionsF::renderVmSubLayout('addtocart',array('product'=>$product));
 					}
+					echo '</div>';
 					?>
 				</div>
 			</div>
@@ -79,20 +84,23 @@ if ($products_per_row > 1) {
 				}
 				echo JHTML::_ ('link', JRoute::_ ('index.php?option=com_virtuemart&view=productdetails&virtuemart_product_id=' . $product->virtuemart_product_id . '&virtuemart_category_id=' . $product->virtuemart_category_id), $image, array('title' => $product->product_name));
 				echo '<div class="clear"></div>';
-				$url = JRoute::_ ('index.php?option=com_virtuemart&view=productdetails&virtuemart_product_id=' . $product->virtuemart_product_id . '&virtuemart_category_id=' .
-					$product->virtuemart_category_id); ?>
+				$url = JRoute::_ ('index.php?option=com_virtuemart&view=productdetails&virtuemart_product_id=' . $product->virtuemart_product_id . '&virtuemart_category_id=' .$product->virtuemart_category_id); ?>
 				<a href="<?php echo $url ?>"><?php echo $product->product_name ?></a>        <?php    echo '<div class="clear"></div>';
+				echo '<div class="productdetails">';
 				// $product->prices is not set when show_prices in config is unchecked
 				if ($show_price and  isset($product->prices)) {
+
 					echo '<div class="product-price">'.$currency->createPriceDiv ('salesPrice', '', $product->prices, FALSE, FALSE, 1.0, TRUE);
 					if ($product->prices['salesPriceWithDiscount'] > 0) {
 						echo $currency->createPriceDiv ('salesPriceWithDiscount', '', $product->prices, FALSE, FALSE, 1.0, TRUE);
 					}
 					echo '</div>';
+
 				}
 				if ($show_addtocart) {
 					echo shopFunctionsF::renderVmSubLayout('addtocart',array('product'=>$product));
 				}
+				echo '</div>';
 				?>
 			</li>
 			<?php

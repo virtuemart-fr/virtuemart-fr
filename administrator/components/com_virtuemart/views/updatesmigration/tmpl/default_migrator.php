@@ -133,22 +133,4 @@ echo VmHTML::row('input','COM_VIRTUEMART_MIGRATION_DCAT_FLY','migration_default_
 <input type="hidden" name="view" value="updatesmigration" />
 <?php echo JHtml::_( 'form.token' ); ?>
 </form>
-<?php /*
-<form action="index.php" method="post" name="adminForm" enctype="multipart/form-data" >
-    <input type="hidden" name="task" value="reOrderChilds" />
-
-    <table>
-        <tr>
-            <td align="left" colspan="5" >
-                <h3> <?php echo vmText::_('COM_VIRTUEMART_UPDATE_CHILD_ORDERING'); ?> </h3>
-            </td>
-        </tr>
-        <td>
-            <button class="default" type="submit" ><?php echo vmText::_('COM_VIRTUEMART_GO'); ?></button>
-        </td>
-    </table>
-    <!-- Hidden Fields -->
-    <input type="hidden" name="option" value="com_virtuemart" />
-    <input type="hidden" name="view" value="updatesmigration" />
-	<?php echo JHtml::_( 'form.token' ); ?>
-</form> */ ?>
+<?php ?>

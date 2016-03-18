@@ -13,7 +13,7 @@
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
- * @version $Id: default.php 9058 2015-11-10 18:30:54Z Milbo $
+ * @version $Id: default.php 9185 2016-02-25 13:51:01Z Milbo $
  */
 // Check to ensure this file is included in Joomla!
 defined('_JEXEC') or die('Restricted access');
@@ -33,7 +33,7 @@ if(vRequest::getInt('print',false)){ ?>
 <body onload="javascript:print();">
 <?php } ?>
 
-<div class="productdetails-view productdetails">
+<div class="productdetails-view productdetails" >
 
     <?php
     // Product Navigation
@@ -196,7 +196,7 @@ echo $this->loadTemplate('images');
 	// Product Description
 	if (!empty($this->product->product_desc)) {
 	    ?>
-        <div class="product-description">
+        <div class="product-description" >
 	<?php /** @todo Test if content plugins modify the product description */ ?>
     	<span class="title"><?php echo vmText::_('COM_VIRTUEMART_PRODUCT_DESC_TITLE') ?></span>
 	<?php echo $this->product->product_desc; ?>

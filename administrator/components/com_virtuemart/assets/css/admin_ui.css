@@ -34,6 +34,7 @@
 /* Pagination Override Bluestork */
 .pagination div.limit {display: inline-flex;}
 div#limit_chzn {margin: 0 0 0 6px;}
+div#limit_chzn .chzn-search {display: none;}
 
 /* System Messages overide */
 #system-message {margin: 0px !important;overflow: auto;}

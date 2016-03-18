@@ -1,7 +1,7 @@
 <?php
 defined ('_JEXEC') or  die('Direct Access to ' . basename (__FILE__) . ' is not allowed.');
 /**
- * @version $Id: mod_virtuemart_search.php 8429 2014-10-14 12:19:39Z Milbo $
+ * @version $Id: mod_virtuemart_search.php 9090 2015-12-16 10:03:52Z Milbo $
  * @package VirtueMart
  * @subpackage modules
  *
@@ -36,5 +36,6 @@ if ($params->get ('filter_category', 0)) {
 } else {
 	$category_id = 0;
 }
-require(JModuleHelper::getLayoutPath ('mod_virtuemart_search'));
+require JModuleHelper::getLayoutPath ('mod_virtuemart_search', $params->get('layout', 'default'));
+echo vmJsApi::writeJS();
 ?>

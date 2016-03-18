@@ -134,7 +134,8 @@ class VmViewAdmin extends JViewLegacy {
 			} else {
 				$form = "form.submit();";
 			}
-
+		} else {
+			return $done[$validate];
 		}
 
 		$j = "

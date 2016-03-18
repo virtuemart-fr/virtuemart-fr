@@ -13,7 +13,7 @@
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
-* @version $Id: edit.php 8927 2015-07-21 10:09:26Z Milbo $
+* @version $Id: edit.php 9074 2015-11-26 15:28:54Z Milbo $
 */
 
 // Check to ensure this file is included in Joomla!
@@ -24,7 +24,7 @@ JHtml::_('behavior.formvalidation');
 JHtml::stylesheet('vmpanels.css', JURI::root().'components/com_virtuemart/assets/css/'); // VM_THEMEURL
 ?>
 
-<?php vmJsApi::vmValidator(); ?>
+<?php //vmJsApi::vmValidator($this->userDetails->JUser->guest,$this->userFields); ?>
 
 <h1><?php echo $this->page_title ?></h1>
 <?php echo shopFunctionsF::getLoginForm(false); ?>

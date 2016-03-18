@@ -44,7 +44,7 @@ jQuery(document).ready(function() {
 		}
 		?>
 	</div>
-<?php if ($category->childs) { ?>
+<?php if (!empty($category->childs)) { ?>
 <ul class="menu<?php echo $class_sfx; ?>">
 <?php
 		foreach ($category->childs as $child) {

@@ -1960,7 +1960,7 @@ class Migrator extends VmModel{
 		vmSetStartTime('relatedproducts');
 
 	    $maxItems = $this->_getMaxItems('relatedproducts');
-		$startLimit = $this->_getStartLimit('relatedproducts_start');;
+		$startLimit = $this->_getStartLimit('relatedproducts');;
 		$i=0;
 		$continue = true;
 

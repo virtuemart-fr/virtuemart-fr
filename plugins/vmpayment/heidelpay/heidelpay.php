@@ -259,6 +259,20 @@ class plgVmPaymentHeidelpay extends vmPSPlugin {
 		$params['ADDRESS.COUNTRY'] = ShopFunctions::getCountryByID ($address->virtuemart_country_id, 'country_2_code');
 		$params['CONTACT.EMAIL'] = $order['details']['BT']->email;
 		$params['CONTACT.IP'] = $_SERVER['REMOTE_ADDR'];
+		
+		if ($method->HEIDELPAY_PAYMENT_TYPE == "VAPAYPAL") {
+			if(!empty($order['details']['ST'])) {
+			$params['NAME.GIVEN'] 		= $order['details']['ST']->first_name;
+			$params['NAME.FAMILY']		= $order['details']['ST']->last_name;
+			if(!empty($order['details']['ST']->company)) $params['NAME.COMPANY'] = $order['details']['ST']->company ;
+			$params['ADDRESS.STREET'] 	= $order['details']['ST']->address_1;
+			isset($order['details']['ST']->address_2) ? $params['ADDRESS.STREET'] .= " " . $order['details']['ST']->address_2 : '';
+			$params['ADDRESS.ZIP'] 		= $order['details']['ST']->zip;
+			$params['ADDRESS.CITY'] 	= $order['details']['ST']->city;
+			$params['ADDRESS.COUNTRY']	= ShopFunctions::getCountryByID ($order['details']['ST']->virtuemart_country_id, 'country_2_code');
+			}
+		}
+		
 		/*
 		* Add debug informations for merchiant support
 		*/

@@ -384,18 +384,18 @@ class plgVmCalculationAvalara extends vmCalculationPlugin {
 					if($calculationHelper->inCart){
 						$tax = 0.0;
 						$prices =  $calculationHelper->getCartPrices();
-
+						//avadebug('My prices',$prices);
 						$toSet = self::$_taxResult;
-						$toSet['salesPrice'] = 0.0;
+						//$toSet['salesPrice'] = 0.0;
 						foreach(self::$_taxResult as $k => $line){
 							if(is_integer($k)){
-								$toSet[$k]['salesPrice'] = $prices[$k]['salesPrice'] + $line['taxAmount'];
+								$toSet[$k]['salesPrice'] = $prices[$k]['priceBeforeTax'] + $line['taxAmount'];
 								$toSet[$k]['subtotal_with_tax'] = $prices[$k]['subtotal_with_tax'] + $line['taxAmountQuantity'];
-								$toSet['salesPrice'] += $toSet[$k]['subtotal_with_tax'];
+								//$toSet['salesPrice'] += $toSet[$k]['subtotal_with_tax'];
 							}
 						}
 						$toSet['taxAmount'] = self::$_taxResult['totalTax'];
-
+						$toSet['toTax'] = $prices['toTax'] + self::$_taxResult['totalTax'];
 						if(isset($prices['shipmentValue']) and isset(self::$_taxResult['shipmentTax'] )) {
 							$toSet['shipmentTax'] = self::$_taxResult['shipmentTax'];
 							$toSet['salesPriceShipment'] = $prices['shipmentValue'] + self::$_taxResult['shipmentTax'] ;
@@ -406,8 +406,11 @@ class plgVmCalculationAvalara extends vmCalculationPlugin {
 							$toSet['salesPricePayment'] = $prices['paymentValue'];// + self::$_taxResult['paymentTax'] );
 						}
 
-						vmdebug('avatax plgVmInterpreteMathOp result',self::$_taxResult,$toSet);
+						avadebug('avatax plgVmInterpreteMathOp result',self::$_taxResult,$toSet);
 						$calculationHelper->setCartPricesMerge($toSet);
+						//$prices =  $calculationHelper->getCartPrices();
+						//avadebug('My merged prices',$prices);
+						//$done = true;
 					}
 				} else if($rule->prevCheckoutAddInv){
 					if($calculationHelper->inCart){
@@ -755,7 +758,7 @@ class plgVmCalculationAvalara extends vmCalculationPlugin {
 		}
 
 		$request = $this->createStandardRequest($calc,$products);
-
+		//avadebug('My request to avatax',$request);
 		if($orderNumber){
 			$request->setPurchaseOrderNo($orderNumber);     //string Optional
 		}

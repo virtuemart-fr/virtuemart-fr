@@ -13,7 +13,7 @@
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
-* @version $Id: paymentmethod.php 9029 2015-10-28 12:51:49Z Milbo $
+* @version $Id: paymentmethod.php 9193 2016-03-11 10:17:04Z Milbo $
 */
 
 // Check to ensure this file is included in Joomla!
@@ -196,6 +196,13 @@ class VirtueMartModelPaymentmethod extends VmModel{
 	   		$data['virtuemart_vendor_id'] = VirtueMartModelVendor::getLoggedVendor();
 	  	}
 
+		$tCon = array('min_amount','max_amount','cost_per_transaction','cost_min_transaction','cost_percent_total');
+		foreach($tCon as $f){
+			if(!empty($data[$f])){
+				$data[$f] = str_replace(array(',',' '),array('.',''),$data[$f]);
+			}
+		}
+
 		$table = $this->getTable('paymentmethods');
 
 		if(isset($data['payment_jplugin_id'])){
@@ -212,7 +219,7 @@ class VirtueMartModelPaymentmethod extends VmModel{
 			JPluginHelper::importPlugin('vmpayment');
 			$dispatcher = JDispatcher::getInstance();
 			$retValue = $dispatcher->trigger('plgVmSetOnTablePluginParamsPayment',array( $data['payment_element'],$data['payment_jplugin_id'],&$table));
-
+			$retValue = $dispatcher->trigger('plgVmSetOnTablePluginPayment',array( &$data,&$table));
 		}
 
 		$table->bindChecknStore($data);

@@ -40,12 +40,16 @@ class VirtuemartViewOrders extends VmViewAdmin {
 			require(VMPATH_ADMIN . DS . 'helpers' . DS . 'html.php');
 
 		if(!class_exists('vmPSPlugin')) require(VMPATH_PLUGINLIBS.DS.'vmpsplugin.php');
+
+		$app = JFactory::getApplication();
 		$orderStatusModel=VmModel::getModel('orderstatus');
 		$orderStates = $orderStatusModel->getOrderStatusList(true);
 
 		$this->SetViewTitle( 'ORDER');
 
 		$orderModel = VmModel::getModel();
+
+		$this->lists['search'] = $orderModel->get('search', '');
 
 		$curTask = vRequest::getCmd('task');
 		if ($curTask == 'edit') {
@@ -63,7 +67,7 @@ class VirtuemartViewOrders extends VmViewAdmin {
 			$order = $orderModel->getOrder($virtuemart_order_id);
 
 			if(empty($order['details'])){
-				JFactory::getApplication()->redirect('index.php?option=com_virtuemart&view=orders',vmText::_('COM_VIRTUEMART_ORDER_NOTFOUND'));;
+				$app->redirect('index.php?option=com_virtuemart&view=orders',vmText::_('COM_VIRTUEMART_ORDER_NOTFOUND'));;
 			}
 
 			$_orderID = $order['details']['BT']->virtuemart_order_id;
@@ -71,7 +75,7 @@ class VirtuemartViewOrders extends VmViewAdmin {
 			$orderst = (array_key_exists('ST', $order['details'])) ? $order['details']['ST'] : $orderbt;
 			$orderbt ->invoiceNumber = $orderModel->getInvoiceNumber($orderbt->virtuemart_order_id);
 
-			$currency = CurrencyDisplay::getInstance('',$order['details']['BT']->virtuemart_vendor_id);
+			$currency = CurrencyDisplay::getInstance(0,$order['details']['BT']->virtuemart_vendor_id);
 
 			$this->assignRef('currency', $currency);
 
@@ -133,7 +137,7 @@ class VirtuemartViewOrders extends VmViewAdmin {
 				$_orderStatusList[$orderbt->order_status] = vmText::_('COM_VIRTUEMART_UNKNOWN_ORDER_STATUS');
 			}
 
-			$this->lists['search'] = '';
+
 
 			/* Assign the data */
 			$this->assignRef('orderdetails', $order);
@@ -184,9 +188,14 @@ class VirtuemartViewOrders extends VmViewAdmin {
 			$orderStatusModel =VmModel::getModel('orderstatus');
 			$orderstates = vRequest::getCmd('order_status_code','');
 			$this->lists['state_list'] = $orderStatusModel->renderOSList($orderstates,'order_status_code',FALSE,' onchange="this.form.submit();" ');
+			$this->lists['bulk_state_list'] = $orderStatusModel->renderOSList($orderstates,'order_status_code_bulk',FALSE,'id="order_status_code_bulk" onchange="set2status();" ');
 			$orderslist = $model->getOrdersList();
 
 			$this->assignRef('orderstatuses', $orderStates);
+			$this->lists['vendors']='';
+			if($this->showVendors()){
+				$this->lists['vendors'] = Shopfunctions::renderVendorList(VmAccess::getVendorId());
+			}
 
 			if(!class_exists('CurrencyDisplay'))require(VMPATH_ADMIN.DS.'helpers'.DS.'currencydisplay.php');
 
@@ -233,6 +242,7 @@ class VirtuemartViewOrders extends VmViewAdmin {
 
 			/* Toolbar */
 			//JToolBarHelper::customX( 'CreateOrderHead', 'new','new','New',false);
+
 			JToolBarHelper::save('updatestatus', vmText::_('COM_VIRTUEMART_UPDATE_STATUS'));
 
 			if (vmAccess::manager('orders.delete')) {
@@ -246,7 +256,7 @@ class VirtuemartViewOrders extends VmViewAdmin {
 			$this->pagination = $model->getPagination();
 
 		}
-		if(JFactory::getApplication()->isSite()) {
+		if($app->isSite()) {
 			$bar = JToolBar::getInstance( 'toolbar' );
 			$bar->appendButton( 'Link', 'back', 'COM_VIRTUEMART_LEAVE', 'index.php?option=com_virtuemart&manage=0' );
 		}
@@ -256,5 +266,31 @@ class VirtuemartViewOrders extends VmViewAdmin {
 		parent::display($tpl);
 	}
 
+	function createPrintLinks($order,&$print_link,&$deliverynote_link,&$invoice_link){
+
+		/* Print view URL */
+		$print_url = juri::root () . 'index.php?option=com_virtuemart&view=invoice&layout=invoice&tmpl=component&virtuemart_order_id=' . $order->virtuemart_order_id . '&order_number=' . $order->order_number . '&order_pass=' . $order->order_pass;
+		$print_link = "<a href=\"javascript:void window.open('$print_url', 'win2', 'status=no,toolbar=no,scrollbars=yes,titlebar=no,menubar=no,resizable=yes,width=640,height=480,directories=no,location=no');\"  >";
+		$print_link .= '<span class="hasTip print_32" title="' . vmText::_ ('COM_VIRTUEMART_PRINT') . '">&nbsp;</span></a>';
+		$invoice_link = '';
+		$deliverynote_link = '';
+		$pdfDummi= '&d='.rand(0,100);
+		if (!$order->invoiceNumber) {
+			$invoice_url = juri::root () . 'index.php?option=com_virtuemart&view=invoice&layout=invoice&format=pdf&tmpl=component&virtuemart_order_id=' . $order->virtuemart_order_id . '&order_number=' . $order->order_number . '&order_pass=' . $order->order_pass . '&create_invoice='.$order->order_create_invoice_pass.$pdfDummi;
+			$invoice_link .= "<a href=\"$invoice_url\"  >".'<span class="hasTip invoicenew_32" title="' . vmText::_ ('COM_VIRTUEMART_INVOICE_CREATE') . '"></span></a>';
+		} elseif (!shopFunctions::InvoiceNumberReserved ($order->invoiceNumber)) {
+			$invoice_url = juri::root () . 'index.php?option=com_virtuemart&view=invoice&layout=invoice&format=pdf&tmpl=component&virtuemart_order_id=' . $order->virtuemart_order_id . '&order_number=' . $order->order_number . '&order_pass=' . $order->order_pass.$pdfDummi;
+			$invoice_link = "<a href=\"$invoice_url\"  >" . '<span class="hasTip invoice_32" title="' . vmText::_ ('COM_VIRTUEMART_INVOICE') . '"></span></a>';
+		}
+
+		if (!$order->invoiceNumber) {
+			$deliverynote_url = juri::root () . 'index.php?option=com_virtuemart&view=invoice&layout=deliverynote&format=pdf&tmpl=component&virtuemart_order_id=' . $order->virtuemart_order_id . '&order_number=' . $order->order_number . '&order_pass=' . $order->order_pass . '&create_invoice='.$order->order_create_invoice_pass.$pdfDummi;
+			$deliverynote_link = "<a href=\"$deliverynote_url\"  >" . '<span class="hasTip deliverynotenew_32" title="' . vmText::_ ('COM_VIRTUEMART_DELIVERYNOTE_CREATE') . '"></span></a>';
+		} elseif (!shopFunctions::InvoiceNumberReserved ($order->invoiceNumber)) {
+			$deliverynote_url = juri::root () . 'index.php?option=com_virtuemart&view=invoice&layout=deliverynote&format=pdf&tmpl=component&virtuemart_order_id=' . $order->virtuemart_order_id . '&order_number=' . $order->order_number . '&order_pass=' . $order->order_pass.$pdfDummi;
+			$deliverynote_link = "<a href=\"$deliverynote_url\"  >" . '<span class="hasTip deliverynote_32" title="' . vmText::_ ('COM_VIRTUEMART_DELIVERYNOTE') . '"></span></a>';
+		}
+
+	}
 }
 

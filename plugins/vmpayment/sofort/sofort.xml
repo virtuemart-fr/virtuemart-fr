@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <extension version="2.5" type="plugin" group="vmpayment" method="upgrade">
     <name>Sofort</name>
-    <creationDate>November 10 2015</creationDate>
+    <creationDate>March 11 2016</creationDate>
     <author>The VirtueMart Development Team</author>
     <authorUrl>http://www.virtuemart.net</authorUrl>
-    <copyright>Copyright (C) 2004-2015 Virtuemart Team. All rights reserved.</copyright>
+    <copyright>Copyright (C) 2004-2016 Virtuemart Team. All rights reserved.</copyright>
     <license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
-    <version>3.0.12</version>
+    <version>3.0.14</version>
     <description><![CDATA[<a href="http:/www.sofort.com" target="_blank">Sofort</a> is a popular
 	payment provider and available in many countries. ]]>
     </description>
@@ -65,7 +65,7 @@
 
 
          <field type="vmtitle" default="VMPAYMENT_SOFORT_RESTRICTIONS" level="level1"/>
-         <field name="countries" type="vmcountries" scope="com_virtuemart" default="" label="VMPAYMENT_SOFORT_COUNTRIES"
+         <field name="countries" type="vmcountries" scope="com_virtuemart" default="" multiple="true" label="VMPAYMENT_SOFORT_COUNTRIES"
                description="VMPAYMENT_SOFORT_COUNTRIES_DESC"/>
          <field name="min_amount" type="text" label="VMPAYMENT_SOFORT_MIN_AMOUNT"
                description="VMPAYMENT_SOFORT_MIN_AMOUNT_DESC"/>

@@ -8,7 +8,7 @@ defined('_JEXEC') or die( 'Direct Access to '.basename(__FILE__).' is not allowe
 * @subpackage modules
 *
 * @copyright (C) 2010 - Patrick Kohl
-* @copyright (C) 2011 - The VirtueMart Team
+* @copyright (C) 2011 - 2016 The VirtueMart Team
 * @author Max Milbers, Valerie Isaksen, Alexander Steiner
 * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL
 * VirtueMart is Free Software.
@@ -40,11 +40,9 @@ $Product_group = 	$params->get( 'product_group', 'featured'); // Display a foote
 $mainframe = Jfactory::getApplication();
 $virtuemart_currency_id = $mainframe->getUserStateFromRequest( "virtuemart_currency_id", 'virtuemart_currency_id',vRequest::getInt('virtuemart_currency_id',0) );
 
-if ($show_addtocart) {
-	vmJsApi::jPrice();
-	vmJsApi::cssSite();
-	//echo vmJsApi::writeJS();
-}
+
+vmJsApi::jPrice();
+vmJsApi::cssSite();
 
 $cache = $params->get( 'vmcache', true );
 $cachetime = $params->get( 'vmcachetime', 300 );
@@ -58,6 +56,7 @@ if($cache){
 
 	if ($output = $cache->get($key)) {
 		echo $output;
+		echo vmJsApi::writeJS();
 		vmdebug('Use cached mod products');
 		return true;
 	}

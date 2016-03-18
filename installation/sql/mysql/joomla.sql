@@ -89,12 +89,12 @@ INSERT INTO `#__assets` (`id`, `parent_id`, `lft`, `rgt`, `level`, `name`, `titl
 (55, 1, 117, 118, 1, 'com_virtuemart', 'VIRTUEMART', '{}'),
 (56, 1, 119, 120, 1, 'com_virtuemart_allinone', 'VirtueMart_allinone', '{}'),
 (57, 18, 70, 71, 2, 'com_modules.module.87', 'VM - Administrator Module', '{}'),
-(58, 18, 72, 73, 2, 'com_modules.module.88', 'VM - Currencies Selector', '{"core.delete":[],"core.edit":[],"core.edit.state":[],"module.edit.frontend":[]}'),
-(59, 18, 74, 75, 2, 'com_modules.module.89', 'VM - Featured products', '{"core.delete":[],"core.edit":[],"core.edit.state":[],"module.edit.frontend":[]}'),
-(60, 18, 76, 77, 2, 'com_modules.module.90', 'VM - Search in Shop', '{"core.delete":[],"core.edit":[],"core.edit.state":[],"module.edit.frontend":[]}'),
-(61, 18, 78, 79, 2, 'com_modules.module.91', 'VM - Manufacturer', '{"core.delete":[],"core.edit":[],"core.edit.state":[],"module.edit.frontend":[]}'),
-(62, 18, 80, 81, 2, 'com_modules.module.92', 'VM - Shopping cart', '{"core.delete":[],"core.edit":[],"core.edit.state":[],"module.edit.frontend":[]}'),
-(63, 18, 82, 83, 2, 'com_modules.module.93', 'VM - Category', '{"core.delete":[],"core.edit":[],"core.edit.state":[],"module.edit.frontend":[]}');
+(58, 18, 72, 73, 2, 'com_modules.module.88', 'Devises', '{"core.delete":[],"core.edit":[],"core.edit.state":[],"module.edit.frontend":[]}'),
+(59, 18, 74, 75, 2, 'com_modules.module.89', 'En vedette', '{"core.delete":[],"core.edit":[],"core.edit.state":[],"module.edit.frontend":[]}'),
+(60, 18, 76, 77, 2, 'com_modules.module.90', 'Recherche', '{"core.delete":[],"core.edit":[],"core.edit.state":[],"module.edit.frontend":[]}'),
+(61, 18, 78, 79, 2, 'com_modules.module.91', 'Fournisseurs', '{"core.delete":[],"core.edit":[],"core.edit.state":[],"module.edit.frontend":[]}'),
+(62, 18, 80, 81, 2, 'com_modules.module.92', 'Panier', '{"core.delete":[],"core.edit":[],"core.edit.state":[],"module.edit.frontend":[]}'),
+(63, 18, 82, 83, 2, 'com_modules.module.93', 'Catégories', '{"core.delete":[],"core.edit":[],"core.edit.state":[],"module.edit.frontend":[]}');
 
 -- --------------------------------------------------------
 

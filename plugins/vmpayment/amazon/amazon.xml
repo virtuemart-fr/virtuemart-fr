@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <extension version="2.5" type="plugin" group="vmpayment" method="upgrade">
     <name>AMAZON</name>
-    <creationDate>November 10 2015</creationDate>
+    <creationDate>March 11 2016</creationDate>
     <author>The VirtueMart Development Team</author>
     <authorUrl>http://www.virtuemart.net</authorUrl>
-    <copyright>Copyright (C) 2004-2015 Virtuemart Team. All rights reserved.</copyright>
+    <copyright>Copyright (C) 2004-2016 Virtuemart Team. All rights reserved.</copyright>
     <license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
-    <version>3.0.12</version>
+    <version>3.0.14</version>
     <description>AMAZON payment plugin</description>
     <languages>
         <language tag="en-GB">en-GB.plg_vmpayment_amazon.ini</language>
@@ -113,10 +113,7 @@
                        label="VMPAYMENT_AMAZON_CONF_POLLING_FREQUENCY"
                        description="VMPAYMENT_AMAZON_CONF_POLLING_FREQUENCY_TIP"/ -->
 
-                <field class="ipnurl level3" name="ipn_url"
-                       type="ipnurl" size="100" default=""
-                       editable="false"
-                       label="VMPAYMENT_AMAZON_CONF_IPN_URL" description="VMPAYMENT_AMAZON_IPN_WARNING"/>
+                <field class="ipnurl level3" name="ipn_url" type="ipnurl" size="100" default="" editable="false" label="VMPAYMENT_AMAZON_CONF_IPN_URL" description="VMPAYMENT_AMAZON_IPN_WARNING"/>
                 <field class="ipn_warning warning" type="vmtitle"
                        default="" description="VMPAYMENT_AMAZON_IPN_WARNING"/>
                 <field class="language_restriction" name="language_restriction" type="list" default="1"
@@ -171,6 +168,11 @@
                        default="R"
                        label="VMPAYMENT_AMAZON_CONF_STATUS_REFUND"
                        description="VMPAYMENT_AMAZON_CONF_STATUS_REFUND_TIP"/>
+
+                <field name="status_refund_declined" class="status_refund_declined" type="vmorderstate" scope="com_virtuemart"
+                       default="D"
+                       label="VMPAYMENT_AMAZON_CONF_STATUS_REFUND_DECLINED"
+                       description="VMPAYMENT_AMAZON_CONF_STATUS_REFUND_DECLINED_TIP"/>
 
                 <field name="status_cancel" class="status_cancel" type="vmorderstate" scope="com_virtuemart"
                        default="X"
@@ -250,9 +252,9 @@
                        description="VMPAYMENT_AMAZON_CONF_MIN_AMOUNT_TIP"/>
                 <field name="max_amount" type="text" label="VMPAYMENT_AMAZON_CONF_MAX_AMOUNT"
                        description="VMPAYMENT_AMAZON_CONF_MAX_AMOUNT_TIP"/>
-                <field name="exclude_categories" type="categories" label="VMPAYMENT_AMAZON_CONF_EXCLUDE_CATEGORIES"
+                <field name="exclude_categories" type="categories" class="level1" label="VMPAYMENT_AMAZON_CONF_EXCLUDE_CATEGORIES"
                        description="VMPAYMENT_AMAZON_CONF_EXCLUDE_CATEGORIES_TIP"/>
-                <field name="countries" type="vmcountries" scope="com_virtuemart" default=""
+                <field name="countries" type="vmcountries" scope="com_virtuemart" default="" multiple="true"
                        label="VMPAYMENT_AMAZON_CONF_COUNTRIES" description="VMPAYMENT_AMAZON_CONF_COUNTRIES_TIP"/>
                 <!--field name="languages" type="languages" label="VMPAYMENT_AMAZON_CONF_LANGUAGES"
                        description="VMPAYMENT_AMAZON_CONF_LANGUAGES_TIP"/ -->
@@ -268,7 +270,7 @@
                        description=""/>
                 <field type="vmtitle" class="level2" default="VMPAYMENT_AMAZON_CONF_TEMPLATE_SIGN_IN"
                        description=""/>
-                <field name="sign_in_widget_size" type="radio" default="medium"
+                <field name="sign_in_widget_size" type="radio" default="large"
                        label="VMPAYMENT_AMAZON_CONF_SIGN_IN_WIDGET_SIZE">
                     <option value="medium">VMPAYMENT_AMAZON_CONF_SIGN_IN_WIDGET_SIZE_MEDIUM</option>
                     <option value="large">VMPAYMENT_AMAZON_CONF_SIGN_IN_WIDGET_SIZE_LARGE</option>
@@ -283,7 +285,7 @@
 
                 <field class="level2" type="vmtitle" default="VMPAYMENT_AMAZON_CONF_TEMPLATE_ADDRESSBOOK"
                        description=""/>
-                <field name="addressbook_designWidth" type="text" default="400"
+                <field name="addressbook_designWidth" type="text" default="350"
                        label="VMPAYMENT_AMAZON_CONF_ADDRESSBOOK_DESIGNWIDTH"
                        description="VMPAYMENT_AMAZON_CONF_DESIGNWIDTH_TIP"/>
                 <field name="addressbook_designHeight" type="text" default="260"
@@ -292,7 +294,7 @@
 
                 <field class="level2" type="vmtitle" default="VMPAYMENT_AMAZON_CONF_TEMPLATE_WALLET"
                        description=""/>
-                <field name="wallet_designWidth" type="text" default="400"
+                <field name="wallet_designWidth" type="text" default="350"
                        label="VMPAYMENT_AMAZON_CONF_WALLET_DESIGNWIDTH"
                        description="VMPAYMENT_AMAZON_CONF_DESIGNWIDTH_TIP"/>
                 <field name="wallet_designHeight" type="text" default="260"

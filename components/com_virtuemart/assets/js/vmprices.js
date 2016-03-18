@@ -17,7 +17,7 @@ Virtuemart.setproducttype = function(form, id) {
         type: "POST",
         cache: false,
         dataType: "json",
-        url: window.vmSiteurl + "index.php?&option=com_virtuemart&view=productdetails&task=recalculate&format=json&nosef=1" + window.vmLang,
+        url: Virtuemart.vmSiteurl + "index.php?&option=com_virtuemart&view=productdetails&task=recalculate&format=json&nosef=1" + Virtuemart.vmLang,
         data: datas
     }).done(
         function (data, textStatus) {
@@ -81,7 +81,7 @@ Virtuemart.cartEffect = function(form) {
         type: "POST",
         cache: false,
         dataType: "json",
-        url: window.vmSiteurl + "index.php?option=com_virtuemart&nosef=1&view=cart&task=addJS&format=json"+window.vmLang+window.Itemid,
+        url: Virtuemart.vmSiteurl + "index.php?option=com_virtuemart&nosef=1&view=cart&task=addJS&format=json"+Virtuemart.vmLang+window.Itemid,
         data: dat
     }).done(
 

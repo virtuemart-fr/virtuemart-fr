@@ -13,7 +13,7 @@
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
-* @version $Id$
+* @version $Id: default.php 8872 2015-06-09 21:53:48Z Milbo $
 */
 
 // Check to ensure this file is included in Joomla!

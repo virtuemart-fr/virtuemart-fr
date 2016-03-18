@@ -519,6 +519,7 @@ class VmMediaHandler {
 		} else {
 			$file_url_thumb = '';
 		}
+
 		return $file_url_thumb;
 	}
 
@@ -968,7 +969,7 @@ class VmMediaHandler {
 			$image->file_root = JURI::root(true).'/';
 			$image->msg =  'OK';
 			$file_url_thumb = $image->getFileUrlThumb();
-			//vmdebug('Muh ',$file_url_thumb,$media_path);
+			//vmdebug('Muh ',$file_url_thumb);
 			/*if(!empty($image->file_url_thumb)){
 				$file_url_thumb = $image->file_url_thumb;
 			} else if(is_a($this,'VmImage')) {
@@ -1133,13 +1134,9 @@ $html .='</td>';
 
 		//remove the file_url_thumb in case it is standard
 		$file_url_thumb = '';
-		if(!empty($this->file_url_thumb) and is_a($this,'VmImage')) {
-			$file_url_thumb = $this->createThumbFileUrl();
-			//vmdebug('my displayFileHandler ',$this,$file_url_thumb);
-
-			if($this->file_url_thumb == $file_url_thumb){
-				$file_url_thumb = vmText::sprintf('COM_VIRTUEMART_DEFAULT_URL',$file_url_thumb);
-			}
+		$file_url_thumb = $this->getFileUrlThumb();
+		if(empty($this->file_url_thumb) and is_a($this,'VmImage')) {
+			$file_url_thumb = vmText::sprintf('COM_VIRTUEMART_DEFAULT_URL',$file_url_thumb);
 		}
 		$html .= $this->displayRow('COM_VIRTUEMART_FILES_FORM_FILE_URL_THUMB','file_url_thumb',$readonly,$file_url_thumb);
 

@@ -3,7 +3,7 @@ defined('_JEXEC') or  die( 'Direct Access to '.basename(__FILE__).' is not allow
 /*
 *Cart Ajax Module
 *
-* @version $Id: mod_virtuemart_cart.php 9058 2015-11-10 18:30:54Z Milbo $
+* @version $Id: mod_virtuemart_cart.php 9084 2015-12-14 18:04:37Z yourgeek $
 * @package VirtueMart
 * @subpackage modules
 *
@@ -34,6 +34,6 @@ vmJsApi::cssSite();
 $moduleclass_sfx 	= $params->get('moduleclass_sfx', '');
 $show_price 		= (bool)$params->get( 'show_price', 1 ); // Display the Product Price?
 $show_product_list 	= (bool)$params->get( 'show_product_list', 1 ); // Display the Product Price?
-require(JModuleHelper::getLayoutPath('mod_virtuemart_cart'));
+require JModuleHelper::getLayoutPath('mod_virtuemart_cart', $params->get('layout', 'default'));
 echo vmJsApi::writeJS();
  ?>

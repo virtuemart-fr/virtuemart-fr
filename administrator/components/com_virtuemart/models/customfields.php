@@ -792,8 +792,7 @@ class VirtueMartModelCustomfields extends VmModel {
 		}
 
 		VirtueMartCustomFieldRenderer::renderCustomfieldsFE($product, $customfields, $virtuemart_category_id);
-		//renderCustomfieldsFE($product, $customfields, $virtuemart_category_id);
-		//shopFunctionsF::renderVmSubLayout('customfield',array('product' => &$product, 'customfields' => &$customfields, 'virtuemart_category_id' => $virtuemart_category_id,'dimensions' => self::$dimensions));
+
 	}
 	/**
 	 * There are too many functions doing almost the same for my taste

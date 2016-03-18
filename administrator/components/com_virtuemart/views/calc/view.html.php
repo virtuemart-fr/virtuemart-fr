@@ -13,7 +13,7 @@
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
-* @version $Id: view.html.php 8962 2015-08-27 12:37:36Z Milbo $
+* @version $Id: view.html.php 9074 2015-11-26 15:28:54Z Milbo $
 */
 
 // Check to ensure this file is included in Joomla!
@@ -38,7 +38,6 @@ class VirtuemartViewCalc extends VmViewAdmin {
 
 		$model = VmModel::getModel('calc');
 
-		//@todo should be depended by loggedVendor
 		$this->vendorId = vmAccess::getVendorId();
 
 		$this->SetViewTitle();

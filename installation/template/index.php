@@ -48,7 +48,7 @@ JText::script('INSTL_FTP_SETTINGS_CORRECT');
 		<!-- Header -->
 		<div class="header">
 			<img src="<?php echo $this->baseurl ?>/template/images/joomla.png" alt="Joomla" />
-			<img src="<?php echo $this->baseurl ?>/template/images/virtuemart-fr.jpg" alt="VirtueMart" />
+			<img src="<?php echo $this->baseurl ?>/template/images/virtuemart_fr.png" alt="VirtueMart" />
 			<hr />
 			<h5>
 				<?php

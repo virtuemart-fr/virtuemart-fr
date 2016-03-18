@@ -139,6 +139,8 @@ if (!defined ('_VM_AIO_SCRIPT_INCLUDED')) {
 			$this->installPlugin ('VM Payment - Heidelpay', 'plugin', 'heidelpay', 'vmpayment');
 			$this->installPlugin ('VM Payment - Paybox', 'plugin', 'paybox', 'vmpayment');
 
+			$this->installPlugin ('VM Payment - 2Checkout', 'plugin', 'tco', 'vmpayment');
+
 			$this->installPlugin ('VM Payment - Pay with Amazon', 'plugin', 'amazon', 'vmpayment');
 			$this->installPlugin ('System - Pay with Amazon', 'plugin', 'amazon', 'system');
 
@@ -270,8 +272,6 @@ if (!defined ('_VM_AIO_SCRIPT_INCLUDED')) {
 			}
 			$this->updateOrderingExtensions();
 
-			$this->checkFixJoomlaBEMenuEntries();
-
 			$this->replaceStockableByDynamicChilds();
 			echo "<h3>Installation Successful.</h3>";
 			return TRUE;
@@ -302,47 +302,6 @@ if (!defined ('_VM_AIO_SCRIPT_INCLUDED')) {
 
 		}
 
-		/**
-		 *
-		 */
-		public function checkFixJoomlaBEMenuEntries(){
-
-			$db = JFactory::getDbo();
-			$db->setQuery('SELECT `extension_id` FROM `#__extensions` WHERE `type` = "component" AND `element`="com_virtuemart"');
-			$jId = $db->loadResult();
-
-			//The extension entry does not exist, lets insert one.
-			/*if(!$jId){
-				$q = 'INSERT INTO `#__extensions` (`extension_id`, `name`, `type`, `element`, `folder`, `client_id`, `enabled`, `access`, `protected`, `manifest_cache`)
-VALUES (null, \'VIRTUEMART\', \'component\', \'com_virtuemart\', \'\', 1, 1, 1, 0, \'{"legacy":true,"name":"VIRTUEMART","type":"component","creationDate":"February 05 2015","author":"The VirtueMart Development Team","copyright":"Copyright (C) 2004-2013 Virtuemart Team. All rights reserved.","authorEmail":"max|at|virtuemart.net","authorUrl":"http:\\/\\/www.virtuemart.net","version":"3.0.4.2","description":"","group":""}\'); ';
-				$db->setQuery($q);
-				if($db->execute($q)){
-					$jId = $db->insertid();
-					vmInfo('VirtueMart extension entry was missing, added with id '.$jId);
-				} else {
-					vmError('Serious Error, could not create entry for com_virtuemart in table extensions');
-				}
-			}*/
-
-			if($jId){
-				//now lets check if there are menue entries
-				$db->setQuery('SELECT `id` FROM `#__menu` WHERE `menutype` = "main" AND `path`="com-virtuemart"');
-
-				if($id = $db->loadResult()){
-					$db->setQuery('UPDATE `#__menu` SET `component_id`="'.$jId.'", `language`="*" WHERE `id` = "'.$id.'" ');
-					$db->execute();
-
-					$db->setQuery('SELECT `id` FROM `#__menu` WHERE `component_id` = "'.$jId.'" ');
-					$mId = $db->loadResult();
-
-					$db->setQuery('UPDATE `#__menu` SET `component_id`="'.$jId.'", `language`="*" WHERE `parent_id` = "'.$mId.'" ');
-					$db->execute();
-				} else {
-					vmError('Could not find VirtueMart submenues, please install VirtueMart again');
-				}
-
-			}
-		}
 
 		private function updateMoneyBookersToSkrill() {
 			$db = JFactory::getDBO ();
@@ -408,25 +367,16 @@ VALUES (null, \'VIRTUEMART\', \'component\', \'com_virtuemart\', \'\', 1, 1, 1, 
 
 			$db = JFactory::getDBO ();
 
-			$q = 'UPDATE `#__extensions` SET `ordering`= 5 WHERE `folder` ="vmpayment"';
+			$q = 'UPDATE `#__extensions` SET `ordering`= 20 WHERE `folder` ="vmpayment"';
 			$db->setQuery($q);
 			$db->query();
 
-			$q = 'UPDATE `#__extensions` SET `ordering`= 1 WHERE `element` ="klarna"';
-			$db->setQuery($q);
-			$db->query();
-
-			$q = 'UPDATE `#__extensions` SET `ordering`= 2 WHERE `element` ="sofort"';
-			$db->setQuery($q);
-			$db->query();
-
-			$q = 'UPDATE `#__extensions` SET `ordering`= 2 WHERE `element` ="sofort_ideal"';
-			$db->setQuery($q);
-			$db->query();
-
-			$q = 'UPDATE `#__extensions` SET `ordering`= 3 WHERE `element` ="paypal"';
-			$db->setQuery($q);
-			$db->query();
+			$order = array('paypal','tco','amazon','realex_hpp_api','sofort','sofort_ideal','klarna','paybox','heidelpay','skrill','klikandpay');
+			foreach($order as $o=>$el){
+				$q = 'UPDATE `#__extensions` SET `ordering`= "'.$o.'" WHERE `element` ="'.$el.'"';
+				$db->setQuery($q);
+				$db->query();
+			}
 
 			$q = 'UPDATE `#__extensions` SET `ordering`= 100 WHERE `element` ="payzen"';
 			$db->setQuery($q);

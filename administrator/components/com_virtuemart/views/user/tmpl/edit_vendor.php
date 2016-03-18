@@ -13,7 +13,7 @@
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
-* @version $Id: edit_vendor.php 9012 2015-10-09 11:49:32Z Milbo $
+* @version $Id: edit_vendor.php 9074 2015-11-26 15:28:54Z Milbo $
 */
 
 // Check to ensure this file is included in Joomla!
@@ -26,39 +26,15 @@ defined('_JEXEC') or die('Restricted access'); ?>
 						<?php echo vmText::_('COM_VIRTUEMART_VENDOR_FORM_INFO_LBL') ?>
 					</legend>
 					<table class="admintable">
-						<tr>
-							<td class="key">
-								<?php echo vmText::_('COM_VIRTUEMART_STORE_FORM_STORE_NAME'); ?>:
-							</td>
-							<td>
-								<input class="inputbox" type="text" name="vendor_store_name" id="vendor_store_name" size="50" value="<?php echo $this->vendor->vendor_store_name; ?>" />
-							</td>
-						</tr>
-						<tr>
-							<td class="key">
-								<?php echo vmText::_('COM_VIRTUEMART_STORE_FORM_COMPANY_NAME'); ?>:
-							</td>
-							<td>
-								<input class="inputbox" type="text" name="vendor_name" id="vendor_name" size="50" value="<?php echo $this->vendor->vendor_name; ?>" />
-							</td>
-						</tr>
-						<tr>
-							<td class="key">
-								<?php echo vmText::_('COM_VIRTUEMART_PRODUCT_FORM_URL'); ?>:
-							</td>
-							<td>
-								<input class="inputbox" type="text" name="vendor_url" id="vendor_url" size="50" value="<?php echo $this->vendor->vendor_url; ?>" />
-							</td>
-						</tr>
-						<tr>
-							<td class="key">
-								<?php echo vmText::_('COM_VIRTUEMART_STORE_FORM_MPOV'); ?>:
-							</td>
-							<td>
-								<input class="inputbox" type="text" name="vendor_min_pov" id="vendor_min_pov" size="10" value="<?php echo $this->vendor->vendor_min_pov; ?>" />
-							</td>
-						</tr>
-
+						<?php
+						echo VmHTML::row('input','COM_VIRTUEMART_STORE_FORM_STORE_NAME','vendor_store_name',$this->vendor->vendor_store_name);
+						echo VmHTML::row('input','COM_VIRTUEMART_STORE_FORM_COMPANY_NAME','vendor_name',$this->vendor->vendor_name);
+						echo VmHTML::row('input','COM_VIRTUEMART_PRODUCT_FORM_URL','vendor_url',$this->vendor->vendor_url);
+						echo VmHTML::row('input','COM_VIRTUEMART_STORE_FORM_MPOV','vendor_min_pov',$this->vendor->vendor_min_pov);
+						if(VmConfig::get('multix','none')!='none' and vmAccess::manager('managevendors')){
+							echo VmHTML::row('input','COM_VIRTUEMART_MAX_CATS_PER_PRODUCT','max_cats_per_product',$this->vendor->max_cats_per_product);
+						}
+						?>
 					</table>
 				</fieldset>
 
@@ -67,22 +43,10 @@ defined('_JEXEC') or die('Restricted access'); ?>
 						<?php echo vmText::_('COM_VIRTUEMART_STORE_CURRENCY_DISPLAY') ?>
 					</legend>
 					<table class="admintable">
-						<tr>
-							<td class="key">
-								<?php echo vmText::_('COM_VIRTUEMART_CURRENCY'); ?>:
-							</td>
-							<td>
-								<?php echo JHtml::_('Select.genericlist', $this->currencies, 'vendor_currency', '', 'virtuemart_currency_id', 'currency_name', $this->vendor->vendor_currency); ?>
-							</td>
-						</tr>
-						<tr>
-							<td class="key">
-								<?php echo vmText::_('COM_VIRTUEMART_STORE_FORM_ACCEPTED_CURRENCIES'); ?>:
-							</td>
-							<td>
-								<?php echo JHtml::_('Select.genericlist', $this->currencies, 'vendor_accepted_currencies[]', 'size=10 multiple="multiple" data-placeholder="'.vmText::_('COM_VIRTUEMART_DRDOWN_SELECT_SOME_OPTIONS').'"', 'virtuemart_currency_id', 'currency_name', $this->vendor->vendor_accepted_currencies); ?>
-							</td>
-						</tr>
+						<?php
+						echo VmHTML::row('genericlist','COM_VIRTUEMART_CURRENCY',$this->currencies,'vendor_currency','', 'virtuemart_currency_id', 'currency_name', $this->vendor->vendor_currency,'vendor_currency',true);
+						echo VmHTML::row('genericlist','COM_VIRTUEMART_STORE_FORM_ACCEPTED_CURRENCIES',$this->currencies,'vendor_accepted_currencies[]','size=10 multiple="multiple" data-placeholder="'.vmText::_('COM_VIRTUEMART_DRDOWN_SELECT_SOME_OPTIONS').'"', 'virtuemart_currency_id', 'currency_name', $this->vendor->vendor_accepted_currencies,'vendor_accepted_currencies',true);
+						?>
 					</table>
 				</fieldset>
 
@@ -91,13 +55,11 @@ defined('_JEXEC') or die('Restricted access'); ?>
 				<?php echo vmText::_('COM_VIRTUEMART_VENDOR_FORM_INFO_LBL') ?>
 			</legend>
 			<?php
-			vmdebug('$this->vendor->virtuemart_vendor_id',$this->vendor->virtuemart_vendor_id);
 				echo $this->vendor->images[0]->displayFilesHandler($this->vendor->virtuemart_media_id,'vendor',$this->vendor->virtuemart_vendor_id);
 			?>
 
 
 		</fieldset>
-
 
 				<fieldset>
 					<legend>

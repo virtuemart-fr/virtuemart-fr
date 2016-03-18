@@ -537,7 +537,7 @@ Seuls quelques-uns de ces vêtements authentiques ont survécu, cette boutique e
 				$query="SELECT * FROM `#__update_sites` WHERE `update_site_id`=".$update_sites_extensions->update_site_id;
 				$db->setQuery($query);
 				$update_sites= $db->loadAssocList();
-				vmdebug('updateJoomlaUpdateServer',$update_sites);
+				//vmdebug('updateJoomlaUpdateServer',$update_sites);
 				if(empty($update_sites)){
 					vmdebug('No update sites found, they should be inserted');
 					return false;

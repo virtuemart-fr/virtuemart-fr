@@ -13,7 +13,7 @@
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
-* @version $Id: state.php 8615 2014-12-04 13:56:26Z Milbo $
+* @version $Id: state.php 9077 2015-12-07 13:20:10Z Milbo $
 */
 
 // Check to ensure this file is included in Joomla!
@@ -39,6 +39,8 @@ class VirtueMartControllerState extends JControllerLegacy {
 		foreach($countries as $country){
 			$states[$country] = $stateModel->getStates((int)$country,true,true );
 		}
+		JResponse::setHeader("Content-type","application/json");
+		JResponse::sendHeaders();
 		echo json_encode($states);
 
 		jExit();

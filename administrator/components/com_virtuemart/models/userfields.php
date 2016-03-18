@@ -14,7 +14,7 @@
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
- * @version $Id: userfields.php 9058 2015-11-10 18:30:54Z Milbo $
+ * @version $Id: userfields.php 9077 2015-12-07 13:20:10Z Milbo $
  */
 
 // Check to ensure this file is included in Joomla!
@@ -495,14 +495,16 @@ class VirtueMartModelUserfields extends VmModel {
 
 
 		//Small ugly hack to make registering optional //do we still need that? YES !  notice by Max Milbers
-		if($register and $type == 'BT' and VmConfig::get('oncheckout_show_register',1) and !VmConfig::get('oncheckout_only_registered',1) ){
+		if($register and $type == 'BT' and VmConfig::get('oncheckout_show_register',1) and !VmConfig::get('oncheckout_only_registered',1) and $layoutName!='edit'){
 			vmdebug('Going to set core fields unrequired');
 			foreach($userFields as $field){
 				if(in_array($field->name,$corefields)){
+					if($field->required){
+						$field->register = 1;
+					}
 					$field->required = 0;
 					$field->value = '';
 					$field->default = '';
-
 				}
 			}
 		}
@@ -518,6 +520,11 @@ class VirtueMartModelUserfields extends VmModel {
 				}
 			}
 		}
+
+		JPluginHelper::importPlugin('vmuserfield');
+		$dispatcher = JDispatcher::getInstance();
+		$dispatcher->trigger('plgVmOnGetUserfields', array($type, &$userFields));
+
 		$c[$h] = $userFields;
 		return $userFields;
 	}
@@ -779,6 +786,7 @@ class VirtueMartModelUserfields extends VmModel {
 				,'hidden' => false
 				,'formcode' => ''
 				,'description' => vmText::_($_fld->description)
+				,'register' => (isset($_fld->register)? $_fld->register:0)
 				);
 
 
@@ -808,7 +816,7 @@ class VirtueMartModelUserfields extends VmModel {
 							$attrib = array('style'=>"width: ".$_fld->size."px");
 						}
 						$_return['fields'][$_fld->name]['formcode'] =
-							ShopFunctionsF::renderCountryList($_return['fields'][$_fld->name]['value'], false, $attrib , $_prefix, $_fld->required);
+							ShopFunctionsF::renderCountryList($_return['fields'][$_fld->name]['value'], false, $attrib , $_prefix, $_fld->required,'virtuemart_country_id_field');
 
 						if(!empty($_return['fields'][$_fld->name]['value'])){
 							// Translate the value from ID to name
@@ -846,7 +854,8 @@ class VirtueMartModelUserfields extends VmModel {
 						$_prefix,
 						false,
 						$_fld->required,
-							$attrib
+							$attrib,
+						'virtuemart_state_id_field'
 						);
 
 
@@ -991,7 +1000,10 @@ class VirtueMartModelUserfields extends VmModel {
 								$_attribs['readonly'] = 'readonly';
 							}
 							if ($_fld->required) {
-								$_attribs['class'] = 'required';
+								if(!isset($_attribs['class'])){
+									$_attribs['class'] = '';
+								}
+								$_attribs['class'] .= ' required';
 							}
 
 							if ($_fld->type == 'radio' or $_fld->type == 'select') {
@@ -1034,7 +1046,10 @@ class VirtueMartModelUserfields extends VmModel {
 									break;
 								case 'multiselect':
 									$_attribs['multiple'] = 'multiple';
-									$_attribs['class'] = 'vm-chzn-select';
+									if(!isset($_attribs['class'])){
+										$_attribs['class'] = '';
+									}
+									$_attribs['class'] .= ' vm-chzn-select';
 									$field_values="";
 									$_return['fields'][$_fld->name]['formcode'] = JHtml::_('select.genericlist', $_values, $_prefix.$_fld->name.'[]', $_attribs, 'fieldvalue', 'fieldtitle', $_selected);
 									$separator_form = '<br />';
@@ -1048,7 +1063,10 @@ class VirtueMartModelUserfields extends VmModel {
 
 									break;
 								case 'select':
-									$_attribs['class'] = 'vm-chzn-select';
+									if(!isset($_attribs['class'])){
+										$_attribs['class'] = '';
+									}
+									$_attribs['class'] .= ' vm-chzn-select';
 									if ($_fld->size) {
 										$_attribs['style']= "width: ".$_fld->size."px";
 									}

@@ -7,7 +7,7 @@
  * @version $Id: creditcardlist.php 8278 2014-09-12 16:51:25Z alatak $
  * @package VirtueMart
  * @subpackage userfield
- * Copyright (C) 2004-2015 Virtuemart Team. All rights reserved.
+ * Copyright (C) 2004-2016 Virtuemart Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or

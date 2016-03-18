@@ -14,15 +14,13 @@
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
- * @version $Id: default_images.php 9032 2015-11-02 09:19:56Z Milbo $
+ * @version $Id: default_images.php 9077 2015-12-07 13:20:10Z Milbo $
  */
 // Check to ensure this file is included in Joomla!
 defined('_JEXEC') or die('Restricted access');
-if(VmConfig::get('usefancy',1)){
 
-vmJsApi::addJScript( 'fancybox/jquery.fancybox-1.3.4.pack', false);
-vmJsApi::css('jquery.fancybox-1.3.4');
-$document = JFactory::getDocument ();
+vmJsApi::loadPopUpLib();
+if(VmConfig::get('usefancy',1)){
 $imageJS = '
 jQuery(document).ready(function() {
 	Virtuemart.updateImageEventListeners()
@@ -47,9 +45,6 @@ Virtuemart.updateImageEventListeners = function() {
 	}
 	';
 } else {
-	vmJsApi::addJScript( 'facebox',false );
-	vmJsApi::css( 'facebox' );
-	$document = JFactory::getDocument ();
 	$imageJS = '
 	jQuery(document).ready(function() {
 		Virtuemart.updateImageEventListeners()

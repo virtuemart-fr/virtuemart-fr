@@ -14,7 +14,7 @@
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
-* @version $Id: category.php 9013 2015-10-09 14:45:16Z Milbo $
+* @version $Id: category.php 9074 2015-11-26 15:28:54Z Milbo $
 */
 
 // Check to ensure this file is included in Joomla!
@@ -460,8 +460,7 @@ class VirtueMartModelCategory extends VmModel {
 			$row->reorder($group);
 		}
 
-		$cache = JFactory::getCache('com_virtuemart_cats','callback');
-		$cache->clean();
+		$this->clearCategoryRelatedCaches();
 
 		return true;
 	}
@@ -555,10 +554,7 @@ class VirtueMartModelCategory extends VmModel {
 		$mediaModel = VmModel::getModel('Media');
 		$file_id = $mediaModel->storeMedia($data,'category');
 
-		$cache = JFactory::getCache();
-		$cache->clean('com_virtuemart_cats');
-		$cache->clean('mod_virtuemart_product');
-		$cache->clean('mod_virtuemart_category');
+		$this->clearCategoryRelatedCaches();
 
 
 		return $data['virtuemart_category_id'] ;
@@ -638,12 +634,17 @@ class VirtueMartModelCategory extends VmModel {
 			vmError( $db->getErrorMsg() );
 		}
 
-		$cache = JFactory::getCache('com_virtuemart_cats','callback');
-		$cache->clean();
+		$this->clearCategoryRelatedCaches();
 
 		return true;
     }
 
+	public function clearCategoryRelatedCaches(){
+		$cache = JFactory::getCache();
+		$cache->clean('com_virtuemart_cats');
+		$cache->clean('mod_virtuemart_product');
+		$cache->clean('mod_virtuemart_category');
+	}
 
 	/**
 	* Checks for children of the category $virtuemart_category_id
@@ -770,8 +771,7 @@ class VirtueMartModelCategory extends VmModel {
 
 	function toggle($field,$val = NULL, $cidname = 0,$tablename = 0, $view = false  ) {
 		$result = parent::toggle($field,$val, $cidname, $tablename, $view );
-		$cache = JFactory::getCache('com_virtuemart_cats','callback');
-		$cache->clean();
+		$this->clearCategoryRelatedCaches();
 		return $result;
 	}
 

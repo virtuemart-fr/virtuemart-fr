@@ -9,7 +9,7 @@ defined('_JEXEC') or die('Restricted access');
  * @version $Id: creditcards.php 8464 2014-10-16 13:05:55Z alatak $
  * @package VirtueMart
  * @subpackage payment
- * Copyright (C) 2004-2015 Virtuemart Team. All rights reserved.
+ * Copyright (C) 2004-2016 Virtuemart Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or

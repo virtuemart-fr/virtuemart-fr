@@ -299,8 +299,6 @@
                             jQuery("#vm_display_image").attr("src", datas.file_root + datas.file_url);
                             jQuery("#vm_display_image").attr("alt", datas.file_title);
                             jQuery("#file_title").html(datas.file_title);
-							var lang = datas.file_lang.split(',');
-							jQuery("#active_languages").val(lang).trigger("liszt:updated");
                             if (datas.published == 1) jQuery("#adminForm [name='media[media_published]']").attr('checked', true);
                             else jQuery("#adminForm [name=media_published]").attr('checked', false);
                             if (datas.file_is_downloadable == 0) {
@@ -317,12 +315,14 @@
 							jQuery("#adminForm [name='media[file_class]']").val(datas.file_class);
                             jQuery("#adminForm [name='media[file_url]']").val(datas.file_url);
                             jQuery("#adminForm [name='media[file_url_thumb]']").val(datas.file_url_thumb);
+							var lang = datas.file_lang.split(',');
+							jQuery("#adminForm [name='media[active_languages][]']").val(lang).trigger("liszt:updated");
                             jQuery("[name='media[active_media_id]']").val(datas.virtuemart_media_id);
                             if (typeof datas.file_url_thumb !== "undefined") {
-                                jQuery("#vm_thumb_image").attr("src", datas.file_root + datas.file_url_thumb);
+                                jQuery(".vm_thumb_image").attr("src", datas.file_root + datas.file_url_thumb_dyn);
                             }
                             else {
-                                jQuery("#vm_thumb_image").attr("src", "");
+                                jQuery(".vm_thumb_image").attr("src", "");
                             }
                         } else jQuery("#file_title").html(datas.msg);
                     });

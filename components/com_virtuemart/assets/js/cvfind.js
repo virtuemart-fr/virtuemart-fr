@@ -14,10 +14,19 @@ if (typeof Virtuemart === "undefined")
 Virtuemart.cvFind = function(event) {
 	event.preventDefault();
 	var selection = [];
-	var container = jQuery(this).parent();
-	jQuery(container).find('.cvselection').each(function() {
+	var container = jQuery('.product-field-display');
+
+	var found = false;
+	//We check first if it is a radio
+	jQuery(container).find('.cvselection:checked').each(function() {
 		selection[selection.length] = jQuery(this).val();
+		found = true;
 	});
+	if(!found){
+		jQuery(container).find('.cvselection').each(function() {
+			selection[selection.length] = jQuery(this).val();
+		});
+	}
 
 	var index=0, i2=0, hitcount=0, runs=0;
 	//to ensure that an url is set, set the url of first product

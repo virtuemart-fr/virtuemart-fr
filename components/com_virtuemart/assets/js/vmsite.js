@@ -46,19 +46,11 @@ if (typeof Virtuemart === "undefined")
 			});
 
 			if (byAjax.length >0) {
-				jQuery.getJSON(window.vmSiteurl + 'index.php?option=com_virtuemart&view=state&format=json&virtuemart_country_id=' + byAjax,
+				jQuery.getJSON(Virtuemart.vmSiteurl + 'index.php?option=com_virtuemart&view=state&format=json&virtuemart_country_id=' + byAjax,
 						function(result){
 
-						var virtuemart_state_id = jQuery('#'+prefix+'virtuemart_state_id');
+						var virtuemart_state_id = jQuery('#'+prefix+'virtuemart_state_id_field');
 						var status = virtuemart_state_id.attr('required');
-						
-						if(status == 'required') {
-							if( result[byAjax].length > 0 ) {
-								virtuemart_state_id.attr('required','required');
-							} else {
-								virtuemart_state_id.removeAttr('required');
-							}
-						}
 
                         jQuery.each(result, function(key, value) {
 							if (value.length >0) {

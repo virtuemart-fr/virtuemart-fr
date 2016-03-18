@@ -31,6 +31,7 @@ if (empty($this->url)){
 } else{
 	$url = $this->url;
 }
+//$url = JRoute::_($url, $this->useXHTML, $this->useSSL);
 
 $user = JFactory::getUser();
 
@@ -105,7 +106,7 @@ JHtml::_('behavior.formvalidation');
 
 
     // XXX style CSS id com-form-login ?>
-    <form id="com-form-login" action="<?php echo JRoute::_($url, $this->useXHTML, $this->useSSL); ?>" method="post" name="com-login" >
+    <form id="com-form-login" action="<?php echo $url; ?>" method="post" name="com-login" >
       <fieldset class="userdata">
         <?php if (!$this->from_cart ) { ?>
         <div>

@@ -13,7 +13,7 @@
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
-* @version $Id$
+* @version $Id: edit_orderlist.php 8887 2015-06-25 13:05:26Z Milbo $
 */
 
 // Check to ensure this file is included in Joomla!

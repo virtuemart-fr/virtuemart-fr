@@ -34,6 +34,7 @@ class VmView extends JViewLegacy{
 		if($this->isMail or $this->isPdf){
 			$this->writeJs = false;
 		}
+
 		$result = $this->loadTemplate($tpl);
 		if ($result instanceof Exception) {
 			return $result;
@@ -46,7 +47,7 @@ class VmView extends JViewLegacy{
 				echo vmJsApi::writeJS();
 			}
 		}
-		vmTime('vm view Finished task ','Start');
+
 	}
 
 	public function withKeepAlive(){
@@ -125,14 +126,20 @@ class VmView extends JViewLegacy{
 		}
 
 		$lang = '';
-		if(VmConfig::$langCount>1 and !empty(VmConfig::$vmlangSef)){
+		if(VmConfig::$jLangCount>1 and !empty(VmConfig::$vmlangSef)){
 			$lang = '&lang='.VmConfig::$vmlangSef;
 		}
 
 		$this->continue_link = JURI::root() .'index.php?option=com_virtuemart&view=category' . $categoryStr.$lang.$ItemidStr;
 		$this->continue_link_html = '<a class="continue_link" href="' . $this->continue_link . '">' . vmText::_ ('COM_VIRTUEMART_CONTINUE_SHOPPING') . '</a>';
 
-		$this->cart_link = JURI::root().'index.php?option=com_virtuemart&view=cart'.$lang;
+		$juri = JUri::getInstance()->toString(array( 'host', 'port'));
+
+		$scheme = 'http';
+		if(VmConfig::get('useSSL',false)){
+			$scheme .='s';
+		}
+		$this->cart_link = $scheme.'://'.$juri. JURI::root(true).'/index.php?option=com_virtuemart&view=cart'.$lang;
 
 		return;
 	}

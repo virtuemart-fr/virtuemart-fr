@@ -6,7 +6,7 @@ defined('_JEXEC') or die();
  * @version $Id: signin.php 8431 2014-10-14 14:11:46Z alatak $
  * @package VirtueMart
  * @subpackage vmpayment
- * @copyright Copyright (C) 2004-Copyright (C) 2004-2015 Virtuemart Team. All rights reserved.   - All rights reserved.
+ * @copyright Copyright (C) 2004-Copyright (C) 2004-2016 Virtuemart Team. All rights reserved.   - All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
@@ -36,10 +36,12 @@ if (!$jsSILoaded) {
 jQuery(document).ready(function($) {
 	jQuery(this).off('initializeAmazonPayment');
 	jQuery(this).on('initializeAmazonPayment', function() {
-		jQuery( '" . $viewData['sign_in_css'] . "' ).append('<div class=\"amazonSignTip\">" . vmText::_('VMPAYMENT_AMAZON_SIGNIN_TIP', true) . "</div>');
+		jQuery( '.amazonSignIn' ).remove();
+		jQuery( '" . $viewData['sign_in_css'] . "' ).append('<div class=\"amazonSignIn\" ></div>');
+		jQuery( '.amazonSignIn' ).append('<div class=\"amazonSignTip\">" . vmText::_('VMPAYMENT_AMAZON_SIGNIN_TIP', true) . "</div>');
 		amazonPayment.showAmazonButton('" . $viewData['sellerId'] . "', '" . $viewData['redirect_page'] . "', " . $renderAmazonAddressBook . ");
-		jQuery( '" . $viewData['sign_in_css'] . "' ).append('" . $signInButton . "');
-		jQuery( '" . $viewData['sign_in_css'] . "' ).append('<div class=\"amazonSignTip\" id=\"amazonSignOr\"><span>" . vmText::_('VMPAYMENT_AMAZON_SIGNIN_OR', true) . "</span></div>');
+		jQuery( '.amazonSignIn' ).append('" . $signInButton . "');
+		jQuery( '.amazonSignIn' ).append('<div class=\"amazonSignTip\" id=\"amazonSignOr\"><span>" . vmText::_('VMPAYMENT_AMAZON_SIGNIN_OR', true) . "</span></div>');
 	});
 	jQuery(this).trigger('initializeAmazonPayment');
 });

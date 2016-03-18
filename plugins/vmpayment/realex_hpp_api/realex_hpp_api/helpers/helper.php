@@ -4,10 +4,10 @@
  * Realex payment plugin
  *
  * @author Valerie Isaksen
- * @version $Id: helper.php 8892 2015-06-29 08:06:12Z alatak $
+ * @version $Id: helper.php 9193 2016-03-11 10:17:04Z Milbo $
  * @package VirtueMart
  * @subpackage payment
- * Copyright (C) 2004-2015 Virtuemart Team. All rights reserved.
+ * Copyright (C) 2004-2016 Virtuemart Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
@@ -1072,6 +1072,8 @@ class  RealexHelperRealex {
 
 		}
 
+		VmConfig::loadJLang('com_virtuemart_orders', TRUE);
+
 		// FROM PAYMENT LOG??? why not from history
 		if ($payments) {
 			foreach ($payments as $payment) {
@@ -1090,7 +1092,7 @@ class  RealexHelperRealex {
 									}
 								}
 								$amountValue = vmPSPlugin::getAmountInCurrency($this->order['details']['BT']->order_total, $this->order['details']['BT']->order_currency);
-								$currencyDisplay = CurrencyDisplay::getInstance($this->cart->pricesCurrency);
+								//$currencyDisplay = CurrencyDisplay::getInstance($this->cart->pricesCurrency);
 
 								$auth_info = vmText::sprintf('VMPAYMENT_REALEX_HPP_API_PAYMENT_STATUS_CONFIRMED', $amountValue['display'], $this->order['details']['BT']->order_number);
 								$pasref = $payment->realex_hpp_api_response_pasref;
@@ -1120,7 +1122,7 @@ class  RealexHelperRealex {
 
 							if ($success) {
 								$amountValue = vmPSPlugin::getAmountInCurrency($this->order['details']['BT']->order_total, $this->order['details']['BT']->order_currency);
-								$currencyDisplay = CurrencyDisplay::getInstance($this->cart->pricesCurrency);
+								//$currencyDisplay = CurrencyDisplay::getInstance($this->cart->pricesCurrency);
 
 								$auth_info = vmText::sprintf('VMPAYMENT_REALEX_HPP_API_PAYMENT_STATUS_CONFIRMED', $amountValue['display'], $this->order['details']['BT']->order_number);
 								if (isset($realex_data->DCCCHOICE) and $realex_data->DCCCHOICE == $this::RESPONSE_DCC_CHOICE_YES) {
@@ -1148,7 +1150,7 @@ class  RealexHelperRealex {
 				}
 			}
 		}
-		VmConfig::loadJLang('com_virtuemart_orders', TRUE);
+
 
 		$params=  array(
 			"success"      => $success,

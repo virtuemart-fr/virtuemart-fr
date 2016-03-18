@@ -13,7 +13,7 @@
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
-* @version $Id: products.php 8557 2014-11-09 21:06:17Z Milbo $
+* @version $Id: products.php 9075 2015-12-02 13:56:15Z Milbo $
 */
 
 defined('_JEXEC') or die('Restricted access');
@@ -118,6 +118,7 @@ class TableProducts extends VmTable {
 
 		$this->setParameterable('product_params',$varsToPushParam);
 		$this->_updateNulls = true;
+		$this->published = VmConfig::get('product.published',1);
 	}
 
 }

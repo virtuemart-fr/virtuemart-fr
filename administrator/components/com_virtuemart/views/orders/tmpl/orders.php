@@ -13,7 +13,7 @@
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
- * @version $Id: orders.php 8972 2015-09-08 09:59:49Z Milbo $
+ * @version $Id: orders.php 9188 2016-02-27 23:10:51Z Milbo $
  */
 // Check to ensure this file is included in Joomla!
 defined ('_JEXEC') or die('Restricted access');
@@ -22,15 +22,28 @@ AdminUIHelper::startAdminArea ($this);
 $styleDateCol = 'style="width:5%;min-width:110px"';
 ?>
 
-
 <form action="index.php" method="post" name="adminForm" id="adminForm">
 	<div id="header">
 		<div id="filterbox">
 			<table>
 				<tr>
-					<td align="left" width="100%">
+					<td align="left" style="min-width:480px;width:40%;">
 						<?php echo $this->displayDefaultViewSearch ('COM_VIRTUEMART_ORDER_PRINT_NAME'); ?>
 						<?php echo vmText::_ ('COM_VIRTUEMART_ORDERSTATUS') . ':' . $this->lists['state_list']; ?>
+
+					</td>
+					<td align="right" style="min-width:290px;width:30%;">
+						<?php echo vmText::_ ('COM_VIRTUEMART_BULK_ORDERSTATUS') . $this->lists['bulk_state_list']; ?>
+					</td>
+					<td align="left" style="min-width:370px;width:30%;">
+						<?php echo VmHTML::checkbox ('customer_notified', 0) . vmText::_ ('COM_VIRTUEMART_ORDER_LIST_NOTIFY'); ?>
+						<?php echo VmHTML::checkbox ('customer_send_comment', 1) . vmText::_ ('COM_VIRTUEMART_ORDER_HISTORY_INCLUDE_COMMENT'); ?>
+						<?php echo VmHTML::checkbox ('update_lines', 1) . vmText::_ ('COM_VIRTUEMART_ORDER_UPDATE_LINESTATUS'); ?>
+						<textarea class="element-hidden vm-order_comment vm-showable" name="comments" cols="5" rows="5"></textarea>
+						<?php echo JHtml::_ ('link', '#', vmText::_ ('COM_VIRTUEMART_ADD_COMMENT'), array('class' => 'show_comment')); ?>
+					</td>
+					<td>
+						<?php echo $this->lists['vendors'] ?>
 					</td>
 				</tr>
 			</table>
@@ -94,30 +107,7 @@ $styleDateCol = 'style="width:5%;min-width:110px"';
 				<td><?php echo $order->payment_method; ?></td>
 				<!-- Print view -->
 				<?php
-				/* Print view URL */
-				$print_url = juri::root () . 'index.php?option=com_virtuemart&view=invoice&layout=invoice&tmpl=component&virtuemart_order_id=' . $order->virtuemart_order_id . '&order_number=' . $order->order_number . '&order_pass=' . $order->order_pass;
-				$print_link = "<a href=\"javascript:void window.open('$print_url', 'win2', 'status=no,toolbar=no,scrollbars=yes,titlebar=no,menubar=no,resizable=yes,width=640,height=480,directories=no,location=no');\"  >";
-				$print_link .= '<span class="hasTip print_32" title="' . vmText::_ ('COM_VIRTUEMART_PRINT') . '">&nbsp;</span></a>';
-				$invoice_link = '';
-				$deliverynote_link = '';
-				$pdfDummi= '&d='.rand(0,100);
-				if (!$order->invoiceNumber) {
-					$invoice_url = juri::root () . 'index.php?option=com_virtuemart&view=invoice&layout=invoice&format=pdf&tmpl=component&virtuemart_order_id=' . $order->virtuemart_order_id . '&order_number=' . $order->order_number . '&order_pass=' . $order->order_pass . '&create_invoice='.$order->order_create_invoice_pass.$pdfDummi;
-					$invoice_link .= "<a href=\"$invoice_url\"  >".'<span class="hasTip invoicenew_32" title="' . vmText::_ ('COM_VIRTUEMART_INVOICE_CREATE') . '"></span></a>';
-				} elseif (!shopFunctions::InvoiceNumberReserved ($order->invoiceNumber)) {
-					$invoice_url = juri::root () . 'index.php?option=com_virtuemart&view=invoice&layout=invoice&format=pdf&tmpl=component&virtuemart_order_id=' . $order->virtuemart_order_id . '&order_number=' . $order->order_number . '&order_pass=' . $order->order_pass.$pdfDummi;
-					$invoice_link = "<a href=\"$invoice_url\"  >" . '<span class="hasTip invoice_32" title="' . vmText::_ ('COM_VIRTUEMART_INVOICE') . '"></span></a>';
-				}
-
-				if (!$order->invoiceNumber) {
-					$deliverynote_url = juri::root () . 'index.php?option=com_virtuemart&view=invoice&layout=deliverynote&format=pdf&tmpl=component&virtuemart_order_id=' . $order->virtuemart_order_id . '&order_number=' . $order->order_number . '&order_pass=' . $order->order_pass . '&create_invoice='.$order->order_create_invoice_pass.$pdfDummi;
-					$deliverynote_link = "<a href=\"$deliverynote_url\"  >" . '<span class="hasTip deliverynotenew_32" title="' . vmText::_ ('COM_VIRTUEMART_DELIVERYNOTE_CREATE') . '"></span></a>';
-				} elseif (!shopFunctions::InvoiceNumberReserved ($order->invoiceNumber)) {
-					$deliverynote_url = juri::root () . 'index.php?option=com_virtuemart&view=invoice&layout=deliverynote&format=pdf&tmpl=component&virtuemart_order_id=' . $order->virtuemart_order_id . '&order_number=' . $order->order_number . '&order_pass=' . $order->order_pass.$pdfDummi;
-					$deliverynote_link = "<a href=\"$deliverynote_url\"  >" . '<span class="hasTip deliverynote_32" title="' . vmText::_ ('COM_VIRTUEMART_DELIVERYNOTE') . '"></span></a>';
-				}
-
-
+					$this->createPrintLinks($order,$print_link,$deliverynote_link,$invoice_link);
 				?>
 				<td><?php echo $print_link; echo $deliverynote_link; echo $invoice_link; ?></td>
 				<!-- Order date -->
@@ -164,29 +154,56 @@ $styleDateCol = 'style="width:5%;min-width:110px"';
 	<!-- Hidden Fields -->
 	<?php echo $this->addStandardHiddenToForm (); ?>
 </form>
-<?php AdminUIHelper::endAdminArea (); ?>
-<script type="text/javascript">
-	<!--
+<?php AdminUIHelper::endAdminArea ();
 
-		jQuery('.show_comment').click(function() {
+$j = 'function set2status(){
+
+	var newStatus = jQuery("#order_status_code_bulk").val();
+
+	var customer_notified = jQuery("input[name=\'customer_notified\']").is( ":checked" );
+	var customer_send_comment = jQuery("input[name=\'customer_send_comment\']").is( ":checked" );
+	var update_lines = jQuery("input[name=\'update_lines\']").is( ":checked" );
+	var comments = jQuery("textarea[name=\'comments\']").val();
+
+	field = document.getElementsByName("cid[]");
+	var fname = "";
+	var sel = 0;
+	for (i = 0; i < field.length; i++){
+		if (field[i].checked){
+			fname = "orders[" + field[i].value + "]";
+			jQuery("input[name=\'"+fname+"[customer_notified]\']").prop("checked",customer_notified);
+			jQuery("input[name=\'"+fname+"[customer_send_comment]\']").prop("checked",customer_send_comment);
+			jQuery("input[name=\'"+fname+"[update_lines]\']").prop("checked",update_lines);
+			jQuery("textarea[name=\'"+fname+"[comments]\']").text(comments);
+			console.log("Mist ",jQuery("input[name=\'"+fname+"[comments]\']"));
+			jQuery("#order_status"+i).val(newStatus).trigger("chosen:updated").trigger("liszt:updated");
+		}
+	}
+
+}';
+vmJsApi::addJScript('set2status',$j);
+
+$j = "jQuery('.show_comment').click(function() {
 		jQuery(this).prev('.element-hidden').show();
 		return false
 		});
-
 		jQuery('.element-hidden').mouseleave(function() {
 		jQuery(this).hide();
 		});
 		jQuery('.element-hidden').mouseout(function() {
 		jQuery(this).hide();
-		});
-		-->
-</script>
+	});";
+vmJsApi::addJScript('show_comment',$j);
 
-<script>
+$orderstatusForShopperEmail = VmConfig::get('email_os_s',array('U','C','S','R','X'));
+if(!is_array($orderstatusForShopperEmail)) $orderstatusForShopperEmail = array($orderstatusForShopperEmail);
+$jsOrderStatusShopperEmail = vmJsApi::safe_json_encode($orderstatusForShopperEmail);
+
+$j ='
 	jQuery(document).ready(function() {
-		jQuery('.orderstatus_select').change( function() {
+		jQuery(".orderstatus_select").change( function() {
 
-			var name = jQuery(this).attr('name');
+			var name = jQuery(this).attr("name");
 			var brindex = name.indexOf("orders[");
 			if ( brindex >= 0){
 				//yeh, yeh, maybe not the most elegant way, but it does, what it should
@@ -194,26 +211,20 @@ $styleDateCol = 'style="width:5%;min-width:110px"';
 				var e = name.indexOf("]");
 				var id = name.substring(s,e);
 
-				<?php $orderstatusForShopperEmail = VmConfig::get('email_os_s',array('U','C','S','R','X'));
-					if(!is_array($orderstatusForShopperEmail)) $orderstatusForShopperEmail = array($orderstatusForShopperEmail);
-					$jsOrderStatusShopperEmail = vmJsApi::safe_json_encode($orderstatusForShopperEmail);
-				?>
-				var orderstatus = <?php echo $jsOrderStatusShopperEmail ?>;
+				var orderstatus = '.$jsOrderStatusShopperEmail.';
 				var selected = jQuery(this).val();
-				var selStr = '[name="orders['+id+'][customer_notified]"]';
+				var selStr = "[name=\"orders["+id+"][customer_notified]\"]";
 				var elem = jQuery(selStr);
 
 				if(jQuery.inArray(selected, orderstatus)!=-1){
 					elem.attr("checked",true);
 					// for the checkbox    
-					jQuery(this).parent().parent().find('input[name="cid[]"]').attr("checked",true);
+					jQuery(this).parent().parent().find("input[name=\"cid[]\"]").attr("checked",true);
 				} else {
 					elem.attr("checked",false);
 				}
-
 			}
-
 		});
+	});';
 
-	});
-</script>
+vmJsApi::addJScript('setChecksByOrderStatus',$j);
