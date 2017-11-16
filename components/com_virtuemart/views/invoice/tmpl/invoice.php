@@ -6,7 +6,7 @@
  * @package    VirtueMart
  * @subpackage Orders
  * @author Max Milbers, Valerie Isaksen
- * @link http://www.virtuemart.net
+ * @link https://virtuemart.net
  * @copyright Copyright (c) 2004 - 2010 VirtueMart Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
@@ -17,7 +17,8 @@
  */
 
 defined('_JEXEC') or die('Restricted access');
-JHtml::stylesheet('vmpanels.css', JURI::root() . 'components/com_virtuemart/assets/css/');
+
+vmJsApi::css('vmpanels');
 if ($this->_layout == "invoice") {
 	$document = JFactory::getDocument();
 	$document->setTitle(vmText::_('COM_VIRTUEMART_ORDER_PRINT_PO_NUMBER') . ' ' . $this->orderDetails['details']['BT']->order_number . ' ' . $this->vendor->vendor_store_name);

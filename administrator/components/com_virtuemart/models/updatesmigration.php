@@ -6,14 +6,14 @@
 * @package	VirtueMart
 * @subpackage updatesMigration
 * @author Max Milbers, RickG
-* @link http://www.virtuemart.net
+* @link https://virtuemart.net
 * @copyright Copyright (c) 2004 - 2010 VirtueMart Team. All rights reserved.
 * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
 * VirtueMart is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
-* @version $Id: updatesmigration.php 8852 2015-05-17 13:17:52Z Milbo $
+* @version $Id: updatesmigration.php 9621 2017-08-14 12:20:48Z Milbo $
 */
 
 // Check to ensure this file is included in Joomla!
@@ -67,6 +67,10 @@ class VirtueMartModelUpdatesMigration extends VmModel {
      */
     function setStoreOwner($userId=-1) {
 
+		if(!vmAccess::manager('core')){
+			vmError('You have no rights to performe this action');
+			return false;
+		}
 	    $allowInsert=FALSE;
 
 	    if($userId===-1){
@@ -79,31 +83,33 @@ class VirtueMartModelUpdatesMigration extends VmModel {
 			vmdebug('setStoreOwner $userId = '.$userId.' by determineStoreOwner');
 		}
 
-		$db = JFactory::getDBO();
-		$db->setQuery('SELECT * FROM  `#__virtuemart_vmusers` WHERE `virtuemart_user_id`= "' . $userId . '" ');
-		$oldUserId = $db->loadResult();
+		$utable = $this->getTable('vmusers');
+		$utable->load($userId);
 
-		if (!empty($oldUserId) and !empty($userId)) {
-		    $db->setQuery( 'UPDATE `#__virtuemart_vmusers` SET `virtuemart_vendor_id` = "0", `user_is_vendor` = "0" WHERE `virtuemart_vendor_id` ="1" ');
-		    if ($db->execute() == false ) {
-			    vmWarn( 'UPDATE __vmusers failed for virtuemart_user_id '.$userId);
-			    return false;
-		    }
+		if(empty($utable->virtuemart_user_id)){
+			$juser=JFactory::getUser($userId);
+			if(!empty($juser->id)){
+				$allowInsert = TRUE;
+			}
+		} else {
+			$oldUserId = $utable->virtuemart_user_id;
+		}
 
-			$db->setQuery( 'UPDATE `#__virtuemart_vmusers` SET `virtuemart_vendor_id` = "1", `user_is_vendor` = "1" WHERE `virtuemart_user_id` ="'.$userId.'" ');
-			if ($db->execute() === false ) {
+		if ( (!empty($oldUserId) and !empty($userId)) or $allowInsert) {
+			$db = JFactory::getDBO();
+			$db->setQuery( 'UPDATE `#__virtuemart_vmusers` SET `virtuemart_vendor_id` = "0", `user_is_vendor` = "0" WHERE `virtuemart_vendor_id` ="1" ');
+			if ($db->execute() == false ) {
 				vmWarn( 'UPDATE __vmusers failed for virtuemart_user_id '.$userId);
 				return false;
+			}
+		}
+
+		$data = array('virtuemart_user_id' => $userId, 'virtuemart_vendor_id' => "1", 'user_is_vendor' => "1");
+		if($utable->bindChecknStore($data)){
+			if($allowInsert){
+				//vmInfo('setStoreOwner VmUser inserted new main vendor has user id  '.$userId);
 			} else {
 				vmInfo('setStoreOwner VmUser updated new main vendor has user id  '.$userId);
-			}
-		} else if($allowInsert){
-			$db->setQuery('INSERT `#__virtuemart_vmusers` (`virtuemart_user_id`, `user_is_vendor`, `virtuemart_vendor_id`) VALUES ("' . $userId . '", "1","1")');
-			if ($db->execute() === false ) {
-				vmWarn( 'setStoreOwner was not possible to execute INSERT __vmusers for virtuemart_user_id '.$userId);
-				return false;
-			} else {
-				vmInfo('setStoreOwner VmUser inserted new main vendor has user id  '.$userId);
 			}
 		}
 
@@ -148,14 +154,11 @@ class VirtueMartModelUpdatesMigration extends VmModel {
 		vRequest::setVar('phone_1',$fields['phone_1']);
 	//$fields['vendor_phone'] =  '555-555-1212';
 	$fields['vendor_store_name'] =  "VirtueMart 3 Sample store";
-	$fields['vendor_store_desc'] =  '<p>Bienvenue sur VirtueMart, Solution de ecommerce open source et gratuite. Les données d\'exemple vous donnent un bon aperçu des fonctionnalités de VirtueMart.</p>
-<p>Ce message est la description utilisée pour décrire votre boutique.!</p>
-<p>Nous sommes établis depuis 1869, à une époque où les bons vêtements était chers, mais de bonne qualité.
-Seuls quelques-uns de ces vêtements authentiques ont survécu, cette boutique en ligne est dédié aux collectionneurs amoureux des produits de qualité !</p>';
+	$fields['vendor_store_desc'] =  '<p>Welcome to VirtueMart the ecommerce managment system. The sample data give you a good insight of the possibilities with VirtueMart. The product description is directly the manual to configure the demonstrated features. \n </p><p>You see here the store description used to describe your store. Check it out!</p> <p>We were established in 1869 in a time when getting good clothes was expensive, but the quality was good. Now that only a select few of those authentic clothes survive, we have dedicated this store to bringing the experience alive for collectors and master carrier everywhere.</p>';
 	$fields['virtuemart_media_id'] =  1;
 	$fields['vendor_currency'] = '47';
 	$fields['vendor_accepted_currencies'] = '52,26,47,144';
-	$fields['vendor_terms_of_service'] =  '<h5>Vous êtes sur une boutique de demo. Aucune commande ne sera honorée. Changez ce  <a href="'.JURI::base(true).'/index.php?option=com_virtuemart&view=user&task=editshop">texte</a>.</h5>';
+	$fields['vendor_terms_of_service'] =  '<h5>This is a demo store. Your orders will not proceed. You have not configured any terms of service yet. Click <a href="'.JURI::base(true).'/index.php?option=com_virtuemart&view=user&task=editshop">here</a> to change this text.</h5>';
 	$fields['vendor_url'] = JURI::root();
 	$fields['vendor_name'] =  'Sample Company';
 	$fields['vendor_legal_info']="VAT-ID: XYZ-DEMO<br />Reg.Nr: DEMONUMBER";
@@ -174,18 +177,24 @@ Seuls quelques-uns de ces vêtements authentiques ont survécu, cette boutique e
 		vmError(vmText::_('COM_VIRTUEMART_NOT_ABLE_TO_SAVE_USER_DATA')  );
 	}
 
-	    if(!VmConfig::$vmlang){
-		    $params = JComponentHelper::getParams('com_languages');
-		    $lang = $params->get('site', 'en-GB');//use default joomla
-		    $lang = strtolower(strtr($lang,'-','_'));
-	    } else {
-		    $lang = VmConfig::$vmlang;
-	    }
-	    $sampleLang='_'.$lang;
-	    $filename = VMPATH_ROOT.DS.'administrator'.DS.'components'.DS.'com_virtuemart'.DS.'install'.DS.'install_sample_data'.$sampleLang.'.sql';
-	    if (!file_exists($filename)) {
-		    $filename = VMPATH_ROOT.DS.'administrator'.DS.'components'.DS.'com_virtuemart'.DS.'install'.DS.'install_sample_data.sql';
-	    }
+	if(!VmConfig::$vmlang){
+		vmLanguage::initialise();
+	}
+
+	$lang = VmConfig::$vmlang;
+
+	$filename = VMPATH_ROOT.DS.'administrator'.DS.'components'.DS.'com_virtuemart'.DS.'install'.DS.'install_sample_data_'.$lang.'.sql';
+	if (!file_exists($filename)) {
+		$filename = VMPATH_ROOT.DS.'administrator'.DS.'components'.DS.'com_virtuemart'.DS.'install'.DS.'install_sample_data.sql';
+	}
+
+	//copy sampel media
+	$src = VMPATH_ROOT.DS.'administrator'.DS.'components'.DS.'com_virtuemart' .DS. 'assets' .DS. 'images' .DS. 'vmsampleimages';
+	// 			if(version_compare(JVERSION,'1.6.0','ge')) {
+	$dst = VMPATH_ROOT .DS. 'images' .DS. 'virtuemart';
+
+	$this->recurse_copy($src,$dst);
+
 	if(!$this->execSQLFile($filename)){
 		vmError(vmText::_('Problems execution of SQL File '.$filename));
 	} else {
@@ -242,6 +251,58 @@ Seuls quelques-uns de ces vêtements authentiques ont survécu, cette boutique e
 	return true;
 
     }
+
+	/**
+	 * copy all $src to $dst folder and remove it
+	 *
+	 * @author Max Milbers
+	 * @param String $src path
+	 * @param String $dst path
+	 * @param String $type modules, plugins, languageBE, languageFE
+	 */
+	static public function recurse_copy($src,$dst,$delete = true ) {
+
+		if(!class_exists('JFolder'))
+			require(VMPATH_LIBS.DS.'joomla'.DS.'filesystem'.DS.'folder.php');
+		$dir = '';
+		if(JFolder::exists($src)){
+			$dir = opendir($src);
+			JFolder::create($dst);
+
+			if(is_resource($dir)){
+				while(false !== ( $file = readdir($dir)) ) {
+					if (( $file != '.' ) && ( $file != '..' )) {
+						if ( is_dir($src .DS. $file) ) {
+							if(!JFolder::create($dst . DS . $file)){
+								$app = JFactory::getApplication ();
+								$app->enqueueMessage ('Couldnt create folder ' . $dst . DS . $file);
+							}
+							self::recurse_copy($src .DS. $file,$dst .DS. $file);
+						}
+						else {
+							if($delete and JFile::exists($dst .DS. $file)){
+								if(!JFile::delete($dst .DS. $file)){
+									$app = JFactory::getApplication();
+									$app -> enqueueMessage('Couldnt delete '.$dst .DS. $file);
+								}
+							}
+							if(!JFile::copy($src .DS. $file,$dst .DS. $file)){
+								$app = JFactory::getApplication();
+								$app -> enqueueMessage('Couldnt move '.$src .DS. $file.' to '.$dst .DS. $file);
+							}
+						}
+					}
+				}
+				closedir($dir);
+				//if (is_dir($src)) JFolder::delete($src);
+				return true;
+			}
+		}
+
+		$app = JFactory::getApplication();
+		$app -> enqueueMessage('Couldnt read dir '.$dir.' source '.$src);
+
+	}
 
 	function installPluginTable ($className,$tablename,$tableComment) {
 
@@ -435,6 +496,11 @@ Seuls quelques-uns de ces vêtements authentiques ont survécu, cette boutique e
 			return false;
 		}
 
+		//Delete VM menues
+		$q = 'DELETE FROM #__menu WHERE `link` = "%option=com_virtuemart%" ';
+		$db->setQuery($q);
+		$db->execute();
+
 		return true;
     }
 
@@ -574,6 +640,45 @@ Seuls quelques-uns de ces vêtements authentiques ont survécu, cette boutique e
 			$extensionXmlFileName = $dst;//;. DS . $element.DS . $element. '.xml';
 		}
 		return $extensionXmlFileName;
+	}
+
+	public function setSafePathCreateFolders($token = ''){
+
+		if(!class_exists('JFolder')){
+			require(VMPATH_LIBS.DS.'joomla'.DS.'filesystem'.DS.'folder.php');
+		}
+
+		if(empty($token)){
+			$safePath = shopFunctions::getSuggestedSafePath();
+		} else {
+			$safePath = VMPATH_ADMIN.'/'.$token.'/';
+		}
+		$safePath = str_replace('/',DS,$safePath);
+
+		if(!class_exists('ShopFunctionsF')) require(VMPATH_SITE.DS.'helpers'.DS.'shopfunctionsf.php');
+		$invoice = $safePath.ShopFunctionsF::getInvoiceFolderName();
+
+		//$invoice = shopFunctions::getInvoicePath($safePath);
+		$encryptSafePath = $safePath. vmCrypt::ENCRYPT_SAFEPATH;
+
+		JFolder::create($safePath,0755);vmdebug('setSafePathCreateFolders $safePath',$safePath);
+		JFolder::create($invoice,0755);vmdebug('setSafePathCreateFolders $invoice',$invoice);
+		JFolder::create($encryptSafePath,0755);vmdebug('setSafePathCreateFolders $encryptSafePath',$encryptSafePath);
+
+		$config = VmConfig::loadConfig();
+		//vmdebug('setSafePathCreateFolders set forSale_path ',$safePath,$config);
+		$config->set('forSale_path', $safePath);
+
+		$data['virtuemart_config_id'] = 1;
+		$data['config'] = $config->toString();
+
+		$confTable = $this->getTable('configs');
+		//vmdebug('setSafePathCreateFolders set forSale_path ',$safePath,$data['config']);
+		$confTable->bindChecknStore($data);
+
+		VmConfig::loadConfig(true);
+
+		return true;
 	}
 
 	/**

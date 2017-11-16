@@ -8,7 +8,7 @@
  * @version $Id: paypal.php 7217 2013-09-18 13:42:54Z alatak $
  * @package VirtueMart
  * @subpackage payment
- * Copyright (C) 2004-2016 Virtuemart Team. All rights reserved.
+ * Copyright (C) 2004 - 2017 Virtuemart Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
@@ -64,15 +64,19 @@ class PaypalHelperPaypal {
 		$vendorModel->addImages($vendor, 1);
 		$this->vendor = $vendor;
 
-		$this->getPaypalPaymentCurrency();
-	}
 
-	function getPaypalPaymentCurrency ($getCurrency = FALSE) {
+		if(empty($this->_method->payment_currency)){
+			$this->_method->payment_currency = $this->paypalPlugin->getPaymentCurrency($this->_method);
+			//$this->debugLog($this->_method->payment_currency, '__construct PaypalHelperPaypal payment_currency '.get_class($this), 'debug');
+		}
 
-		vmPSPlugin::getPaymentCurrency($this->_method);
 		$this->currency_code_3 = shopFunctions::getCurrencyByID($this->_method->payment_currency, 'currency_code_3');
+		if($this->_method->payment_currency==-1){
+			$this->debugLog(array($this->_method->payment_currency,$this->currency_code_3), '__construct '.get_class($this). ' payment currency and code3', 'debug', false);
+		}
 
 	}
+
 
 	public function getContext () {
 		return $this->context;
@@ -351,13 +355,28 @@ class PaypalHelperPaypal {
 		return $extraInfo;
 	}
 
-	public function getLogoImage () {
-		if ($this->_method->logoimg) {
-			return JURI::base() . '/images/stories/virtuemart/payment/' . $this->_method->logoimg;
-		} else {
-			return JURI::base() . $this->vendor->images[0]->file_url;
+	public function getLogoImage ($img = null) {
+
+		if(!isset($img)){
+			$img = $this->_method->logoimg;
+		}
+		if ($img) {
+			if(!class_exists('JFile')){
+				require(VMPATH_LIBS.'/joomla/filesystem/file.php');
+			}
+			$rUrl = '/images/virtuemart/payment/' . $img;
+			if(!JFile::exists(VMPATH_ROOT .$rUrl)){
+				$rUrl = '/images/stories/virtuemart/payment/' . $img;
+				if(!JFile::exists(VMPATH_ROOT .$rUrl)) {
+					$rUrl = false;
+				}
+			}
+			if($rUrl){
+				return JURI::base() . $rUrl;
+			}
 		}
 
+		return JURI::base() . $this->vendor->images[0]->file_url;
 	}
 
 	public function getRecurringProfileDesc () {
@@ -791,10 +810,9 @@ class PaypalHelperPaypal {
 			}
 		}
 		$result = false;
-		$payment_currency_code_3= shopFunctions::getCurrencyByID($payments[0]->payment_currency, 'currency_code_3');
 
 		if ($this->_method->paypalproduct == "std" and $paypal_data['txn_type'] == 'cart') {
-			if (abs($payments[0]->payment_order_total - $paypal_data['mc_gross'] < abs($paypal_data['mc_gross'] * 0.001)) and ($payment_currency_code_3 == $paypal_data['mc_currency'])) {
+			if (abs($payments[0]->payment_order_total - $paypal_data['mc_gross'] < abs($paypal_data['mc_gross'] * 0.001)) and ($this->currency_code_3 == $paypal_data['mc_currency'])) {
 				$result = TRUE;
 			}
 		} else {
@@ -806,7 +824,7 @@ class PaypalHelperPaypal {
 			$errorInfo = array(
 				"paypal_data"         => $paypal_data,
 				'payment_order_total' => $payments[0]->payment_order_total,
-				'currency_code_3'     => $payment_currency_code_3,
+				'currency_code_3'     => $this->currency_code_3,
 				'testing Total-mc-gross' => ($payments[0]->payment_order_total - $paypal_data['mc_gross']),
 				'testing Compare' => ($paypal_data['mc_gross'] * 0.001),
 				'testing Result' =>(int) (abs($payments[0]->payment_order_total - $paypal_data['mc_gross'] < abs($paypal_data['mc_gross'] * 0.001)) )

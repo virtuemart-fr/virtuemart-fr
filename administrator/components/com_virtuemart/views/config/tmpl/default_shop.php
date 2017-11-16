@@ -6,14 +6,14 @@
  * @package    VirtueMart
  * @subpackage Config
  * @author RickG
- * @link http://www.virtuemart.net
+ * @link https://virtuemart.net
  * @copyright Copyright (c) 2004 - 2010 VirtueMart Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
- * @version $Id: default_shop.php 9035 2015-11-03 10:37:57Z Milbo $
+ * @version $Id: default_shop.php 9561 2017-05-30 17:47:16Z Milbo $
  */
 
 // Check to ensure this file is included in Joomla!
@@ -28,7 +28,7 @@ defined('_JEXEC') or die('Restricted access');?>
 			<td class="key">
 				<?php echo vmText::_('COM_VIRTUEMART_ADMIN_CFG_SHOP_OFFLINE_MSG'); ?>
 			</td>
-			<td>
+			<td colspan="2">
 				<textarea rows="6" cols="50" name="offline_message"
 				          style="text-align: left;"><?php echo VmConfig::get('offline_message', 'Our Shop is currently down for maintenance. Please check back again soon.'); ?></textarea>
 			</td>
@@ -41,6 +41,28 @@ defined('_JEXEC') or die('Restricted access');?>
 			echo VmHTML::row('checkbox','COM_VIRTUEMART_ADMIN_CFG_SSL','useSSL',VmConfig::get('useSSL',0));
 			echo VmHTML::row('checkbox','COM_VIRTUEMART_REGISTRATION_CAPTCHA','reg_captcha',VmConfig::get('reg_captcha',0));
 			echo VmHTML::row('checkbox','COM_VIRTUEMART_VM_ERROR_HANDLING_ENABLE','handle_404',VmConfig::get('handle_404',1));
+		$host = JUri::getInstance()->getHost(); ?>
+		<tr>
+			<td class="key">
+				<?php echo vmText::_('COM_VM_EXTSUBSCR_HOST'); ?>
+        </td>
+        <td>
+				<?php echo $host ?>
+        </td>
+        </tr>
+        <tr>
+            <td class="key">
+                <span class="hasTip" title="<?php echo htmlentities(vmText::_('COM_VM_MEMBER_ACCESSNBR_TIP'))?>'"><?php echo vmText::_('COM_VM_MEMBER_ACCESSNBR')?></span>
+            </td>
+            <td>
+                <?php echo VmHTML::input('member_access_number',VmConfig::get('member_access_number','')); ?>
+            </td>
+            <td>
+                <span class="hasTip" title="<?php echo htmlentities(vmText::sprintf($host,'COM_VM_MEMBER_AGREEMENT_TIP',VmConfig::$vmlangTag,vmVersion::$RELEASE))?>'"><?php echo vmText::_('COM_VM_MEMBER_AGREEMENT')?></span>
+            </td>
+        </tr>
+         <?php
+		//echo VmHTML::row('input','COM_VM_MEMBER_ACCESSNBR','member_access_number',VmConfig::get('member_access_number',''));
 		?>
 	</table>
 </fieldset>
@@ -48,12 +70,25 @@ defined('_JEXEC') or die('Restricted access');?>
 <fieldset>
 	<legend><?php echo vmText::_('COM_VIRTUEMART_ADMIN_CFG_SHOP_LANGUAGES'); ?></legend>
 	<table class="admintable">
-		<tr>
+	<?php echo VmHTML::row('checkbox','COM_VIRTUEMART_ADMIN_CFG_ENABLE_ENGLISH','enableEnglish',VmConfig::get('enableEnglish',1)); ?>
+        <tr>
+            <td class="key">
+					<span class="hasTip" title="<?php echo vmText::_('COM_VM_CFG_SHOPLANG_TIP'); ?>">
+						<?php echo vmText::sprintf('COM_VM_CFG_SHOPLANG',VmConfig::$jDefLang); ?>
+					</span>
+            </td>
+
+            <td>
+				<?php echo $this->activeShopLanguage; ?>
+            </td>
+        </tr>
+	    <tr>
 			<td class="key">
 					<span class="hasTip" title="<?php echo vmText::_('COM_VIRTUEMART_ADMIN_CFG_MULTILANGUE_TIP'); ?>">
 						<?php echo vmText::_('COM_VIRTUEMART_ADMIN_CFG_MULTILANGUE'); ?>
 					</span>
 			</td>
+
 			<td>
 				<?php echo $this->activeLanguages; ?>
 			 <span>
@@ -61,7 +96,10 @@ defined('_JEXEC') or die('Restricted access');?>
 				</span></td>
 		</tr>
 		<?php
-			echo VmHTML::row('checkbox','COM_VIRTUEMART_ADMIN_CFG_ENABLE_ENGLISH','enableEnglish',VmConfig::get('enableEnglish',1));
+		echo VmHTML::row('checkbox','COM_VM_CFG_NO_FALLBACK','prodOnlyWLang',VmConfig::get('prodOnlyWLang',0));
+		//echo VmHTML::row('checkbox','COM_VM_CFG_DUAL_FALLBACK','dualFallback',VmConfig::get('dualFallback',1));
+		echo VmHTML::row('input','COM_VM_CFG_CUSTOM_FALLBACK','vm_lfbs',VmConfig::get('vm_lfbs',''));
+
 		?>
 
 	</table>
@@ -79,6 +117,7 @@ defined('_JEXEC') or die('Restricted access');?>
 				'all' => vmText::_('COM_VIRTUEMART_ADMIN_CFG_ENABLE_DEBUG_ALL')
 			);
 			echo VmHTML::row('radiolist','COM_VIRTUEMART_ADMIN_CFG_ENABLE_DEBUG','debug_enable',VmConfig::get('debug_enable','none'), $optDebug);
+		    echo VmHTML::row('checkbox','COM_VM_CFG_ENABLE_DEBUG_METHODS','debug_enable_methods',VmConfig::get('debug_enable_methods',0));
 			echo VmHTML::row('radiolist','COM_VIRTUEMART_CFG_DEV','vmdev',VmConfig::get('vmdev',0), $optDebug);
 			echo VmHTML::row('checkbox','COM_VIRTUEMART_ADMIN_CFG_DANGEROUS_TOOLS','dangeroustools',VmConfig::get('dangeroustools',0));
 			echo VmHTML::row('input','COM_VIRTUEMART_REV_PROXY_VAR','revproxvar',VmConfig::get('revproxvar',''));

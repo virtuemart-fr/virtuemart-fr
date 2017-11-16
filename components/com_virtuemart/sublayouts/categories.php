@@ -6,7 +6,7 @@
 * @package	VirtueMart
 * @subpackage
 * @author Max Milbers
-* @link http://www.virtuemart.net
+* @link https://virtuemart.net
 * @copyright Copyright (c) 2004 - 2014 VirtueMart Team. All rights reserved.
 * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
 * VirtueMart is free software. This version may have been modified pursuant
@@ -20,10 +20,11 @@
 defined('_JEXEC') or die('Restricted access');
 
 $categories = $viewData['categories'];
-$categories_per_row = VmConfig::get ( 'categories_per_row', 3 );
-
 
 if ($categories) {
+
+$categories_per_row = !empty($viewData['categories_per_row'])? $viewData['categories_per_row']:VmConfig::get ( 'categories_per_row', 3 );
+if(empty($categories_per_row)) $categories_per_row = 3;
 
 // Category and Columns Counter
 $iCol = 1;
@@ -34,6 +35,11 @@ $category_cellwidth = ' width'.floor ( 100 / $categories_per_row );
 
 // Separator
 $verticalseparator = " vertical-separator";
+
+$ajaxUpdate = '';
+if(VmConfig::get ('ajax_category', false)){
+	$ajaxUpdate = 'data-dynamic-update="1"';
+}
 ?>
 
 <div class="category-view">
@@ -67,11 +73,11 @@ $verticalseparator = " vertical-separator";
     <div class="category floatleft<?php echo $category_cellwidth . $show_vertical_separator ?>">
       <div class="spacer">
         <h2>
-          <a href="<?php echo $caturl ?>" title="<?php echo vmText::_($category->category_name) ?>">
+          <a href="<?php echo $caturl ?>" title="<?php echo vmText::_($category->category_name) ?>" <?php echo $ajaxUpdate?> >
           <?php echo vmText::_($category->category_name) ?>
           <br />
           <?php // if ($category->ids) {
-            echo $category->images[0]->displayMediaThumb("",false);
+            echo $category->images[0]->displayMediaThumb('class="browseCategoryImage"',false);
           //} ?>
           </a>
         </h2>

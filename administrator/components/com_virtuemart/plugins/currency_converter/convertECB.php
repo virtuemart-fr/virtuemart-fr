@@ -3,7 +3,7 @@ if( !defined( '_JEXEC' ) ) die( 'Direct Access to '.basename(__FILE__).' is not 
 /**
 * ECB Currency Converter Module
 *
-* @version $Id: convertECB.php 8635 2015-01-01 14:22:16Z Milbo $
+* @version $Id: convertECB.php 9458 2017-02-27 11:08:31Z Milbo $
 * @package VirtueMart
 * @subpackage classes
 * @copyright Copyright (C) 2004-2008 soeren - All rights reserved.
@@ -39,27 +39,19 @@ class convertECB {
 	 */
 	function convert( $amountA, $currA='', $currB='', $a2rC = true, $relatedCurrency = 'EUR') {
 
-		// cache subfolder(group) 'convertECB', cache method: callback
-		$cache= JFactory::getCache('convertECB','callback');
+		if($currA==$currB){
+			return $amountA;
+		}
 
-		// save configured lifetime
-		@$lifetime=$cache->lifetime;
+		static $globalCurrencyConverter = false;
+		if(!$globalCurrencyConverter){
+			$cache = VmConfig::getCache('convertECB');
 
-		$cache->setLifeTime(360); // check 4 time per day
+			$cache->setLifeTime(360); // check 4 time per day
+			$cache->setCaching(1); //enable caching
 
-		// save cache conf
-		$conf = JFactory::getConfig();
-
-		// check if cache is enabled in configuration
-		$cacheactive = $conf->get('caching');
-
-		$cache->setCaching(1); //enable caching
-
-		$globalCurrencyConverter = $cache->call( array( 'convertECB', 'getSetExchangeRates' ),$this->document_address );
-
-		// revert configuration
-		$cache->setCaching($cacheactive);
-
+			$globalCurrencyConverter = $cache->call( array( 'convertECB', 'getSetExchangeRates' ),$this->document_address );
+		}
 
 		if(!$globalCurrencyConverter ){
 			return $amountA;

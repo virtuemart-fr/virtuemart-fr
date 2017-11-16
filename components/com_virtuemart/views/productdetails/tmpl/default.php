@@ -6,14 +6,14 @@
  * @package	VirtueMart
  * @subpackage
  * @author Max Milbers, Eugen Stranz, Max Galt
- * @link http://www.virtuemart.net
+ * @link https://virtuemart.net
  * @copyright Copyright (c) 2004 - 2014 VirtueMart Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
- * @version $Id: default.php 9185 2016-02-25 13:51:01Z Milbo $
+ * @version $Id: default.php 9505 2017-04-20 07:24:48Z Milbo $
  */
 // Check to ensure this file is included in Joomla!
 defined('_JEXEC') or die('Restricted access');
@@ -33,7 +33,7 @@ if(vRequest::getInt('print',false)){ ?>
 <body onload="javascript:print();">
 <?php } ?>
 
-<div class="productdetails-view productdetails" >
+<div class="product-container productdetails-view productdetails" >
 
     <?php
     // Product Navigation
@@ -137,17 +137,35 @@ echo $this->loadTemplate('images');
 		?>
 
 		<?php
-		echo shopFunctionsF::renderVmSubLayout('rating',array('showRating'=>$this->showRating,'product'=>$this->product));
+		echo shopFunctionsF::renderVmSubLayout('rating', array('showRating' => $this->showRating, 'product' => $this->product));
 
-		if (is_array($this->productDisplayShipments)) {
-		    foreach ($this->productDisplayShipments as $productDisplayShipment) {
-			echo $productDisplayShipment . '<br />';
-		    }
-		}
-		if (is_array($this->productDisplayPayments)) {
-		    foreach ($this->productDisplayPayments as $productDisplayPayment) {
-			echo $productDisplayPayment . '<br />';
-		    }
+		$productDisplayTypes = array('productDisplayShipments', 'productDisplayPayments');
+		foreach ($productDisplayTypes as $productDisplayType) {
+
+			if(empty($this->$productDisplayType)){
+				continue;
+			} else if (!is_array($this->$productDisplayType)) {
+				$this->$productDisplayType = array($this->$productDisplayType);
+			}
+
+			foreach ($this->$productDisplayType as $productDisplay) {
+
+				if(empty($productDisplay)){
+					continue;
+				} else if (!is_array($productDisplay)){
+					$productDisplay = array($productDisplay);
+				}
+
+				foreach ($productDisplay as $virtuemart_method_id =>$productDisplayHtml) {
+					?>
+					<div class="<?php echo substr($productDisplayType, 0, -1) ?> <?php echo substr($productDisplayType, 0, -1).'-'.$virtuemart_method_id ?>">
+						<?php
+						echo $productDisplayHtml;
+						?>
+					</div>
+					<?php
+				}
+			}
 		}
 
 		//In case you are not happy using everywhere the same price display fromat, just create your own layout
@@ -232,13 +250,11 @@ echo $this->product->event->afterDisplayContent;
 echo $this->loadTemplate('reviews');
 
 // Show child categories
-if (VmConfig::get('showCategory', 1)) {
+if ($this->cat_productdetails)  {
 	echo $this->loadTemplate('showcategory');
 }
 
 $j = 'jQuery(document).ready(function($) {
-	Virtuemart.product(jQuery("form.product"));
-
 	$("form.js-recalculate").each(function(){
 		if ($(this).find(".product-fields").length && !$(this).find(".no-vm-bind").length) {
 			var id= $(this).find(\'input[name="virtuemart_product_id[]"]\').val();
@@ -249,23 +265,26 @@ $j = 'jQuery(document).ready(function($) {
 });';
 //vmJsApi::addJScript('recalcReady',$j);
 
-/** GALT
- * Notice for Template Developers!
- * Templates must set a Virtuemart.container variable as it takes part in
- * dynamic content update.
- * This variable points to a topmost element that holds other content.
- */
-$j = "Virtuemart.container = jQuery('.productdetails-view');
-Virtuemart.containerSelector = '.productdetails-view';";
-
-vmJsApi::addJScript('ajaxContent',$j);
-
 if(VmConfig::get ('jdynupdate', TRUE)){
+
+	/** GALT
+	 * Notice for Template Developers!
+	 * Templates must set a Virtuemart.container variable as it takes part in
+	 * dynamic content update.
+	 * This variable points to a topmost element that holds other content.
+	 */
+	$j = "Virtuemart.container = jQuery('.productdetails-view');
+Virtuemart.containerSelector = '.productdetails-view';
+//Virtuemart.recalculate = true;	//Activate this line to recalculate your product after ajax
+";
+
+	vmJsApi::addJScript('ajaxContent',$j);
+
 	$j = "jQuery(document).ready(function($) {
 	Virtuemart.stopVmLoading();
 	var msg = '';
-	jQuery('a[data-dynamic-update=\"1\"]').off('click', Virtuemart.startVmLoading).on('click', {msg:msg}, Virtuemart.startVmLoading);
-	jQuery('[data-dynamic-update=\"1\"]').off('change', Virtuemart.startVmLoading).on('change', {msg:msg}, Virtuemart.startVmLoading);
+	$('a[data-dynamic-update=\"1\"]').off('click', Virtuemart.startVmLoading).on('click', {msg:msg}, Virtuemart.startVmLoading);
+	$('[data-dynamic-update=\"1\"]').off('change', Virtuemart.startVmLoading).on('change', {msg:msg}, Virtuemart.startVmLoading);
 });";
 
 	vmJsApi::addJScript('vmPreloader',$j);

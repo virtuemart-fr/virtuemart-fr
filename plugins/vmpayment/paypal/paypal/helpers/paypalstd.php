@@ -8,7 +8,7 @@
  * @version $Id: paypal.php 7217 2013-09-18 13:42:54Z alatak $
  * @package VirtueMart
  * @subpackage payment
- * Copyright (C) 2004-2016 Virtuemart Team. All rights reserved.
+ * Copyright (C) 2004 - 2017 Virtuemart Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
@@ -220,7 +220,7 @@ class PaypalHelperPayPalStd extends PaypalHelperPaypal {
 		$post_variables['cmd'] = '_ext-enter';
 		$post_variables['redirect_cmd'] = $payment_type;
 		$post_variables['paymentaction'] = strtolower($this->_method->payment_action);
-		$post_variables['upload'] = '1';
+		$post_variables['upload'] = '1';	//We may need this configurable $this->_method->upload
 		$post_variables['business'] = $this->merchant_email; //Email address or account ID of the payment recipient (i.e., the merchant).
 		$post_variables['receiver_email'] = $this->merchant_email; //Primary email address of the payment recipient (i.e., the merchant
 		$post_variables['order_number'] = $this->order['details']['BT']->order_number;
@@ -262,7 +262,7 @@ class PaypalHelperPayPalStd extends PaypalHelperPaypal {
 		if (empty($this->_method->headerimg) OR $this->_method->headerimg == -1) {
 			$post_variables['image_url'] = $this->getLogoImage();
 		} else {
-			$post_variables['cpp_header_image'] = JURI::base() . 'images/stories/virtuemart/payment/' . $this->_method->headerimg;
+			$post_variables['cpp_header_image'] = $this->getLogoImage($this->_method->headerimg);
 		}
 		/*
 		 * The HTML hex code for your principal identifying color.
@@ -301,14 +301,38 @@ class PaypalHelperPayPalStd extends PaypalHelperPaypal {
 			}
 		}
 
-		$post_variables["handling_cart"] = $this->getHandlingAmount();
+		$discount = $this->addRulesBill($this->cart->cartData['DBTaxRulesBill']);
+
+		$post_variables["handling_cart"] = 0;
+		$post_variables["handling_cart"] += $this->addRulesBill($this->cart->cartData['taxRulesBill']);
+
+		$discount += $this->addRulesBill($this->cart->cartData['DATaxRulesBill']);
+		if(!empty($discount)){
+			$post_variables["discount_amount_cart"] = abs($discount);
+		}
+
+
 		$post_variables["handling_cart"] += vmPSPlugin::getAmountValueInCurrency($this->cart->cartPrices['salesPriceShipment'], $this->_method->payment_currency);
+		$post_variables["handling_cart"] += vmPSPlugin::getAmountValueInCurrency($this->cart->cartPrices['salesPricePayment'], $this->_method->payment_currency);
+
 		$post_variables['currency_code'] = $this->currency_code_3;
 		if (!empty($this->cart->cartPrices['salesPriceCoupon'])) {
 			$post_variables['discount_amount_cart'] = abs(vmPSPlugin::getAmountValueInCurrency($this->cart->cartPrices['salesPriceCoupon'], $this->_method->payment_currency));
 		}
 		$pricesCurrency = CurrencyDisplay::getInstance($this->cart->pricesCurrency);
 	}
+
+	/**
+	 * @return value
+	 */
+/*	function getHandlingAmount () {
+		$handling = 0;
+		$handling += $this->addRulesBill($this->cart->cartData['DBTaxRulesBill']);
+		$handling += $this->addRulesBill($this->cart->cartData['taxRulesBill']);
+		$handling += $this->addRulesBill($this->cart->cartData['DATaxRulesBill']);
+		$handling += vmPSPlugin::getAmountValueInCurrency($this->cart->cartPrices['salesPricePayment'], $this->_method->payment_currency);
+		return $handling;
+	}*/
 
 	function getExtraPluginInfo() {
 		return;
@@ -342,8 +366,12 @@ class PaypalHelperPayPalStd extends PaypalHelperPaypal {
 		foreach ($showOrderBEFields as $key => $showOrderBEField) {
 			$field = $prefix . $showOrderBEField;
 			// only displays if there is a value or the value is different from 0.00 and the value
-			if ($payment->$field) {
-				$html .= $this->paypalPlugin->getHtmlRowBE($prefix . $key, $payment->$field);
+			if (isset($payment->$field)) {
+				if($payment->$field){
+					$html .= $this->paypalPlugin->getHtmlRowBE($prefix . $key, $payment->$field);
+				}
+			} else {
+				//$this->debugLog($payment, 'onShowOrderBEPaymentByFields: missing field '.$field, 'debug');
 			}
 		}
 

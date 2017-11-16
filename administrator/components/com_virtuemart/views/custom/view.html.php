@@ -6,7 +6,7 @@
 * @package	VirtueMart
 * @subpackage
 * @author
-* @link http://www.virtuemart.net
+* @link https://virtuemart.net
 * @copyright Copyright (c) 2004 - 2010 VirtueMart Team. All rights reserved.
 * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
 * VirtueMart is free software. This version may have been modified pursuant
@@ -61,7 +61,7 @@ class VirtuemartViewCustom extends VmViewAdmin {
 			$selected=0;
 			$this->custom->form = false;
 			if(!empty($this->custom->custom_jplugin_id)) {
-				VmConfig::loadJLang('plg_vmpsplugin', false);
+				vmLanguage::loadJLang('plg_vmpsplugin', false);
 				JForm::addFieldPath(VMPATH_ADMIN . DS . 'fields');
 				$selected = $this->custom->custom_jplugin_id;
 				// Get the payment XML.
@@ -113,14 +113,7 @@ class VirtuemartViewCustom extends VmViewAdmin {
 				}
 			}
 
-			if(!empty($this->custom->custom_parent_id)){
-				$list = ShopFunctions::renderOrderingList('customs','custom_title',$this->custom->ordering,'WHERE custom_parent_id ="'.(int)$this->custom->custom_parent_id.'" ');
-				$this->ordering = VmHTML::row('raw','COM_VIRTUEMART_ORDERING',$list);
-			} else {
-				$this->ordering='';
-				$this->addHidden('ordering',$this->custom->ordering);
-			}
-
+			$this->addHidden('ordering',$this->custom->ordering);
 			$this->pluginList = self::renderInstalledCustomPlugins($selected);
 
         }
@@ -153,7 +146,7 @@ class VirtuemartViewCustom extends VmViewAdmin {
 		$ext_id = 'extension_id';
 
 		//$q = 'SELECT * FROM `'.$table.'` WHERE `folder` = "vmcustom" AND `'.$enable.'`="1" ';
-		$q = 'SELECT * FROM `'.$table.'` WHERE `folder` = "vmcustom" ';
+		$q = 'SELECT * FROM `'.$table.'` WHERE `folder` = "vmcustom" and state="0"';
 		$db->setQuery($q);
 
 		$results = $db->loadAssocList($ext_id);
@@ -189,10 +182,7 @@ class VirtuemartViewCustom extends VmViewAdmin {
 		$this->addHiddenByType ($datas);
 
 		$html = "";
-
 		$model = VmModel::getModel('custom');
-
-
 
 		// only input when not set else display
 		if ($datas->field_type) {
@@ -207,6 +197,7 @@ class VirtuemartViewCustom extends VmViewAdmin {
 		$html .= VmHTML::row ('select', 'COM_VIRTUEMART_CUSTOM_GROUP', 'custom_parent_id', $model->getParentList ($datas->virtuemart_custom_id), $datas->custom_parent_id, '');
 		$html .= VmHTML::row ('booleanlist', 'COM_VIRTUEMART_CUSTOM_IS_CART_ATTRIBUTE', 'is_cart_attribute', $datas->is_cart_attribute);
 		$html .= VmHTML::row ('booleanlist', 'COM_VIRTUEMART_CUSTOM_IS_CART_INPUT', 'is_input', $datas->is_input);
+		$html .= VmHTML::row ('booleanlist', 'COM_VM_CUSTOM_IS_SEARCHABLE', 'searchable', $datas->searchable);
 		$html .= VmHTML::row ('input', 'COM_VIRTUEMART_DESCRIPTION', 'custom_desc', $datas->custom_desc);
 		// change input by type
 		$html .= VmHTML::row ('textarea', 'COM_VIRTUEMART_CUSTOM_DEFAULT', 'custom_value', $datas->custom_value);
@@ -220,9 +211,6 @@ class VirtuemartViewCustom extends VmViewAdmin {
 			$html .= VmHTML::row ('select', 'COM_VIRTUEMART_CUSTOM_IS_LIST', 'is_list', $opt,$datas->is_list,'','value','text',false);
 		}
 		$html .= VmHTML::row ('booleanlist', 'COM_VIRTUEMART_CUSTOM_IS_HIDDEN', 'is_hidden', $datas->is_hidden);
-		$html .= $this->ordering;
-
-		// $html .= '</table>';  removed
 		$html .= VmHTML::inputHidden ($this->_hidden);
 
 		return $html;

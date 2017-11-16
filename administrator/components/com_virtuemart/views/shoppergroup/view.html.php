@@ -6,14 +6,14 @@
  * @package	VirtueMart
  * @subpackage ShopperGroup
  * @author Markus �hler
- * @link http://www.virtuemart.net
+ * @link https://virtuemart.net
  * @copyright Copyright (c) 2004 - 2010 VirtueMart Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
- * @version $Id: view.html.php 9041 2015-11-05 11:59:38Z Milbo $
+ * @version $Id: view.html.php 9420 2017-01-12 09:35:36Z Milbo $
  */
 
 // Check to ensure this file is included in Joomla!
@@ -45,8 +45,8 @@ class VirtuemartViewShopperGroup extends VmViewAdmin {
 
 		if ($layoutName == 'edit') {
 			//For shoppergroup specific price display
-			VmConfig::loadJLang('com_virtuemart_config');
-			VmConfig::loadJLang('com_virtuemart_shoppers',true);
+			vmLanguage::loadJLang('com_virtuemart_config');
+			vmLanguage::loadJLang('com_virtuemart_shoppers',true);
 			$shoppergroup = $model->getShopperGroup();
 			$this->SetViewTitle('SHOPPERGROUP',$shoppergroup->shopper_group_name);
 

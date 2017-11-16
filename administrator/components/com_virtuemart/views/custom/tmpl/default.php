@@ -6,7 +6,7 @@
 * @package	VirtueMart
 * @subpackage
 * @author Max Milbers
-* @link http://www.virtuemart.net
+* @link https://virtuemart.net
 * @copyright Copyright (c) 2004 - 2010 VirtueMart Team. All rights reserved.
 * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
 * VirtueMart is free software. This version may have been modified pursuant
@@ -26,7 +26,7 @@ $option = vRequest::getCmd('option');
 /* Load some variables */
 $keyword = vRequest::getCmd('keyword', null);
 ?>
-<form action="index.php" method="post" name="adminForm" id="adminForm">
+<form action="index.php?option=com_virtuemart&view=custom" method="post" name="adminForm" id="adminForm">
 <div id="header">
 	<div>
 		<?php
@@ -157,25 +157,26 @@ $customs = $this->customs->items;
 </form>
 <?php AdminUIHelper::endAdminArea();
 /// DRAG AND DROP PRODUCT ORDER HACK
-if(!empty($this->custom_parent_id)){ ?>
-	<script>
-		jQuery(function() {
+if(!empty($this->custom_parent_id)){
+
+	vmJsApi::addJScript('sortable','Virtuemart.sortable;');
+	/*vmJsApi::addJScript('sortable','jQuery(function() {
 
 			jQuery( ".adminlist" ).sortable({
 				handle: ".vmicon-16-move",
-				items: 'tr:not(:first,:last)',
+				items: \'tr:not(:first,:last)\',
 				opacity: 0.8,
 				update: function() {
 					var i = 1;
 					jQuery(function updatenr(){
-						jQuery('input.ordering').each(function(idx) {
+						jQuery(\'input.ordering\').each(function(idx) {
 							jQuery(this).val(idx);
 						});
 					});
 
 					jQuery(function updaterows() {
 						jQuery(".order").each(function(index){
-							var row = jQuery(this).parent('td').parent('tr').prevAll().length;
+							var row = jQuery(this).parent(\'td\').parent(\'tr\').prevAll().length;
 							jQuery(this).val(row);
 							i++;
 						});
@@ -183,7 +184,6 @@ if(!empty($this->custom_parent_id)){ ?>
 					});
 				}
 			});
-		});
-	</script>
+		});');*/
 
-<?php } ?>
+ } ?>

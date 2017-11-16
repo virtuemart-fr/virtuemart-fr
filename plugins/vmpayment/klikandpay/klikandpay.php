@@ -9,8 +9,8 @@ defined('_JEXEC') or die('Direct Access to ' . basename(__FILE__) . 'is not allo
  * @package VirtueMart
  * @subpackage Payment
  * @author Valérie Isaksen
- * @link http://www.virtuemart.net
- * @copyright Copyright (c) 2004 - March 11 2016 VirtueMart Team. All rights reserved.
+ * @link https://virtuemart.net
+ * @copyright Copyright (c) 2004 - August 23 2017 VirtueMart Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
@@ -30,7 +30,7 @@ defined('_JEXEC') or die('Direct Access to ' . basename(__FILE__) . 'is not allo
 
  */
 if (!class_exists('vmPSPlugin')) {
-	require(JPATH_VM_PLUGINS . DS . 'vmpsplugin.php');
+	require(VMPATH_PLUGINLIBS . DS . 'vmpsplugin.php');
 }
 if (!class_exists('KlikandpayHelperKlikandpay')) {
 	require(JPATH_SITE . '/plugins/vmpayment/klikandpay/klikandpay/helpers/klikandpay.php');
@@ -152,7 +152,7 @@ class plgVmpaymentKlikandpay extends vmPSPlugin {
 			"RETOURVOK" => $retourParams,
 			"RETOURVHS" => $retourParams,
 			"MODULE" => 'VirtueMart',
-			"MODULE_VERSION" => '3.0.14',
+			"MODULE_VERSION" => '3.2.4',
 		);
 
 		$subscribe = array();
@@ -232,7 +232,7 @@ class plgVmpaymentKlikandpay extends vmPSPlugin {
 			require(VMPATH_ADMIN . DS . 'models' . DS . 'orders.php');
 		}
 
-		VmConfig::loadJLang('com_virtuemart_orders', TRUE);
+		vmLanguage::loadJLang('com_virtuemart_orders', TRUE);
 
 		$po = vRequest::getString('po', '');
 
@@ -849,7 +849,7 @@ class plgVmpaymentKlikandpay extends vmPSPlugin {
 		');
 
 		$html = '';
-		if ($this->_method->debug) {
+		if ($this->_currentMethod->debug) {
 			$html .= '<form action="' . $server . '" method="post" name="vm_klikandpay_form" target="paypal">';
 		} else {
 			$html .= '<form action="' . $server . '" method="post" name="vm_klikandpay_form" id="vmPaymentForm" accept-charset="UTF-8">';
@@ -859,7 +859,7 @@ class plgVmpaymentKlikandpay extends vmPSPlugin {
 		foreach ($post_variables as $name => $value) {
 			$html .= '<input type="hidden" name="' . $name . '" value="' . htmlspecialchars($value) . '" />';
 		}
-		if ($this->_method->debug) {
+		if ($this->_currentMethod->debug) {
 
 			$html .= '<div style="background-color:red;color:white;padding:10px;">
 						<input type="submit"  value="The method is in debug mode. Click here to be redirected to PayPal" />
@@ -898,7 +898,7 @@ class plgVmpaymentKlikandpay extends vmPSPlugin {
 		}
 
 		$payment_name = $this->renderPluginName($this->_currentMethod);
-		VmConfig::loadJLang('com_virtuemart_orders', TRUE);
+		vmLanguage::loadJLang('com_virtuemart_orders', TRUE);
 
 		if (!class_exists('VirtueMartCart')) {
 			require(VMPATH_SITE . DS . 'helpers' . DS . 'cart.php');
@@ -948,13 +948,9 @@ class plgVmpaymentKlikandpay extends vmPSPlugin {
 	function getEmailCurrency(&$method) {
 
 		if (!isset($method->email_currency)  or $method->email_currency == 'vendor') {
-			// 	    if (!class_exists('VirtueMartModelVendor')) require(VMPATH_ADMIN . DS . 'models' . DS . 'vendor.php');
-			$vendorId = 1; //VirtueMartModelVendor::getLoggedVendor();
-			$db = JFactory::getDBO();
-
-			$q = 'SELECT   `vendor_currency` FROM `#__virtuemart_vendors` WHERE `virtuemart_vendor_id`=' . $vendorId;
-			$db->setQuery($q);
-			return $db->loadResult();
+			$vendor_model = VmModel::getModel('vendor');
+			$vendor = $vendor_model->getVendor($method->virtuemart_vendor_id);
+			return $vendor->vendor_currency;
 		} else {
 			return $method->payment_currency; // either the vendor currency, either same currency as payment
 		}

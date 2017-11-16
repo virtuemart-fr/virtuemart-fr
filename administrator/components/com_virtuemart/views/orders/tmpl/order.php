@@ -4,15 +4,15 @@
  *
  * @package	VirtueMart
  * @subpackage Orders
- * @author Oscar van Eijk
- * @link http://www.virtuemart.net
- * @copyright Copyright (c) 2004 - 2010 VirtueMart Team. All rights reserved.
+ * @author Oscar van Eijk, Max Milbers
+ * @link https://virtuemart.net
+ * @copyright Copyright (c) 2004 - 2016 VirtueMart Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
- * @version $Id: order.php 9188 2016-02-27 23:10:51Z Milbo $
+ * @version $Id: order.php 9554 2017-05-24 12:37:05Z Milbo $
  */
 
 // Check to ensure this file is included in Joomla!
@@ -26,125 +26,17 @@ JPluginHelper::importPlugin('vmshopper');
 JPluginHelper::importPlugin('vmshipment');
 JPluginHelper::importPlugin('vmpayment');
 
-vmJsApi::addJScript( 'orderedit',"
-		jQuery( function($) {
+$jsOrderStatusShopperEmail = '""';
+$j = 'if (typeof Virtuemart === "undefined")
+	Virtuemart = {};
+	Virtuemart.confirmDelete = "'.addslashes( vmText::_('COM_VIRTUEMART_ORDER_DELETE_ITEM_JS') ).'";
+	jQuery(document).ready(function() {
+		Virtuemart.onReadyOrderItems();
+	});
+	var editingItem = 0;';
+vmJsApi::addJScript('onReadyOrder',$j);
 
-			$('.orderedit').hide();
-			$('.ordereditI').show();
-			$('.orderedit').css('backgroundColor', 'lightgray');
-
-			jQuery('.updateOrderItemStatus').click(function() {
-				document.orderItemForm.task.value = 'updateOrderItemStatus';
-				document.orderItemForm.submit();
-				return false
-			});
-
-			jQuery('select#virtuemart_paymentmethod_id').change(function(){
-				jQuery('span#delete_old_payment').show();
-				jQuery('input#delete_old_payment').attr('checked','checked');
-			});
-
-		});
-
-		function enableEdit(e)
-		{
-			jQuery('.orderedit').each( function()
-			{
-				var d = jQuery(this).css('visibility')=='visible';
-				jQuery(this).toggle();
-				jQuery('.orderedit').css('backgroundColor', d ? 'white' : 'lightgray');
-				jQuery('.orderedit').css('color', d ? 'blue' : 'black');
-			});
-			jQuery('.ordereditI').each( function()
-			{
-				jQuery(this).toggle();
-			});
-			e.preventDefault();
-		};
-
-		function addNewLine(e,i) {
-
-			var row = jQuery('#itemTable').find('#lItemRow').html();
-			var needle = 'item_id['+i+']';
-			//var needle = new RegExp('item_id['+i+']','igm');
-			while (row.indexOf(needle) !== -1){
-				row = row.replace(needle,'item_id[0]');
-			}
-
-			//alert(needle);
-			jQuery('#itemTable').find('#lItemRow').after('<tr>'+row+'</tr>');
-			e.preventDefault();
-		};
-
-		function cancelEdit(e) {
-			jQuery('#orderItemForm').each(function(){
-				this.reset();
-			});
-			jQuery('.selectItemStatusCode')
-				.find('option:selected').prop('selected', true)
-				.end().trigger('liszt:updated');
-			jQuery('.orderedit').hide();
-			jQuery('.ordereditI').show();
-			e.preventDefault();
-		}
-
-		function resetOrderHead(e) {
-			jQuery('#orderForm').each(function(){
-				this.reset();
-			});
-			jQuery('select#virtuemart_paymentmethod_id')
-				.find('option:selected').prop('selected', true)
-				.end().trigger('liszt:updated');
-			jQuery('select#virtuemart_shipmentmethod_id')
-				.find('option:selected').prop('selected', true)
-				.end().trigger('liszt:updated');
-			e.preventDefault();
-		}
-
-		");
-
-$j = "
-jQuery('.show_element').click(function() {
-  jQuery('.element-hidden').toggle();
-  jQuery('select').trigger('chosen:updated');
-  return false;
-});
-jQuery('.updateOrderItemStatus').click(function() {
-	document.orderItemForm.task.value = 'updateOrderItemStatus';
-	document.orderItemForm.submit();
-	return false;
-});
-jQuery('.updateOrder').click(function() {
-	document.orderForm.submit();
-	return false;
-});
-jQuery('.createOrder').click(function() {
-	document.orderForm.task.value = 'CreateOrderHead';
-	document.orderForm.submit();
-	return false;
-});
-jQuery('.newOrderItem').click(function() {
-	document.orderItemForm.task.value = 'newOrderItem';
-	document.orderItemForm.submit();
-	return false;
-});
-jQuery('.orderStatFormSubmit').click(function() {
-	//document.orderStatForm.task.value = 'updateOrderItemStatus';
-	document.orderStatForm.submit();
-
-	return false;
-});
-
-function confirmation(destnUrl) {
-	var answer = confirm('".addslashes( vmText::_('COM_VIRTUEMART_ORDER_DELETE_ITEM_JS') )."');
-if (answer) {
-	window.location = destnUrl;
-	}
-}
-
-var editingItem = 0;
-";
-vmJsApi::addJScript('ordergui',$j);
+vmJsApi::addJScript('/administrator/components/com_virtuemart/assets/js/orders.js',false,false);
 
 ?>
 <div style="text-align: left;">
@@ -165,7 +57,7 @@ vmJsApi::addJScript('ordergui',$j);
 		<?php echo vmText::_('COM_VIRTUEMART_ORDER_SAVE_USER_INFO'); ?></a></span>
 		&nbsp;&nbsp;
 				<span class="btn btn-small " >
-		<a href="#" onClick="javascript:resetOrderHead(event);" ><span class="icon-nofloat vmicon vmicon-16-cancel"></span>
+		<a href="#" onClick="javascript:Virtuemart.resetOrderHead(event);" ><span class="icon-nofloat vmicon vmicon-16-cancel"></span>
 		<?php echo vmText::_('COM_VIRTUEMART_ORDER_RESET'); ?></a>
 					</span>
 		<?php // echo vmText::_('COM_VIRTUEMART_ORDER_CREATE'); ?></a>
@@ -194,10 +86,10 @@ vmJsApi::addJScript('ordergui',$j);
 			<tr>
 				<td class="key"><strong><?php echo vmText::_('COM_VIRTUEMART_ORDER_PRINT_PO_NUMBER') ?></strong></td>
 				<?php
-
+				$orderLink=JURI::root() .'index.php?option=com_virtuemart&view=orders&layout=details&order_number='.$this->orderbt->order_number.'&order_pass='.$this->orderbt->order_pass;
 
 				?>
-				<td><?php echo $this->orderbt->order_number; ?></td>
+				<td><?php echo $this->orderbt->order_number; ?> <a href="<?php echo $orderLink ?>" target="_blank" title="<?php echo  vmText::_ ('COM_VIRTUEMART_ORDER_VIEW_ORDER_FRONTEND')?>"><span class="vm2-modallink"></span></a></td>
 				<?php /*<td><?php echo  $print_link;?></td> */ ?>
 			</tr>
 			<tr>
@@ -216,10 +108,14 @@ vmJsApi::addJScript('ordergui',$j);
 				<td class="key"><strong><?php echo vmText::_('COM_VIRTUEMART_ORDER_PRINT_NAME') ?></strong></td>
 				<td><?php
 					if ($this->orderbt->virtuemart_user_id) {
-						$userlink = JROUTE::_ ('index.php?option=com_virtuemart&view=user&task=edit&virtuemart_user_id[]=' . $this->orderbt->virtuemart_user_id);
-						echo JHtml::_ ('link', JRoute::_ ($userlink), $this->orderbt->order_name, array('title' => vmText::_ ('COM_VIRTUEMART_ORDER_EDIT_USER') . ' ' . $this->orderbt->order_name));
+						$userlink = JRoute::_ ('index.php?option=com_virtuemart&view=user&task=edit&virtuemart_user_id[]=' . $this->orderbt->virtuemart_user_id);
+						echo $this->orderbt->order_name;
+						echo ' <a href="'.$userlink.'" target="_blank" title="'.vmText::_ ('COM_VIRTUEMART_ORDER_EDIT_USER') . ' ' . $this->orderbt->order_name.'"><span class="icon-edit"></span></a>';
 					} else {
 						echo $this->orderbt->first_name.' '.$this->orderbt->last_name;
+					}
+					if( !empty($this->orderbt->order_language) and $this->orderbt->order_language!=VmConfig::$vmlangTag ) {
+						echo '<span style="float: right;"> '.$this->orderbt->order_language. ' </span>';
 					}
 					?>
 				</td>
@@ -238,8 +134,8 @@ vmJsApi::addJScript('ordergui',$j);
 			<?php
 			if ($this->orderbt->invoiceNumber and !shopFunctionsF::InvoiceNumberReserved($this->orderbt->invoiceNumber) ) {
 				$invoice_url = juri::root().'index.php?option=com_virtuemart&view=invoice&layout=invoice&format=pdf&tmpl=component&virtuemart_order_id=' . $this->orderbt->virtuemart_order_id . '&order_number=' .$this->orderbt->order_number. '&order_pass=' .$this->orderbt->order_pass;
-				$invoice_link = "<a title=\"".vmText::_('COM_VIRTUEMART_INVOICE_PRINT')."\"  href=\"javascript:void window.open('$invoice_url', 'win2', 'status=no,toolbar=no,scrollbars=yes,titlebar=no,menubar=no,resizable=yes,width=640,height=480,directories=no,location=no');\"  >";
-				$invoice_link .=   $this->orderbt->invoiceNumber . '</a>';?>
+				$invoice_link = $this->orderbt->invoiceNumber." <a title=\"".vmText::_('COM_VIRTUEMART_INVOICE_PRINT')."\"  href=\"javascript:void window.open('$invoice_url', 'win2', 'status=no,toolbar=no,scrollbars=yes,titlebar=no,menubar=no,resizable=yes,width=640,height=480,directories=no,location=no');\"  >";
+				$invoice_link .=    '<span class="icon-print"></span></a>';?>
 			<tr>
 				<td class="key"><strong><?php echo vmText::_('COM_VIRTUEMART_INVOICE') ?></strong></td>
 				<td><?php echo $invoice_link; ?></td>
@@ -393,7 +289,12 @@ vmJsApi::addJScript('ordergui',$j);
 				echo '				</label>'."\n";
 				echo '			</td>'."\n";
 				echo '			<td>'."\n";
-				echo '				'.$_field['formcode']."\n";
+				if ($_field['type'] === 'hidden') {
+					echo '				'.htmlentities($_field['value'],ENT_COMPAT, 'UTF-8', false)."\n";
+				}
+				else {
+					echo '				'.$_field['formcode']."\n";
+				}
 				echo '			</td>'."\n";
 				echo '		</tr>'."\n"; //*/
 			/*	$fn = $_field['name'];
@@ -429,7 +330,12 @@ vmJsApi::addJScript('ordergui',$j);
 				echo '				</label>'."\n";
 				echo '			</td>'."\n";
 				echo '			<td>'."\n";
-				echo '				'.$_field['formcode']."\n";
+				if ($_field['type'] === 'hidden') {
+					echo '				'.htmlentities($_field['value'],ENT_COMPAT, 'UTF-8', false)."\n";
+				}
+				else {
+					echo '				'.$_field['formcode']."\n";
+				}
 				echo '			</td>'."\n";
 				echo '		</tr>'."\n";
 			}
@@ -477,28 +383,28 @@ vmJsApi::addJScript('ordergui',$j);
 			$lId = count($this->orderdetails['items'])==$i? 'id="lItemRow"':'';
 			?>
 			<tr valign="top" <?php echo $lId?>><?php /*id="showItem_<?php echo $item->virtuemart_order_item_id; ?>" data-itemid="<?php echo $item->virtuemart_order_item_id; ?>">*/ ?>
-				<!--<td>
-					<?php $removeLineLink=JRoute::_('index.php?option=com_virtuemart&view=orders&orderId='.$this->orderbt->virtuemart_order_id.'&orderLineId='.$item->virtuemart_order_item_id.'&task=removeOrderItem'); ?>
-					<a class="vmicon vmicon-16-bug" title="<?php echo vmText::_('remove'); ?>" onclick="javascript:confirmation('<?php echo $removeLineLink; ?>');"></a>
-
-					<a href="javascript:enableItemEdit(<?php echo $item->virtuemart_order_item_id; ?>)"> <?php echo JHtml::_('image',  'administrator/components/com_virtuemart/assets/images/icon_16/icon-16-category.png', "Edit", NULL, true); ?></a>
-				</td> -->
 				<td>
-					<?php echo ($i++)?>
+					<div><?php echo ($i++)?></div>
+					<a href="#" title="<?php echo vmText::_('remove'); ?>" onClick="javascript:Virtuemart.removeItem(event,<?php echo $item->virtuemart_order_item_id; ?>);"><span class="vmicon vmicon-16-remove 4remove"></span></a>
+
 				</td>
 				<td>
 					<span class='ordereditI'><?php echo $item->product_quantity; ?></span>
 					<input class='orderedit' type="text" size="3" name="item_id[<?php echo $item->virtuemart_order_item_id; ?>][product_quantity]" value="<?php echo $item->product_quantity; ?>"/>
+					<?php //if(empty($item->virtuemart_product_id)) { ?>
+                    <span class='orderedit'>Product ID:</span>
+                    <input class='orderedit' type="text" size="10" name="item_id[<?php echo $item->virtuemart_order_item_id; ?>][virtuemart_product_id]" value="<?php echo $item->virtuemart_product_id; ?>"/>
+					<?php //} ?>
 				</td>
 				<td>
 					<span class='ordereditI'><?php echo $item->order_item_name; ?></span>
-					<input class='orderedit' type="text"  name="item_id[<?php echo $item->virtuemart_order_item_id; ?>][order_item_name]" value="<?php echo $item->order_item_name; ?>"/><?php
-						//echo $item->order_item_name;
-						//if (!empty($item->product_attribute)) {
-								if(!class_exists('VirtueMartModelCustomfields'))require(VMPATH_ADMIN.DS.'models'.DS.'customfields.php');
-								$product_attribute = VirtueMartModelCustomfields::CustomsFieldOrderDisplay($item,'BE');
-							if($product_attribute) echo '<div>'.$product_attribute.'</div>';
-						//}
+
+					<input class='orderedit' type="text"  name="item_id[<?php echo $item->virtuemart_order_item_id; ?>][order_item_name]" value="<?php echo $item->order_item_name; ?>"/>
+					<div class="goto-product"><?php echo '<a href="'.$item->linkedit.'" target="_blank">'.vmText::_('COM_VM_GOTO_PRODUCT'); ?></a></div>
+				<?php   if(!class_exists('VirtueMartModelCustomfields'))require(VMPATH_ADMIN.DS.'models'.DS.'customfields.php');
+                        $product_attribute = VirtueMartModelCustomfields::CustomsFieldOrderDisplay($item,'BE');
+                        if($product_attribute) echo '<div>'.$product_attribute.'</div>';
+
 						$_dispatcher = JDispatcher::getInstance();
 						$_returnValues = $_dispatcher->trigger('plgVmOnShowOrderLineBEShipment',array(  $this->orderID,$item->virtuemart_order_item_id));
 						$_plg = '';
@@ -516,10 +422,6 @@ vmJsApi::addJScript('ordergui',$j);
 								. '</table>';
 						}
 					?>
-					<?php if(empty($item->virtuemart_product_id)) { ?>
-						<span class='orderedit'>Product ID:</span>
-						<input class='orderedit' type="text" size="10" name="item_id[<?php echo $item->virtuemart_order_item_id; ?>][virtuemart_product_id]" value="<?php echo $item->virtuemart_product_id; ?>"/>
-					<?php } ?>
 				</td>
 				<td>
 					<span class='ordereditI'><?php echo $item->order_item_sku; ?></span>
@@ -533,7 +435,7 @@ vmJsApi::addJScript('ordergui',$j);
 				<td align="right" style="padding-right: 5px;">
 					<?php
 					$item->product_discountedPriceWithoutTax = (float) $item->product_discountedPriceWithoutTax;
-					if (!empty($item->product_priceWithoutTax) && $item->product_discountedPriceWithoutTax != $item->product_priceWithoutTax) {
+					if (!empty($item->product_discountedPriceWithoutTax) && $item->product_discountedPriceWithoutTax != $item->product_priceWithoutTax) {
 						echo '<span style="text-decoration:line-through">'.$this->currency->priceDisplay($item->product_item_price) .'</span><br />';
 						echo '<span >'.$this->currency->priceDisplay($item->product_discountedPriceWithoutTax) .'</span><br />';
 					} else {
@@ -586,11 +488,21 @@ vmJsApi::addJScript('ordergui',$j);
 						-->
 						<a class="updateOrderItemStatus" href="#"><span class="icon-nofloat vmicon vmicon-16-save"></span><?php echo vmText::_('COM_VIRTUEMART_SAVE'); ?></a>
 						&nbsp;&nbsp;
-						<a href="#" onClick="javascript:cancelEdit(event);" ><span class="icon-nofloat vmicon vmicon-16-remove"></span><?php echo '&nbsp;'. vmText::_('COM_VIRTUEMART_CANCEL'); ?></a>
+						<a href="#" class="cancelEdit" ><span class="icon-nofloat vmicon vmicon-16-remove 4remove"></span><?php echo '&nbsp;'. vmText::_('COM_VIRTUEMART_CANCEL'); ?></a>
 						&nbsp;&nbsp;
-						<a href="#" onClick="javascript:enableEdit(event);"><span class="icon-nofloat vmicon vmicon-16-edit"></span><?php echo '&nbsp;'. vmText::_('COM_VIRTUEMART_EDIT'); ?></a>
+						<a href="#" class="enableEdit" ><span class="icon-nofloat vmicon vmicon-16-edit"></span><?php echo '&nbsp;'. vmText::_('COM_VIRTUEMART_EDIT'); ?></a>
 						&nbsp;&nbsp;
-						<a href="#" onClick="javascript:addNewLine(event,<?php echo $this->orderdetails['items'][0]->virtuemart_order_item_id ?>);"><span class="icon-nofloat vmicon vmicon-16-new"></span><?php echo '&nbsp;'. vmText::_('JTOOLBAR_NEW'); ?></a>
+						<?php
+							//if(isset($this->orderdetails['items'][0])){
+							//	$oId = $this->orderdetails['items'][0]->virtuemart_order_item_id;
+							if(isset($item->virtuemart_order_item_id)){
+								$oId = $item->virtuemart_order_item_id;
+							} else {
+								$oId = 0;
+							}
+
+						?>
+						<a href="#" onClick="javascript:Virtuemart.addNewLine(event,<?php echo $oId ?>);"><span class="icon-nofloat vmicon vmicon-16-new"></span><?php echo '&nbsp;'. vmText::_('JTOOLBAR_NEW'); ?></a>
 					</td>
 
 					<td colspan="6">
@@ -728,17 +640,32 @@ vmJsApi::addJScript('ordergui',$j);
 			</tr>
 
 			<?php
+				$sumRules = array('VatTax'=>array(), 'taxRulesBill'=>array());
 				foreach($this->orderdetails['calc_rules'] as $rule){
-					if($rule->calc_kind!='VatTax') continue;
-					?><tr >
-					<td colspan="5" align="right"  ><?php echo $rule->calc_rule_name ?> </td>
-					<td align="right" colspan="3" > </td>
-					<td align="right"  style="padding-right: 5px;">
-						<?php echo  $this->currency->priceDisplay($rule->calc_amount);  ?>
-						<input class='orderedit' type="text" size="8" name="calc_rules[<?php echo $rule->calc_kind ?>][<?php echo $rule->virtuemart_order_calc_rule_id ?>]" value="<?php echo $rule->calc_amount; ?>"/>
-					</td>
-					<td align="right" colspan="2" > </td>
-					</tr><?php
+					if($rule->calc_kind!='VatTax' and $rule->calc_kind!='taxRulesBill') continue;
+
+					if(isset($sumRules[$rule->calc_kind][$rule->virtuemart_calc_id])){
+						$sumRules[$rule->calc_kind][$rule->virtuemart_calc_id]->calc_result += $rule->calc_result;
+					} else {
+						$sumRules[$rule->calc_kind][$rule->virtuemart_calc_id] = $rule;
+					}
+				}
+				foreach($sumRules as $calc_kind) {
+					foreach( $calc_kind as $rule ) {
+
+						?>
+						<tr>
+						<td colspan="5" align="right"><?php echo $rule->calc_rule_name ?> </td>
+						<td align="right" colspan="3"></td>
+						<td align="right" style="padding-right: 5px;">
+							<?php echo $this->currency->priceDisplay( $rule->calc_result ); ?>
+							<input class='orderedit' type="text" size="8"
+								   name="calc_rules[<?php echo $rule->calc_kind ?>][<?php echo $rule->virtuemart_calc_id ?>]"
+								   value="<?php echo $rule->calc_result; ?>"/>
+						</td>
+						<td align="right" colspan="2"></td>
+						</tr><?php
+					}
 				}
 			?>
 			<tr>
@@ -809,10 +736,7 @@ vmJsApi::addJScript('ordergui',$j);
 AdminUIHelper::imitateTabs('end');
 AdminUIHelper::endAdminArea();
 
-
-?>
-
-
+/*
 <script type="text/javascript">
 
 
@@ -823,4 +747,5 @@ AdminUIHelper::endAdminArea();
 	// return false
 // });
 
-</script>
+</script>*/
+?>

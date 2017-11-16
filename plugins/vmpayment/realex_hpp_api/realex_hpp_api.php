@@ -7,10 +7,10 @@ defined('_JEXEC') or die();
  * Realex payment plugin
  *
  * @author Valerie Isaksen
- * @version $Id: realex_hpp_api.php 9081 2015-12-10 09:21:25Z alatak $
+ * @version $Id: realex_hpp_api.php 9560 2017-05-30 14:13:21Z Milbo $
  * @package VirtueMart
  * @subpackage payment
- * Copyright (C) 2004-2016 Virtuemart Team. All rights reserved.
+ * Copyright (C) 2004 - 2017 Virtuemart Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
@@ -25,7 +25,7 @@ defined('_JEXEC') or die('Restricted access');
 if (!class_exists( 'VmConfig' )) require(JPATH_ADMINISTRATOR . DS . 'components' . DS . 'com_virtuemart'.DS.'helpers'.DS.'config.php');
 
 if (!class_exists('vmPSPlugin')) {
-	require(JPATH_VM_PLUGINS . DS . 'vmpsplugin.php');
+	require(VMPATH_PLUGINLIBS . DS . 'vmpsplugin.php');
 }
 
 if (!class_exists('RealexHelperRealex')) {
@@ -36,7 +36,7 @@ if (!class_exists('RealexHelperCustomerData')) {
 }
 
 if (!class_exists('vmPSPlugin')) {
-	require(JPATH_VM_PLUGINS . DS . 'vmpsplugin.php');
+	require(VMPATH_PLUGINLIBS . DS . 'vmpsplugin.php');
 }
 
 class plgVmPaymentRealex_hpp_api extends vmPSPlugin {
@@ -150,7 +150,7 @@ class plgVmPaymentRealex_hpp_api extends vmPSPlugin {
 		$dbValues['tax_id'] = $this->_currentMethod->tax_id;
 		$this->storePSPluginInternalData($dbValues);
 
-		VmConfig::loadJLang('com_virtuemart_orders', TRUE);
+		vmLanguage::loadJLang('com_virtuemart_orders', TRUE);
 
 		$selectedCCParams = array();
 		if ($this->_currentMethod->integration == 'redirect') {
@@ -326,7 +326,7 @@ class plgVmPaymentRealex_hpp_api extends vmPSPlugin {
 		if (!class_exists('VirtueMartModelOrders')) {
 			require(VMPATH_ADMIN . DS . 'models' . DS . 'orders.php');
 		}
-		VmConfig::loadJLang('com_virtuemart_orders', TRUE);
+		vmLanguage::loadJLang('com_virtuemart_orders', TRUE);
 
 		// the payment itself should send the parameter needed.
 		$virtuemart_paymentmethod_id = vRequest::getInt('pm', 0);
@@ -345,7 +345,7 @@ class plgVmPaymentRealex_hpp_api extends vmPSPlugin {
 
 		$payments = $this->getDatasByOrderId($virtuemart_order_id);
 
-		VmConfig::loadJLang('com_virtuemart');
+		vmLanguage::loadJLang('com_virtuemart');
 		$orderModel = VmModel::getModel('orders');
 		$order = $orderModel->getOrder($virtuemart_order_id);
 
@@ -2027,7 +2027,7 @@ class plgVmPaymentRealex_hpp_api extends vmPSPlugin {
 		$name = session_name();
 		$length = 32;
 		for ($i = 0; $i < $length; ++$i) {
-			$token .= $chars[(rand(0, $max))];
+			$token .= $chars[(mt_rand(0, $max))];
 		}
 
 		return md5($token . $name);

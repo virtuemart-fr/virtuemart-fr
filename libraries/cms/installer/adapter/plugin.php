@@ -3,8 +3,8 @@
  * @package     Joomla.Libraries
  * @subpackage  Installer
  *
- * @copyright   Copyright (C) 2005 - 2015 Open Source Matters, Inc. All rights reserved.
- * @license     GNU General Public License version 2 or later; see LICENSE
+ * @copyright   Copyright (C) 2005 - 2017 Open Source Matters, Inc. All rights reserved.
+ * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
 defined('JPATH_PLATFORM') or die;
@@ -19,7 +19,7 @@ jimport('joomla.filesystem.folder');
 class JInstallerAdapterPlugin extends JInstallerAdapter
 {
 	/**
-	 * <scriptfile> element of the extension manifest
+	 * `<scriptfile>` element of the extension manifest
 	 *
 	 * @var    object
 	 * @since  3.1
@@ -27,7 +27,7 @@ class JInstallerAdapterPlugin extends JInstallerAdapter
 	protected $scriptElement = null;
 
 	/**
-	 * <files> element of the old extension manifest
+	 * `<files>` element of the old extension manifest
 	 *
 	 * @var    object
 	 * @since  3.1
@@ -58,13 +58,15 @@ class JInstallerAdapterPlugin extends JInstallerAdapter
 					'JLIB_INSTALLER_ABORT_ROLLBACK',
 					JText::_('JLIB_INSTALLER_' . $this->route),
 					$e->getMessage()
-				)
+				),
+				$e->getCode(),
+				$e
 			);
 		}
 	}
 
 	/**
-	 * Method to copy the extension's base files from the <files> tag(s) and the manifest file
+	 * Method to copy the extension's base files from the `<files>` tag(s) and the manifest file
 	 *
 	 * @return  void
 	 *
@@ -90,7 +92,7 @@ class JInstallerAdapterPlugin extends JInstallerAdapter
 			$path['src']  = $this->parent->getPath('source') . '/' . $this->manifest_script;
 			$path['dest'] = $this->parent->getPath('extension_root') . '/' . $this->manifest_script;
 
-			if (!file_exists($path['dest']) || $this->parent->isOverwrite())
+			if ($this->parent->isOverwrite() || !file_exists($path['dest']))
 			{
 				if (!$this->parent->copyFiles(array($path)))
 				{
@@ -120,7 +122,7 @@ class JInstallerAdapterPlugin extends JInstallerAdapter
 		parent::createExtensionRoot();
 
 		// If we're updating at this point when there is always going to be an extension_root find the old XML files
-		if ($this->route == 'update')
+		if ($this->route === 'update')
 		{
 			// Create a new installer because findManifest sets stuff; side effects!
 			$tmpInstaller = new JInstaller;
@@ -153,7 +155,7 @@ class JInstallerAdapterPlugin extends JInstallerAdapter
 			array(
 				'element' => $this->element,
 				'type'    => $this->type,
-				'folder'  => $this->group
+				'folder'  => $this->group,
 			)
 		);
 
@@ -163,7 +165,7 @@ class JInstallerAdapterPlugin extends JInstallerAdapter
 		}
 
 		// Lastly, we will copy the manifest file to its appropriate place.
-		if ($this->route != 'discover_install')
+		if ($this->route !== 'discover_install')
 		{
 			if (!$this->parent->copyManifest(-1))
 			{
@@ -267,7 +269,7 @@ class JInstallerAdapterPlugin extends JInstallerAdapter
 			if ($name)
 			{
 				$extension = "plg_${group}_${name}";
-				$source = $path ? $path : JPATH_PLUGINS . "/$group/$name";
+				$source = $path ?: JPATH_PLUGINS . "/$group/$name";
 				$folder = (string) $element->attributes()->folder;
 
 				if ($folder && file_exists("$path/$folder"))
@@ -357,14 +359,14 @@ class JInstallerAdapterPlugin extends JInstallerAdapter
 	protected function storeExtension()
 	{
 		// Discover installs are stored a little differently
-		if ($this->route == 'discover_install')
+		if ($this->route === 'discover_install')
 		{
 			$manifest_details = JInstaller::parseXMLInstallFile($this->parent->getPath('manifest'));
 
 			$this->extension->manifest_cache = json_encode($manifest_details);
 			$this->extension->state = 0;
 			$this->extension->name = $manifest_details['name'];
-			$this->extension->enabled = ('editors' == $this->extension->folder) ? 1 : 0;
+			$this->extension->enabled = 'editors' === $this->extension->folder ? 1 : 0;
 			$this->extension->params = $this->parent->getParams();
 
 			if (!$this->extension->store())
@@ -420,7 +422,7 @@ class JInstallerAdapterPlugin extends JInstallerAdapter
 			$this->extension->manifest_cache = $this->parent->generateManifestCache();
 
 			// Editor plugins are published by default
-			if ($this->group == 'editors')
+			if ($this->group === 'editors')
 			{
 				$this->extension->enabled = 1;
 			}
@@ -480,8 +482,19 @@ class JInstallerAdapterPlugin extends JInstallerAdapter
 			return false;
 		}
 
+		/*
+		 * Does this extension have a parent package?
+		 * If so, check if the package disallows individual extensions being uninstalled if the package is not being uninstalled
+		 */
+		if ($row->package_id && !$this->parent->isPackageUninstall() && !$this->canUninstallPackageChild($row->package_id))
+		{
+			JLog::add(JText::sprintf('JLIB_INSTALLER_ERROR_CANNOT_UNINSTALL_CHILD_OF_PACKAGE', $row->name), JLog::WARNING, 'jerror');
+
+			return false;
+		}
+
 		// Get the plugin folder so we can properly build the plugin path
-		if (trim($row->folder) == '')
+		if (trim($row->folder) === '')
 		{
 			JLog::add(JText::_('JLIB_INSTALLER_ERROR_PLG_UNINSTALL_FOLDER_FIELD_EMPTY'), JLog::WARNING, 'jerror');
 
@@ -513,16 +526,13 @@ class JInstallerAdapterPlugin extends JInstallerAdapter
 		{
 			$manifestScriptFile = $this->parent->getPath('source') . '/' . $manifestScript;
 
-			if (is_file($manifestScriptFile))
-			{
-				// Load the file
-				include_once $manifestScriptFile;
-			}
 			// If a dash is present in the folder, remove it
 			$folderClass = str_replace('-', '', $row->folder);
 
 			// Set the class name
 			$classname = 'Plg' . $folderClass . $row->element . 'InstallerScript';
+
+			JLoader::register($classname, $manifestScriptFile);
 
 			if (class_exists($classname))
 			{
@@ -628,7 +638,7 @@ class JInstallerAdapterPlugin extends JInstallerAdapter
 				$file = JFile::stripExt($file);
 
 				// Ignore example plugins
-				if ($file == 'example' || $manifest_details === false)
+				if ($file === 'example' || $manifest_details === false)
 				{
 					continue;
 				}
@@ -660,7 +670,7 @@ class JInstallerAdapterPlugin extends JInstallerAdapter
 					);
 					$file = JFile::stripExt($file);
 
-					if ($file == 'example' || $manifest_details === false)
+					if ($file === 'example' || $manifest_details === false)
 					{
 						continue;
 					}

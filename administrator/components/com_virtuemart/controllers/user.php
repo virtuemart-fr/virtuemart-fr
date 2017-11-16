@@ -6,14 +6,14 @@
 * @package	VirtueMart
 * @subpackage User
 * @author Oscar van Eijk
-* @link http://www.virtuemart.net
+* @link https://virtuemart.net
 * @copyright Copyright (c) 2004 - 2010 VirtueMart Team. All rights reserved.
 * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
 * VirtueMart is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
-* @version $Id: user.php 9021 2015-10-20 23:54:07Z Milbo $
+* @version $Id: user.php 9478 2017-03-16 09:33:17Z Milbo $
 */
 
 // Check to ensure this file is included in Joomla!
@@ -63,6 +63,7 @@ class VirtuemartControllerUser extends VmController {
 
 	function removeAddressST(){
 
+		vRequest::vmCheckToken();
 		$virtuemart_userinfo_id = vRequest::getInt('virtuemart_userinfo_id');
 		$virtuemart_user_id = vRequest::getInt('virtuemart_user_id');
 
@@ -72,7 +73,6 @@ class VirtuemartControllerUser extends VmController {
 		$userModel->setId($virtuemart_user_id[0]);
 		$userModel->removeAddress($virtuemart_userinfo_id);
 
-		$layout = vRequest::getCmd('layout','edit');
 		$this->setRedirect( 'index.php?option=com_virtuemart&view=user&task=edit&virtuemart_user_id[]='.$virtuemart_user_id[0] );
 	}
 
@@ -98,10 +98,7 @@ class VirtuemartControllerUser extends VmController {
 	 * @author Max Milbers
 	 */
 	function save($data = 0){
-
-		$document = JFactory::getDocument();
-		$viewType = $document->getType();
-		$view = $this->getView('user', $viewType);
+		vRequest::vmCheckToken();
 
 		if (!vmAccess::manager('user.edit')) {
 			$msg = vmText::_('_NOT_AUTH');
@@ -141,6 +138,9 @@ class VirtuemartControllerUser extends VmController {
 				$msg = $ret['message'];
 			}
 
+			if(!isset($data['virtuemart_shoppergroup_id'])){
+				$data['virtuemart_shoppergroup_id'] = array();
+			}
 		}
 		$cmd = vRequest::getCmd('task');
 		$lastTask = vRequest::getCmd('last_task');

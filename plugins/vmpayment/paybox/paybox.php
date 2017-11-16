@@ -9,8 +9,8 @@ defined('_JEXEC') or die('Direct Access to ' . basename(__FILE__) . 'is not allo
  * @package VirtueMart
  * @subpackage
  * @author Valérie Isaksen
- * @link http://www.virtuemart.net
- * @copyright Copyright (c) 2004 - March 11 2016 VirtueMart Team. All rights reserved.
+ * @link https://virtuemart.net
+ * @copyright Copyright (c) 2004 - August 23 2017 VirtueMart Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
@@ -22,7 +22,7 @@ defined('_JEXEC') or die('Direct Access to ' . basename(__FILE__) . 'is not allo
  * Pour accéder au Back-office commerçant: https://preprod-admin.paybox.com
  */
 if (!class_exists('vmPSPlugin')) {
-	require(JPATH_VM_PLUGINS . DS . 'vmpsplugin.php');
+	require(VMPATH_PLUGINLIBS . DS . 'vmpsplugin.php');
 }
 
 class plgVmpaymentPaybox extends vmPSPlugin {
@@ -138,7 +138,7 @@ class plgVmpaymentPaybox extends vmPSPlugin {
 		}
 
 
-		VmConfig::loadJLang('com_virtuemart_orders', TRUE);
+		vmLanguage::loadJLang('com_virtuemart_orders', TRUE);
 
 		$virtuemart_paymentmethod_id = vRequest::getInt('pm', 0);
 
@@ -681,7 +681,7 @@ class plgVmpaymentPaybox extends vmPSPlugin {
 	function getResponseHTML($order, $paybox_data, $success, $extra_comment) {
 
 		$payment_name = $this->renderPluginName($this->_currentMethod);
-		VmConfig::loadJLang('com_virtuemart_orders', TRUE);
+		vmLanguage::loadJLang('com_virtuemart_orders', TRUE);
 		$q = 'SELECT `currency_code_3` FROM `#__virtuemart_currencies` WHERE `virtuemart_currency_id`="' . $order['details']['BT']->order_currency . '" ';
 		$db = JFactory::getDBO();
 		$db->setQuery($q);
@@ -728,13 +728,9 @@ class plgVmpaymentPaybox extends vmPSPlugin {
 	function getEmailCurrency(&$method) {
 
 		if (!isset($method->email_currency)  or $method->email_currency == 'vendor') {
-			// 	    if (!class_exists('VirtueMartModelVendor')) require(VMPATH_ADMIN . DS . 'models' . DS . 'vendor.php');
-			$vendorId = 1; //VirtueMartModelVendor::getLoggedVendor();
-			$db = JFactory::getDBO();
-
-			$q = 'SELECT   `vendor_currency` FROM `#__virtuemart_vendors` WHERE `virtuemart_vendor_id`=' . $vendorId;
-			$db->setQuery($q);
-			return $db->loadResult();
+			$vendor_model = VmModel::getModel('vendor');
+			$vendor = $vendor_model->getVendor($method->virtuemart_vendor_id);
+			return $vendor->vendor_currency;
 		} else {
 			return $method->payment_currency; // either the vendor currency, either same currency as payment
 		}

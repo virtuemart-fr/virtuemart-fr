@@ -34,10 +34,10 @@ if ($vmComponentItems) {
 		$class = "disabled";
 	}
 	if(JVM_VERSION<3){
-		$vmMenu='<ul id="menu" >';
+		$vmMenu='<ul id="menu">';
 		$vmMenu.='<li class="node '.$class.'"><a href="'.$vmComponentItems->link.'">'.$vmComponentItems->text.'</a>';
 	} else{
-		$vmMenu='<ul id="menu" class="nav '.$class.'" >';
+		$vmMenu='<ul id="vm-menu" class="nav '.$class.'" >';
 		$vmMenu.='<li class="dropdown" ><a class="dropdown-toggle" data-toggle="dropdown" href="#">'.$vmComponentItems->text.'<span class="caret"></span></a>';
 	}
 

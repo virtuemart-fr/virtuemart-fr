@@ -7,8 +7,8 @@
  *
  * @package	VirtueMart
  * @subpackage Helpers
- * @author Eugen Stranz
- * @copyright Copyright (c) 2004-2008 Soeren Eberhardt-Biermann, 2009 VirtueMart Team. All rights reserved.
+ * @author Eugen Stranz, Max Milbers
+ * @copyright Copyright (c) 2004-2008 Soeren Eberhardt-Biermann, 2009-2016 VirtueMart Team. All rights reserved.
  */
 
 // Check to ensure this file is included in Joomla!
@@ -20,64 +20,64 @@ class AdminUIHelper {
 	public static $backEnd = true;
 
 	/**
-     * Start the administrator area table
-     *
-     * The entire administrator area with contained in a table which include the admin ribbon menu
-     * in the left column and the content in the right column.  This function sets up the table and
-     * displays the admin menu in the left column.
-     */
+	 * Start the administrator area table
+	 *
+	 * The entire administrator area with contained in a table which include the admin ribbon menu
+	 * in the left column and the content in the right column.  This function sets up the table and
+	 * displays the admin menu in the left column.
+	 */
 	static function startAdminArea($vmView,$selectText = 'COM_VIRTUEMART_DRDOWN_AVA2ALL') {
 
-	if (vRequest::getCmd ( 'format') =='pdf') return;
-	if (vRequest::getCmd ( 'manage',false)) self::$backEnd=false;
+		if (vRequest::getCmd ( 'format') =='pdf') return;
+		if (vRequest::getCmd ( 'manage',false)) self::$backEnd=false;
 
-	if(self::$vmAdminAreaStarted) return;
-	self::$vmAdminAreaStarted = true;
+		if(self::$vmAdminAreaStarted) return;
+		self::$vmAdminAreaStarted = true;
 
-	$admin = 'administrator/components/com_virtuemart/assets/css';
-	$modalJs='';
-	//loading defaut admin CSS
-	vmJsApi::css('admin_ui',$admin);
-	vmJsApi::css('admin.styles',$admin);
-	vmJsApi::css('toolbar_images',$admin);
-	vmJsApi::css('menu_images',$admin);
-	vmJsApi::css('vtip');
+		$admin = 'administrator/components/com_virtuemart/assets/css';
+		$modalJs='';
+		//loading defaut admin CSS
+		vmJsApi::css('admin_ui',$admin);
+		vmJsApi::css('admin.styles',$admin);
+		vmJsApi::css('toolbar_images',$admin);
+		vmJsApi::css('menu_images',$admin);
+		vmJsApi::css('vtip');
 
-	$view = vRequest::getCmd('view','virtuemart');
+		$view = vRequest::getCmd('view','virtuemart');
 
-	if($view!='virtuemart'){
-		vmJsApi::css('chosen');
-		vmJsApi::css('jquery.fancybox-1.3.4');
-		vmJsApi::css('ui/jquery.ui.all');
-	}
+		if($view!='virtuemart'){
+			vmJsApi::css('chosen');
+			vmJsApi::css('jquery.fancybox-1.3.4');
+			vmJsApi::css('ui/jquery.ui.all');
+		}
 
-	if($view!='virtuemart') {
-		vmJsApi::addJScript('fancybox/jquery.mousewheel-3.0.4.pack',false,false);
-		vmJsApi::addJScript('fancybox/jquery.easing-1.3.pack',false,false);
-		vmJsApi::addJScript('fancybox/jquery.fancybox-1.3.4.pack',false,false);
-		VmJsApi::chosenDropDowns();
-	}
+		if($view!='virtuemart') {
+			vmJsApi::addJScript('fancybox/jquery.mousewheel-3.0.4.pack',false,false);
+			vmJsApi::addJScript('fancybox/jquery.easing-1.3.pack',false,false);
+			vmJsApi::addJScript('fancybox/jquery.fancybox-1.3.4.pack',false,false);
+			VmJsApi::chosenDropDowns();
+		}
 
-	vmJsApi::addJScript('/administrator/components/com_virtuemart/assets/js/jquery.coookie.js');
-	vmJsApi::addJScript('/administrator/components/com_virtuemart/assets/js/vm2admin.js');
+		vmJsApi::addJScript('/administrator/components/com_virtuemart/assets/js/jquery.coookie.js');
+		vmJsApi::addJScript('/administrator/components/com_virtuemart/assets/js/vm2admin.js');
 
-	$vm2string = "editImage: 'edit image',select_all_text: '".vmText::_('COM_VIRTUEMART_DRDOWN_SELALL')."',select_some_options_text: '".vmText::_($selectText)."'" ;
-	vmJsApi::addJScript ('vm.remindTab', "
+		$vm2string = "editImage: 'edit image',select_all_text: '".vmText::_('COM_VIRTUEMART_DRDOWN_SELALL')."',select_some_options_text: '".vmText::_($selectText)."'" ;
+		vmJsApi::addJScript ('vm.remindTab', "
 		var tip_image='".JURI::root(true)."/components/com_virtuemart/assets/js/images/vtip_arrow.png';
 		var vm2string ={".$vm2string."} ;
 		jQuery( function($) {
 
-			jQuery('dl#system-message').hide().slideDown(400);
-			jQuery('.virtuemart-admin-area .toggler').vm2admin('toggle');
-			jQuery('#admin-ui-menu').vm2admin('accordeon');
-			if ( jQuery('#admin-ui-tabs').length  ) {
-				jQuery('#admin-ui-tabs').vm2admin('tabs',virtuemartcookie);
+			$('dl#system-message').hide().slideDown(400);
+			$('.virtuemart-admin-area .toggler').vm2admin('toggle');
+			$('#admin-ui-menu').vm2admin('accordeon');
+			if ( $('#admin-ui-tabs').length  ) {
+				$('#admin-ui-tabs').vm2admin('tabs',virtuemartcookie);
 			}
-			jQuery('#content-box [title]').vm2admin('tips',tip_image);
-			jQuery('.reset-value').click( function(e){
+			$('#content-box [title]').vm2admin('tips',tip_image);
+			$('.reset-value').click( function(e){
 				e.preventDefault();
 				none = '';
-				jQuery(this).parent().find('.ui-autocomplete-input').val(none);
+				$(this).parent().find('.ui-autocomplete-input').val(none);
 			});
 		});	");
 
@@ -88,33 +88,128 @@ class AdminUIHelper {
 			.virtuemart-admin-area { display: block; }
 			.virtuemart-admin-area #menu-wrapper { float: left; }
 			.virtuemart-admin-area #admin-content { margin-left: 221px; }
-		</script>
+			</script>
 		<![endif]-->
 		<?php if (!self::$backEnd ){
-		   //JToolBarHelper
-		   $bar = JToolbar::getInstance('toolbar');
+			//JToolBarHelper
+			$bar = JToolbar::getInstance('toolbar');
 			?><div class="toolbar-box" style="height: 84px;position: relative;"><?php echo $bar->render()?></div>
 		<?php } ?>
-    <?php $hideMenu = JFactory::getApplication()->input->cookie->getString('vmmenu', 'show') === 'hide' ? ' menu-collapsed': ''; ?>
-    <div class="virtuemart-admin-area<?php echo $hideMenu ?>">
+		<?php $hideMenu = JFactory::getApplication()->input->cookie->getString('vmmenu', 'show') === 'hide' ? ' menu-collapsed': ''; ?>
+		<div class="virtuemart-admin-area<?php echo $hideMenu ?>">
 		<div class="toggler vmicon-show<?php echo $hideMenu ?>"></div>
-			<div class="menu-wrapper<?php echo $hideMenu ?>" id="menu-wrapper">
-				<?php if(!empty($vmView->langList)){ ?>
-					<div class="vm-lang-list-container">
-						<?php echo $vmView->langList; ?>
-					</div>
-				<?php } else {
-					?><a href="index.php?option=com_virtuemart&amp;view=virtuemart" ><img src="<?php echo JURI::root(true).'/administrator/components/com_virtuemart/assets/images/vm_menulogo.png'?>"></a>
-				<?php }
-				AdminUIHelper::showAdminMenu($vmView);
-				?>
-				<div class="vm-installed-version">
-					VirtueMart <?php echo VmConfig::getInstalledVersion(); ?>
+		<div class="menu-wrapper<?php echo $hideMenu ?>" id="menu-wrapper">
+			<?php if(!empty($vmView->langList)){ ?>
+				<div class="vm-lang-list-container">
+					<?php echo $vmView->langList; ?>
 				</div>
-			</div>
+			<?php } else {
+				?><a href="index.php?option=com_virtuemart&amp;view=virtuemart" ><img src="<?php echo JURI::root(true).'/administrator/components/com_virtuemart/assets/images/vm_menulogo.png'?>"></a>
+			<?php }
+			AdminUIHelper::showAdminMenu($vmView);
+
+            echo self::writeVmm();
+
+
+			?>
+		</div>
 		<div id="admin-content" class="admin-content">
 		<?php
+
 	}
+
+    private static function writeVmm(){
+
+		$token = vRequest::getFormToken();
+		if (!class_exists('ShopFunctions'))
+			require(VMPATH_ADMIN . DS . 'helpers' . DS . 'shopfunctions.php');
+
+
+		preg_match('/[a-z]/', $token, $matches);
+		if(!empty($matches[0][0])){
+			$prefix = $matches[0][0];
+		} else {
+			$prefix = 'a';
+		}
+
+		$nag = '';
+		$dplyVer = 'display: none;';
+		$ackey = VmConfig::get('member_access_number','');
+		//$host = JUri::getInstance()->getHost();
+
+		$safePath = ShopFunctions::checkSafePath();
+
+		if(!empty($safePath) and JFile::exists($safePath)){
+			$safePath .= '/vmm.ini';
+			$content = parse_ini_file($safePath);
+			if(!empty($content) and !empty($content['key']) and !empty($content['unixtime']) and !empty($content['html']) ){
+				// if(true){
+				if($content['key']==$ackey){
+					$date = JFactory::getDate();
+					$today = $date->toUnix();
+					$diff = $today-$content['unixtime'];
+					$spread = (int)substr((string)$diff,-1) * 4320;
+					//$d = 8 * 24 * 3600;
+					if($diff>0 and $diff<((4 * 86400)+$spread)){  //4 days
+						$nag = htmlspecialchars_decode($content['html']);
+						if($content['res']=='valid') $dplyVer = '';
+					}
+				}
+			}
+		}
+
+		if(vRequest::getCmd('vmms')) $nag = '';
+
+
+		if($nag === ''){
+            //style="background:#FF6A00;padding:5px 5px 5px 5px;-webkit-appearance: button;-moz-appearance: button;appearance: button;"
+
+			$nag = '
+                <div style="width:auto;background:#FFFBA0;padding:8px 8px 8px 8px;font-size:14px;border:1px solid #FF6A00;">
+                    <p style="text-align:left;">Like VirtueMart?</p>
+                    <p style="text-align:center;font-weight:bold;">Become a Supporter</p>
+                    <p style="text-align:center;">Reliable Security and Advanced Development thanks to our members</p>
+                    <p style="text-align:center;"><a href="http://extensions.virtuemart.net/support/virtuemart-supporter-membership-detail" target="_blank" ><button style="width:100%;background:#FF6A00;padding:5px 5px 5px 5px;font-size:15px;">VirtueMart membership<br>Buy now</button></a></p>
+                </div>';
+
+			if(!empty( $ackey )) {
+
+				$j = 'jQuery(document).ready(function($) {
+				token = "'.$token.'";
+		jQuery.ajax({
+                    type: "GET",
+                    cache: true,
+                    dataType: "json",
+                    url: "index.php?option=com_virtuemart&view=virtuemart&task=getMemberStatus&"+token+"="+1,
+                }).done(
+                    function(data) {
+                        if(data.html!=="undefined"){
+                            var cib = jQuery("#'.$prefix.'"+token);
+                            cib.html(data.html);
+                            if(data.res=="valid"){
+                                cib = jQuery("#vmver-"+token);
+                                cib.show();
+                            }
+                        }
+                    }
+                )
+			});';
+				vmJsApi::addJScript( 'nag', $j );
+			}
+		}
+
+
+		?>
+        <style>#<?php echo $prefix ?>vmver-<?php echo $token ?> { <?php echo $dplyVer ?>}</style>
+        <div class="vm-installed-version">VirtueMart <?php echo vmVersion::$RELEASE ?></div>
+        <div id="<?php echo $prefix ?>vmver-<?php echo $token ?>" class="vm-installed-version" >
+			<?php echo vmVersion::$CODENAME.' '.vmVersion::$REVISION ?>
+        </div>
+        <div id="<?php echo $prefix.$token ?>">
+			<?php echo $nag; ?>
+        </div> <?php
+
+    }
 
 	/**
 	 * Close out the adminstrator area table.
@@ -124,11 +219,11 @@ class AdminUIHelper {
 		if (!self::$backEnd) return;
 		self::$vmAdminAreaStarted = false;
 		?>
-				</div>
+		</div>
 		</div>
 		<div class="clear"></div>
-	<?php
-	    }
+		<?php
+	}
 
 	/**
 	 * Admin UI Tabs
@@ -231,61 +326,61 @@ class AdminUIHelper {
 		$isSite = $app->isSite();
 		?>
 		<div id="admin-ui-menu" class="admin-ui-menu">
-		<?php
-		$modCount = 1;
-		foreach ( $menuItems as $item ) {
+			<?php
+			$modCount = 1;
+			foreach ( $menuItems as $item ) {
 
-			$html = '';
-			foreach ( $item ['items'] as $link ) {
-				$target='';
-				if ($link ['name'] == '-') {
-					// it was emtpy before
-				} else {
-					if (strncmp ( $link ['link'], 'http', 4 ) === 0) {
-						$url = $link ['link'];
-						$target='target="_blank"';
+				$html = '';
+				foreach ( $item ['items'] as $link ) {
+					$target='';
+					if ($link ['name'] == '-') {
+						// it was emtpy before
 					} else {
-						$url = ($link ['link'] === '') ? 'index.php?option=com_virtuemart' :$link ['link'] ;
-						$url .= $link ['view'] ? "&view=" . $link ['view'] : '';
-						$url .= $link ['task'] ? "&task=" . $link ['task'] : '';
-						$url .= $isSite ? '&tmpl=component&manage=1':'';
-						// $url .= $link['extra'] ? $link['extra'] : '';
-						$url = vRequest::vmSpecialChars($url);
-					}
+						if (strncmp ( $link ['link'], 'http', 4 ) === 0) {
+							$url = $link ['link'];
+							$target='target="_blank"';
+						} else {
+							$url = ($link ['link'] === '') ? 'index.php?option=com_virtuemart' :$link ['link'] ;
+							$url .= $link ['view'] ? "&view=" . $link ['view'] : '';
+							$url .= $link ['task'] ? "&task=" . $link ['task'] : '';
+							$url .= $isSite ? '&tmpl=component&manage=1':'';
+							// $url .= $link['extra'] ? $link['extra'] : '';
+							$url = vRequest::vmSpecialChars($url);
+						}
 
-					if ( $vmView->manager($link ['view'])
+						if ( $vmView->manager($link ['view'])
 						|| $target || $link ['view']=='about' || $link ['view']=='virtuemart') {
-						$html .= '
+							$html .= '
 						<li>
 							<a href="'.$url.'" '.$target.'>
 								<span class="vmicon-wrapper"><span class="'.$link ['icon_class'].'"></span></span>
 								<span class="menu-subtitle">'. vmText::_ ( $link ['name'] ).'</span>
 							</a>
 						</li>';
+						}
 					}
 				}
-			}
-			if(!empty($html)){
-				?>
-				<h3 class="menu-title">
+				if(!empty($html)){
+					?>
+					<h3 class="menu-title">
 					<span class="menu-title-wrapper">
 						<span class="vmicon-wrapper"><span class="<?php echo vmText::_ ( $item['items'][0]['icon_class'] )?>"></span></span>
 						<span class="menu-title-content"><?php echo vmText::_ ( $item ['title'] )?></span>
 					</span>
-				</h3>
+					</h3>
 
-				<div class="menu-list">
-					<ul>
-						<?php echo $html ?>
-					</ul>
-				</div>
-				<?php $modCount ++;
+					<div class="menu-list">
+						<ul>
+							<?php echo $html ?>
+						</ul>
+					</div>
+					<?php $modCount ++;
+				}
 			}
-		}
-		?>
-		<div class="menu-notice"></div>
+			?>
+			<div class="menu-notice"></div>
 		</div>
-	<?php
+		<?php
 	}
 
 }

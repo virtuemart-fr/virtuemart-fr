@@ -6,14 +6,14 @@
 * @package	VirtueMart
 * @subpackage Calc
 * @author Max Milbers, jseros
-* @link http://www.virtuemart.net
+* @link https://virtuemart.net
 * @copyright Copyright (c) 2004 - 2010 VirtueMart Team. All rights reserved.
 * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
 * VirtueMart is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
-* @version $Id: calc.php 8615 2014-12-04 13:56:26Z Milbo $
+* @version $Id: calc.php 9478 2017-03-16 09:33:17Z Milbo $
 */
 
 // Check to ensure this file is included in Joomla!
@@ -70,7 +70,6 @@ class VirtuemartControllerCalc extends VmController {
 		// Check token
 		vRequest::vmCheckToken();
 
-		$id = 0;
 		$cid	= vRequest::getInt( 'cid', array() );
 
 		if (isset($cid[0]) && $cid[0]) {
@@ -99,8 +98,7 @@ class VirtuemartControllerCalc extends VmController {
 	{
 		// Check token
 		vRequest::vmCheckToken();
-
-		$id = 0;
+		
 		$cid	= vRequest::getInt( 'cid', array() );
 
 		if (isset($cid[0]) && $cid[0]) {

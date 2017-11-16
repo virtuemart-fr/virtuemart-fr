@@ -6,7 +6,7 @@
 * @package	VirtueMart
 * @subpackage
 * @author
-* @link http://www.virtuemart.net
+* @link https://virtuemart.net
 * @copyright Copyright (c) 2004 - 2010 VirtueMart Team. All rights reserved.
 * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
 * VirtueMart is free software. This version may have been modified pursuant
@@ -27,7 +27,7 @@ AdminUIHelper::startAdminArea($this);
 if ($product_parent_id=vRequest::getInt('product_parent_id', false))   $col_product_name='COM_VIRTUEMART_PRODUCT_CHILDREN_LIST'; else $col_product_name='COM_VIRTUEMART_PRODUCT_NAME';
 
 ?>
-<form action="index.php" method="post" name="adminForm" id="adminForm">
+<form action="index.php?option=com_virtuemart&view=product" method="post" name="adminForm" id="adminForm">
 <div id="header">
 <span id="filterbox">
 	<span>
@@ -88,7 +88,7 @@ if($this->pagination->limit<=$mediaLimit or $totalList<=$mediaLimit){
 		<!-- Only show reordering fields when a category ID is selected! -->
 		<?php
 		$num_rows = 0;
-		if( $this->virtuemart_category_id ) { ?>
+		if( $this->categoryId ) { ?>
 			<th style="min-width:100px;width:5%;">
 				<?php echo $this->sort('pc.ordering', 'COM_VIRTUEMART_FIELDMANAGER_REORDER'); ?>
 				<?php echo JHtml::_('grid.order', $this->productlist); //vmCommonHTML::getSaveOrderButton( $num_rows, 'changeordering' ); ?>
@@ -125,7 +125,7 @@ if($this->pagination->limit<=$mediaLimit or $totalList<=$mediaLimit){
 					<!--<span style="float:left; clear:left"> -->
   				<?php
 				if(empty($product->product_name)){
-					$product->product_name = 'Language Missing id '.$product->virtuemart_product_id;
+					$product->product_name = vmText::sprintf('COM_VM_TRANSLATION_MISSING','virtuemart_product_id',$product->virtuemart_product_id);
 				}
 				echo JHtml::_('link', JRoute::_($link), $product->product_name, array('title' => vmText::_('COM_VIRTUEMART_EDIT').' '. htmlentities($product->product_name))); ?>
 					<!-- </span>  -->
@@ -133,14 +133,13 @@ if($this->pagination->limit<=$mediaLimit or $totalList<=$mediaLimit){
 
                 <?php if (!$product_parent_id ) { ?>
 				<td><?php
-					if ($product->product_parent_id  ) {
-						VirtuemartViewProduct::displayLinkToParent($product->product_parent_id);
-					}
+					//if ($product->product_parent_id  ) {
+						echo $product->parent_link;
+					//}
 					?></td>
-				<!-- Vendor name -->
-                                <?php } ?>
+				<?php } ?>
 				<td><?php
-						 VirtuemartViewProduct::displayLinkToChildList($product->virtuemart_product_id , $product->product_name);
+						echo $product->childlist_link;
                                                  ?>
                                 </td>
 				<!-- Media -->
@@ -177,7 +176,7 @@ if($this->pagination->limit<=$mediaLimit or $totalList<=$mediaLimit){
 					echo $product->categoriesList;
 				?></td>
 				<!-- Reorder only when category ID is present -->
-				<?php if ($this->virtuemart_category_id ) { ?>
+				<?php if ($this->categoryId ) { ?>
 					<td class="order" >
 						<span class="vmicon vmicon-16-move"></span>
 						<span><?php echo $this->pagination->vmOrderUpIcon( $i, $product->ordering, 'orderup', vmText::_('COM_VIRTUEMART_MOVE_UP')  ); ?></span>
@@ -231,38 +230,11 @@ if($this->pagination->limit<=$mediaLimit or $totalList<=$mediaLimit){
 
 // DONE BY stephanbais
 /// DRAG AND DROP PRODUCT ORDER HACK
-if ($this->virtuemart_category_id ) { ?>
-	<script>
-		jQuery(function() {
-
-			jQuery( ".adminlist" ).sortable({
-				handle: ".vmicon-16-move",
-				items: 'tr:not(:first,:last)',
-				opacity: 0.8,
-				update: function() {
-					var i = 1;
-					jQuery(function updatenr(){
-						jQuery('input.ordering').each(function(idx) {
-							jQuery(this).val(idx);
-						});
-					});
-
-					jQuery(function updaterows() {
-						jQuery(".order").each(function(index){
-							var row = jQuery(this).parent('td').parent('tr').prevAll().length;
-							jQuery(this).val(row);
-							i++;
-						});
-
-					});
-				}
-
-			});
-		});
-	</script>
-
-<?php }
-
+if ($this->categoryId ) {
+	vmJsApi::addJScript( '/administrator/components/com_virtuemart/assets/js/products.js', false, false );
+	//vmJsApi::addJScript( 'sortableProducts', 'Virtuemart.sortableProducts;' );
+	vmJsApi::addJScript('sortable','Virtuemart.sortable;');
+}
 
 /// END PRODUCT ORDER HACK
 ?>

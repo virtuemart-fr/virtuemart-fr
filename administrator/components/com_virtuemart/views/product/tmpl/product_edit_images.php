@@ -6,14 +6,14 @@
 * @package	VirtueMart
 * @subpackage Product
 * @author RolandD
-* @link http://www.virtuemart.net
+* @link https://virtuemart.net
 * @copyright Copyright (c) 2004 - 2010 VirtueMart Team. All rights reserved.
 * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
 * VirtueMart is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
-* @version $Id: product_edit_images.php 9021 2015-10-20 23:54:07Z Milbo $
+* @version $Id: product_edit_images.php 9461 2017-02-28 15:37:01Z Milbo $
 */
 
 // Check to ensure this file is included in Joomla!
@@ -34,13 +34,13 @@ defined('_JEXEC') or die('Restricted access');
 			//echo '<div width="100px">'.vmText::_('COM_VIRTUEMART_RTB_AD').'</div>';
 			$jlang =JFactory::getLanguage();
 			$tag = $jlang->getTag();
-			$imgUrl = 'http://www.pixelz.com/images/gmail.png';
+			$imgUrl = 'https://www.pixelz.com/images/gmail.png';
 			if(strpos($tag,'de')!==FALSE){
-				$url = 'http://de.pixelz.com/virtuemart/';
+				$url = 'https://de.pixelz.com/virtuemart/';
 			} else if(strpos($tag,'fr')!==FALSE){
-				$url = 'http://fr.pixelz.com/virtuemart/';
+				$url = 'https://fr.pixelz.com/virtuemart/';
 			} else {
-				$url = 'http://uk.pixelz.com/virtuemart/';
+				$url = 'https://uk.pixelz.com/virtuemart/';
 			}
 			echo '<a href="'.$url.'" target="_blank" alt="'.vmText::_('COM_VIRTUEMART_RTB_AD').'"><img  style="width: 150px;" src="'.$imgUrl.'" title="'.vmText::_('COM_VIRTUEMART_RTB_AD').'"></a>';
 		?>

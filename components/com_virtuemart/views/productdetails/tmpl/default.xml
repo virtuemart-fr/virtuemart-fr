@@ -10,6 +10,14 @@
 				required="true"
 				description="COM_VIRTUEMART_PRODUCTDETAILS_FIELD_SELECT_DESC"
 			/>
+            <field name="cat_productdetails" type="list"
+                   label="COM_VM_PRODUCTDETAILS_DISPL_CATS"
+                   description="COM_VM_PRODUCTDETAILS_DISPL_CATS_DESC"
+            >
+                <option value="">JGLOBAL_USE_GLOBAL</option>
+                <option value="0">JNO</option>
+                <option value="1">JYES</option>
+            </field>
         </fieldset>
     </fields>
 </metadata>

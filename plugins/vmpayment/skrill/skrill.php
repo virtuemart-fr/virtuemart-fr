@@ -17,7 +17,7 @@
 
 defined ('_JEXEC') or die('Restricted access');
 if (!class_exists ('vmPSPlugin')) {
-	require(JPATH_VM_PLUGINS . DS . 'vmpsplugin.php');
+	require(VMPATH_PLUGINLIBS . DS . 'vmpsplugin.php');
 }
 
 class plgVmpaymentSkrill extends vmPSPlugin {
@@ -101,7 +101,7 @@ class plgVmpaymentSkrill extends vmPSPlugin {
 	}
 
 	function _getPaymentResponseHtml ($paymentTable, $payment_name) {
-		VmConfig::loadJLang('com_virtuemart');
+		vmLanguage::loadJLang('com_virtuemart');
 
 		$html = '<table>' . "\n";
 		$html .= $this->getHtmlRow ('COM_VIRTUEMART_PAYMENT_NAME', $payment_name);
@@ -403,7 +403,7 @@ class plgVmpaymentSkrill extends vmPSPlugin {
 			require(VMPATH_ADMIN . DS . 'models' . DS . 'orders.php');
 		}
 
-		VmConfig::loadJLang('com_virtuemart_orders', TRUE);
+		vmLanguage::loadJLang('com_virtuemart_orders', TRUE);
 		$mb_data = vRequest::getPost();
 
 
@@ -426,7 +426,7 @@ class plgVmpaymentSkrill extends vmPSPlugin {
 			// JError::raiseWarning(500, $db->getErrorMsg());
 			return '';
 		}
-		VmConfig::loadJLang('com_virtuemart');
+		vmLanguage::loadJLang('com_virtuemart');
 		$orderModel = VmModel::getModel('orders');
 		$order = $orderModel->getOrder($virtuemart_order_id);
 

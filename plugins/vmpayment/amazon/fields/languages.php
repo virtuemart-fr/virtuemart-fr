@@ -7,8 +7,8 @@ defined('_JEXEC') or die();
  * @subpackage Plugins  - Elements
  * @author Valérie Isaksen
  * @version $Id: languages.php 8229 2014-08-23 16:56:12Z alatak $
- * @link http://www.virtuemart.net
- * @copyright Copyright (c) 2004 - March 11 2016 VirtueMart Team. All rights reserved.
+ * @link https://virtuemart.net
+ * @copyright Copyright (c) 2004 - August 23 2017 VirtueMart Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or

@@ -111,7 +111,7 @@ td.pricePad{
 /* hide inline style as class END */
 /* general style - needs to be at the beginning so it can be overwritten by specific style later */
 
-.additional-images,.featured-view .product-price,.latest-view .product-price,.topten-view .product-price,.recent-view .product-price,.output-billto,.output-shipto{
+.additional-images,.featured-view .product-price,.discontinued-view .product-price,.latest-view .product-price,.topten-view .product-price,.recent-view .product-price,.output-billto,.output-shipto{
   margin: 10px 0;
 }
 
@@ -131,7 +131,7 @@ span.variant-name, span.custom-variant-name{
   margin-bottom: 5px;
 }
 
-.category-view .row .category .spacer,.featured-view .spacer,.latest-view .spacer,.topten-view .spacer,.recent-view .spacer,.related-products-view .spacer,.browse-view .row .product .spacer{
+.category-view .row .category .spacer,.featured-view .spacer,.discontinued-view .spacer,.latest-view .spacer,.topten-view .spacer,.recent-view .spacer,.related-products-view .spacer,.browse-view .row .product .spacer{
   padding: 6px;
 }
 
@@ -141,7 +141,7 @@ span.variant-name, span.custom-variant-name{
   padding: 0;
 }*/
 
-.featured-view .spacer span,.latest-view .spacer span,.topten-view .spacer span,.recent-view .spacer span,.related-products-view .spacer span,.browse-view .row .product .spacer span{
+.featured-view .spacer span,.discontinued-view .spacer span,.latest-view .spacer span,.topten-view .spacer span,.recent-view .spacer span,.related-products-view .spacer span,.browse-view .row .product .spacer span{
   font-size: 13px;
   color: #666;
 }
@@ -204,7 +204,7 @@ button, .button {padding: 4px 6px;border: 1px solid #666;background-color: #f5ff
 /* Align rows in products sublayout */
 
 .vm-col {
-  margin: 1px;
+  margin: 0px;
   width: 60%;
 }
 
@@ -213,43 +213,43 @@ button, .button {padding: 4px 6px;border: 1px solid #666;background-color: #f5ff
 }
 
 .vm-col-2 {
-  width: 48%;
+  width: 50%;
 }
 
 .vm-col-3 {
-  width: 31.9%;
+  width: 33.333%;
 }
 
 .vm-col-4 {
-  width: 23.8%;
+  width: 25%;
 }
 
 .vm-col-5 {
-  width: 19%;
+  width: 20%;
 }
 
 .vm-col-6 {
-  width: 16%;
+  width: 16.666%;
 }
 
 .vm-col-8 {
-  width: 12%;
+  width: 12.5%;
 }
 
 .vm-col-9 {
-  width: 11%;
+  width: 11.111%;
 }
 
 .vm-col-10 {
-  width: 9%;
+  width: 10%;
 }
 
 .vm-col-11 {
-  width: 8%;
+  width: 9.09%;
 }
 
 .vm-col-12 {
-  width: 7%;
+  width: 8.333%;
 }
 /* Products sublayout end */
 

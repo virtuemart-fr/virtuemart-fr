@@ -62,9 +62,9 @@ class VmHtml{
 			$quote_style = constant($quote_style);
 		}
 		if( $use_entities ) {
-			$string = @htmlentities( $string, constant($quote_style), self::vmGetCharset() );
+			$string = @htmlentities( $string, constant($quote_style), 'UTF-8' );
 		} else {
-			$string = @htmlspecialchars( $string, $quote_style, self::vmGetCharset() );
+			$string = @htmlspecialchars( $string, $quote_style, 'UTF-8' );
 		}
 		return $string;
 	}
@@ -73,18 +73,14 @@ class VmHtml{
 	/**
 	 * Returns the charset string from the global _ISO constant
 	 *
+	 * @deprecated
 	 * @return string UTF-8 by default
 	 * @since 1.0.5
 	 */
-static function vmGetCharset() {
-		$iso = explode( '=', @constant('_ISO') );
-		if( !empty( $iso[1] )) {
-			return $iso[1];
-		}
-		else {
-			return 'UTF-8';
-		}
+	static function vmGetCharset() {
+		return 'UTF-8';
 	}
+
 
     /**
      * Generate HTML code for a row using VmHTML function
@@ -524,6 +520,39 @@ static function vmGetCharset() {
 	}
 
 	/**
+	 * @author Joomla
+	 */
+	static function color($name, $value) {
+
+		$color = strtolower($value);
+
+		if (!$color || in_array($color, array('none', 'transparent'))) {
+			$color = 'none';
+		} elseif ($color['0'] != '#') {
+			$color = '#' . $color;
+		}
+
+		// Including fallback code for HTML5 non supported browsers.
+		vmJsApi::jQuery();
+
+		if (JVM_VERSION > 1) {
+			$class = ' class="minicolors"';
+		} else {
+			$class = ' class="input-colorpicker"';
+			JHtml::_('script', 'system/html5fallback.js', false, true);
+		}
+
+		JHtml::_('behavior.colorpicker');
+
+		return '<input type="text" name="' . $name . '" ' . ' value="'
+		. htmlspecialchars($color, ENT_COMPAT, 'UTF-8') . '"' . $class
+		. '/>';
+
+	}
+
+
+
+	/**
 	 * Creates a Radio Input List
 	 *
 	 * @param string $name
@@ -537,7 +566,7 @@ static function vmGetCharset() {
 		if( empty( $arr ) ) {
 			$arr = array();
 		}
-		$html = '';
+		$html = '<div class="controls">';
 		$i = 0;
 		foreach($arr as $key => $val) {
 			$checked = '';
@@ -551,9 +580,16 @@ static function vmGetCharset() {
 					$checked = 'checked="checked"';
 				}
 			}
-			$html .= '<input type="radio" name="'.$name.'" id="'.$name.$i.'" value="'.htmlspecialchars($key, ENT_QUOTES).'" '.$checked.' '.$extra." />\n";
-			$html .= '<label for="'.$name.$i++.'">'.$val."</label>".$separator."\n";
+			$id = $name.$i;
+			$html .= "\n\t" . '<label for="' . $id . '" id="' . $id . '-lbl" class="radio">';
+			$html .= "\n\t\n\t" . '<input type="radio" name="' . $name . '" id="' . $id . '" value="' . htmlspecialchars($key, ENT_QUOTES) . '" '.$checked.' ' . $extra. ' />' . $val;
+			$html .= "\n\t" . "</label>".$separator."\n";
+
 		}
+
+		$html .= "\n";
+		$html .= '</div>';
+		$html .= "\n";
 
 		return $html;
 	}

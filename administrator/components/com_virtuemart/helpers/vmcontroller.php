@@ -95,7 +95,7 @@ class VmController extends JControllerLegacy{
 		// Display the view
 		if ($cachable && $viewType != 'feed' && $conf->get('caching') >= 1) {
 			$option	= vRequest::getCmd('option');
-			$cache	= JFactory::getCache($option, 'view');
+			$cache	= VmConfig::getCache($option, 'view');
 
 			if (is_array($urlparams)) {
 				$app = JFactory::getApplication();

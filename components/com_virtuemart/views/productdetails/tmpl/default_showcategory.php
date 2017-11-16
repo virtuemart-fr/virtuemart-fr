@@ -7,14 +7,14 @@
  * @subpackage
  * @author Max Milbers, Valerie Isaksen
 
- * @link http://www.virtuemart.net
+ * @link https://virtuemart.net
  * @copyright Copyright (c) 2004 - 2012 VirtueMart Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
- * @version $Id: default_showcategory.php 8811 2015-03-30 23:11:08Z Milbo $
+ * @version $Id: default_showcategory.php 9593 2017-06-28 18:19:30Z Milbo $
  */
 
 // Check to ensure this file is included in Joomla!
@@ -66,11 +66,11 @@ defined ( '_JEXEC' ) or die ( 'Restricted access' );
 				    <h2>
 					<a href="<?php echo $caturl ?>" title="<?php echo vmText::_($category->category_name) ?>">
 					    <?php echo vmText::_($category->category_name) ?>
-					    <br />
+					    <br>
 					    <?php
-					    // if ($category->ids) {
-					    echo $category->images[0]->displayMediaThumb("", false);
-					    //}
+					    if (!empty($category->images[0])) {
+					        echo $category->images[0]->displayMediaThumb("", false);
+					    }
 					    ?>
 					</a>
 				    </h2>

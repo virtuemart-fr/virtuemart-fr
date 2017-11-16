@@ -6,7 +6,7 @@
 * @package VirtueMart
 * @subpackage
 * @author RolandD
-* @link http://www.virtuemart.net
+* @link https://virtuemart.net
 * @copyright Copyright (c) 2004 - 2010 VirtueMart Team. All rights reserved.
 * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
 * VirtueMart is free software. This version may have been modified pursuant
@@ -139,13 +139,14 @@ class virtuemartViewrecommend extends VmView {
 			$document->setMetaData('keywords', $this->product->metakey);
 		}
 
-
 		if ($mainframe->getCfg('MetaTitle') == '1') {
 			$document->setMetaData('title', $this->product->product_s_desc);  //Maybe better product_name
 		}
 		if ($mainframe->getCfg('MetaAuthor') == '1') {
 			$document->setMetaData('author', $this->product->metaauthor);
 		}
+
+		$this->captcha = shopFunctionsF::renderCaptcha('ask_captcha');
 
 		parent::display($tpl);
 	}

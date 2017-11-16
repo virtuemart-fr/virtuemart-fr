@@ -291,6 +291,47 @@ interface  OffAmazonPaymentsService_Interface
      * @throws OffAmazonPaymentsService_Exception
      */
     public function closeBillingAgreement($request);
+    
+    /**
+     * Get Provider Credit Details
+     * A query API for ProviderCredits.  Both Provider and Seller sellerIds are authorized to call this API.
+     *
+     * @see http://docs.amazonwebservices.com/${docPath}GetProviderCreditDetails.html
+     * @param mixed $request array of parameters for OffAmazonPaymentsService_Model_GetProviderCreditDetailsRequest request
+     * or OffAmazonPaymentsService_Model_GetProviderCreditDetailsRequest object itself
+     * @see OffAmazonPaymentsService_Model_GetProviderCreditDetailsRequest
+     * @return OffAmazonPaymentsService_Model_GetProviderCreditDetailsResponse OffAmazonPaymentsService_Model_GetProviderCreditDetailsResponse
+     *
+     * @throws OffAmazonPaymentsService_Exception
+     */
+    public function getProviderCreditDetails($request);
+    
+    /**
+     * Get Provider Credit Reversal Details
+     * Activity to query the funds reversed against a given Provider Credit reversal.
+     *
+     * @see http://docs.amazonwebservices.com/${docPath}GetProviderCreditReversalDetails.html
+     * @param mixed $request array of parameters for OffAmazonPaymentsService_Model_GetProviderCreditReversalDetailsRequest request
+     * or OffAmazonPaymentsService_Model_GetProviderCreditReversalDetailsRequest object itself
+     * @see OffAmazonPaymentsService_Model_GetProviderCreditReversalDetailsRequest
+     * @return OffAmazonPaymentsService_Model_GetProviderCreditReversalDetailsResponse OffAmazonPaymentsService_Model_GetProviderCreditReversalDetailsResponse
+     *
+     * @throws OffAmazonPaymentsService_Exception
+     */
+    public function getProviderCreditReversalDetails($request);
+    
+    /**
+     * Reverse Provider Credit
+     * Activity to enable the Caller/Provider to reverse the funds credited to Provider.
+     *
+     * @see http://docs.amazonwebservices.com/${docPath}ReverseProviderCredit.html
+     * @param mixed $request array of parameters for OffAmazonPaymentsService_Model_ReverseProviderCreditRequest request
+     * or OffAmazonPaymentsService_Model_ReverseProviderCreditRequest object itself
+     * @see OffAmazonPaymentsService_Model_ReverseProviderCreditRequest
+     * @return OffAmazonPaymentsService_Model_ReverseProviderCreditResponse OffAmazonPaymentsService_Model_ReverseProviderCreditResponse
+     *
+     * @throws OffAmazonPaymentsService_Exception
+     */
+    public function reverseProviderCredit($request);
 
 }
-?>

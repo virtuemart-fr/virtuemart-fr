@@ -6,7 +6,7 @@
  * @version $Id$
  * @package VirtueMart
  * @subpackage payment
- * Copyright (C) 2004-2016 Virtuemart Team. All rights reserved.
+ * Copyright (C) 2004 - 2017 Virtuemart Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
@@ -99,11 +99,14 @@ jQuery().ready(function ($) {
 
     handleEnvironment = function () {
         var environment = $('#params_environment').val();
-        $('.sandbox_error_simulation').parents('.control-group').hide();
-        $('.ipn-sandbox').hide();
         if (environment === 'sandbox') {
             $('.sandbox_error_simulation').parents('.control-group').show();
             $('.ipn-sandbox').show();
+            $('.sandbox_warning').show();
+        } else {
+            $('.sandbox_error_simulation').parents('.control-group').hide();
+            $('.ipn-sandbox').hide();
+            $('.sandbox_warning').hide();
         }
     }
 

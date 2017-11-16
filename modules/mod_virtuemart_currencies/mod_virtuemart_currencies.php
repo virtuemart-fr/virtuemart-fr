@@ -5,7 +5,7 @@ defined('_JEXEC') or  die( 'Direct Access to '.basename(__FILE__).' is not allow
 *
 * NOTE: THIS MODULE REQUIRES THE VIRTUEMART COMPONENT!
 /*
-* @version $Id: mod_virtuemart_currencies.php 9084 2015-12-14 18:04:37Z yourgeek $
+* @version $Id: mod_virtuemart_currencies.php 9422 2017-01-16 18:12:35Z Milbo $
 * @package VirtueMart
 * @subpackage modules
 *
@@ -14,7 +14,7 @@ defined('_JEXEC') or  die( 'Direct Access to '.basename(__FILE__).' is not allow
 * VirtueMart is Free Software.
 * VirtueMart comes with absolute no warranty.
 *
-* www.virtuemart.net
+* @link https://virtuemart.net
 */
 
 
@@ -25,12 +25,17 @@ defined('_JEXEC') or  die( 'Direct Access to '.basename(__FILE__).' is not allow
   */
 
 defined('DS') or define('DS', DIRECTORY_SEPARATOR);
-if (!class_exists( 'VmConfig' )) require(JPATH_ROOT.DS.'administrator'.DS.'components'.DS.'com_virtuemart'.DS.'helpers'.DS.'config.php');
+if (!class_exists( 'VmConfig' )) require(JPATH_ROOT .'/administrator/components/com_virtuemart/helpers/config.php');
 
 VmConfig::loadConfig();
-VmConfig::loadJLang('mod_virtuemart_currencies', true);
+vmLanguage::loadJLang('mod_virtuemart_currencies', true);
 vmJsApi::jQuery();
-$mainframe = Jfactory::getApplication();
+
+vmLanguage::loadJLang( 'com_virtuemart', true );
+vmJsApi::jSite();
+vmJsApi::addJScript( 'vmprices',false,false);
+
+$mainframe = JFactory::getApplication();
 $vendorId = vRequest::getInt('vendorid', 1);
 $text_before = $params->get( 'text_before', '');
 

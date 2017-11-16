@@ -6,7 +6,7 @@
 * @package	VirtueMart
 * @subpackage   ratings
 * @author
-* @link http://www.virtuemart.net
+* @link https://virtuemart.net
 * @copyright Copyright (c) 2004 - 2010 VirtueMart Team. All rights reserved.
 * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
 * VirtueMart is free software. This version may have been modified pursuant
@@ -25,7 +25,7 @@ AdminUIHelper::startAdminArea($this);
 /* Get the component name */
 $option = vRequest::getCmd('option');
 ?>
-<form action="index.php" method="post" name="adminForm" id="adminForm">
+<form action="index.php?option=com_virtuemart&view=ratings" method="post" name="adminForm" id="adminForm">
 <div id="header">
 	<div id="filterbox">
 	<table>

@@ -6,7 +6,7 @@
  * @package    VirtueMart
  * @subpackage
  * @author Valérie Isaksen
- * @link http://www.virtuemart.net
+ * @link https://virtuemart.net
  * @copyright Copyright (c) 2004 - 2013 VirtueMart Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
@@ -28,6 +28,8 @@ class VirtuemartViewCategory extends VmView {
 
 	public function display ($tpl = NULL) {
 
+		$doc = JFactory::getDocument ();
+
 		$show_prices = VmConfig::get ('show_prices', 1);
 		if ($show_prices == '1') {
 			if (!class_exists ('calculationHelper')) {
@@ -35,23 +37,55 @@ class VirtuemartViewCategory extends VmView {
 			}
 		}
 
-		$doc = JFactory::getDocument ();
+		$catId = vRequest::getInt('virtuemart_category_id', 0);
+		$manId = vRequest::getInt('virtuemart_manufacturer_id', 0);
+		$isHome = !($catId or $manId);
+		if($isHome){
+			$feedtype = 'feed_home';
+		} else {
+			$feedtype = 'feed_cat';
+		}
 
 		if (!class_exists('VmImage'))
 			require(VMPATH_ADMIN . DS . 'helpers' . DS . 'image.php');
 		$productModel = VmModel::getModel ('product');
 		$categoryId = vRequest::getInt ('virtuemart_category_id', false);
-		$feed_show_prices = VmConfig::get ('feed_cat_show_prices', 0);
-		$feed_show_images = VmConfig::get ('feed_cat_show_images', 0);
-		$feed_show_description = VmConfig::get ('feed_cat_show_description', 0);
-		$feed_description_type = VmConfig::get ('feed_cat_description_type', 'product_s_desc');
-		$feed_max_text_length = VmConfig::get ('feed_cat_max_text_length', 0);
+		$feed_show_prices = VmConfig::get ($feedtype .'_show_prices', 0);
+		$feed_show_images = VmConfig::get ($feedtype .'_show_images', 0);
+		$feed_show_description = VmConfig::get ($feedtype .'_show_description', 0);
+		$feed_description_type = VmConfig::get ($feedtype .'_description_type', 'product_s_desc');
+		$feed_max_text_length = VmConfig::get ($feedtype .'_max_text_length', 0);
+
 		// Load the products in the given category
 		$products = $productModel->getProductsInCategory ($categoryId);
+
+		if($isHome){
+
+			$featured = array();
+			$latest = array();
+			$topten = array();
+
+			if (VmConfig::get ('feed_featured_published', 1)) {
+				$featured_nb = VmConfig::get('feed_featured_nb',3);
+				$featured = $productModel->getProductListing ('featured', $featured_nb);
+			}
+
+			if (VmConfig::get ('feed_latest_published', 1)) {
+				$latest_nb = VmConfig::get('feed_latest_nb',3);
+				$latest = $productModel->getProductListing ('latest', $latest_nb);
+			}
+
+			if ( VmConfig::get ('feed_topten_published', 1)) {
+				$topTen_nb = VmConfig::get('feed_topten_nb',3);
+				$topten = $productModel->getProductListing ('topten',$topTen_nb);
+			}
+
+			$products = array_merge ($products, $featured, $latest, $topten);
+		}
+
 		if ($feed_show_images == 1) {
 			$productModel->addImages ($products, 1);
 		}
-
 		if ($products && $feed_show_prices == 1) {
 			$currency = CurrencyDisplay::getInstance ();
 		}
@@ -71,7 +105,7 @@ class VirtuemartViewCategory extends VmView {
 				if ($feed_description_type == 'product_s_desc') {
 					$description .= $product->product_s_desc;
 				} else {
-					if ( $feed_max_text_length > 0) {
+					if ($feed_max_text_length > 0) {
 						$description .= shopFunctionsF::limitStringByWord ($product->product_desc, $feed_max_text_length);
 					} else {
 						$description .= $product->product_desc;
@@ -95,7 +129,7 @@ class VirtuemartViewCategory extends VmView {
 
 			}
 			if ($feed_description_type == 'product_s_desc'  OR $feed_max_text_length > 0) {
-				$description .= '<p class="feed-readmore"><a target="_blank" href ="' . JRoute::_($product->link) . '">' . vmText::_ ('COM_VIRTUEMART_FEED_READMORE') . '</a></p>';
+				$description .= '<p class="feed-readmore"><a target="_blank" href ="' .JRoute::_($product->link). '">' . vmText::_ ('COM_VIRTUEMART_FEED_READMORE') . '</a></p>';
 			}
 			$item = new JFeedItem();
 			$item->title = $title;
@@ -104,8 +138,12 @@ class VirtuemartViewCategory extends VmView {
 			$item->description = '<div class="feed-description">' . $description . '</div>';
 			$item->category = $categoryId;
 			$doc->addItem ($item);
-		}
 
+		}
 	}
 
+	public function isVirtuemartHome(){
+
+
+	}
 }

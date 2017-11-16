@@ -21,7 +21,7 @@ defined('_JEXEC') or die();
 
 define('USE_SQL_CALC_FOUND_ROWS' , true);
 
-if(!class_exists('vObject')) require(VMPATH_ADMIN .DS. 'helpers' .DS. 'vobject.php');
+if(!class_exists('vObject')) require(VMPATH_ADMIN .'/helpers/vobject.php');
 
 class VmModel extends vObject{
 
@@ -83,6 +83,7 @@ class VmModel extends vObject{
 	var $_selectedOrderingDir = 'DESC';
 	private $_withCount = true;
 	var $_noLimit = false;
+	protected $_maxItems = 1000;
 
 	public function __construct($cidName='cid', $config=array()){
 		// Guess the option from the class name (Option)Model(View).
@@ -173,8 +174,13 @@ class VmModel extends vObject{
 			}
 
 		}
-		$this->_db = JFactory::getDbo();
+		//$this->_db = JFactory::getDbo();
 		$this->setToggleName('published');
+		$this->debug = FALSE;
+	}
+
+	function setDebugSql($b){
+		$this->debug = (int) $b;
 	}
 
 	static private $_vmmodels = array();
@@ -379,9 +385,12 @@ class VmModel extends vObject{
 	 */
 	public function getTable($name = '', $prefix = 'Table', $options = array())
 	{
-		if (empty($name))
-		{
-			$name = $this->getName();
+		if (empty($name)) {
+			if(empty($this->_maintable)){
+				$name = $this->getName();
+			} else {
+				$name = $this->_maintablename;
+			}
 		}
 
 		if ($table = $this->_createTable($name, $prefix, $options))
@@ -530,7 +539,7 @@ class VmModel extends vObject{
 		if(empty(self::$_vmmodels[strtolower($className)])){
 			if( !class_exists($className) ){
 
-				$modelPath = VMPATH_ADMIN.DS."models".DS.$name.".php";
+				$modelPath = VMPATH_ADMIN .'/models/'.$name.'.php';
 
 				if( file_exists($modelPath) ){
 					require( $modelPath );
@@ -632,19 +641,11 @@ class VmModel extends vObject{
 
 		// Iterate over the object variables to build the query fields and values.
 		foreach ($dTableArray as $k => $v){
-
 			// Ignore any internal fields.
-			$posUnderLine = strpos ($k,'_');
-
-			if (( $posUnderLine!==false && $posUnderLine === 0) ) {
-				continue;
+			if (strpos ($k, '_') !== 0 and property_exists($defaultTable, $k)) {
+				$this->_validOrderingFieldName[] = $k;
 			}
-
-// 			$this->_validOrderingFieldName[] = $this->_tablePreFix.$k;
-			$this->_validOrderingFieldName[] = $k;
-
 		}
-
 	}
 
 
@@ -709,7 +710,7 @@ class VmModel extends vObject{
 	 */
 	public function getPagination($perRow = 5) {
 
-		if(!class_exists('VmPagination')) require(VMPATH_ADMIN.DS.'helpers'.DS.'vmpagination.php');
+		if(!class_exists('VmPagination')) require(VMPATH_ADMIN .'/helpers/vmpagination.php');
 		if(empty($this->_limit) ){
 			$this->setPaginationLimits();
 		}
@@ -732,9 +733,13 @@ class VmModel extends vObject{
 			} else {
 				$limit = VmConfig::get ('llimit_init_BE',30);
 			}
-			if(empty($limit)){
-				$limit = 30;
-			}
+		}
+
+		if(empty($limit)){
+			$limit = 24;
+		}
+		if($limit>$this->_maxItems){
+			$limit = $this->_maxItems;
 		}
 
 		$this->setState('limit', $limit);
@@ -806,7 +811,6 @@ class VmModel extends vObject{
 		} else {
 			$joinedTables .="\n".$whereString."\n".$groupBy."\n".$orderBy.' '.$filter_order_Dir ;
 		}
-		//vmdebug('my $limitStart $joinedTables ',$joinedTables,$filter_order_Dir );
 
 		if($nbrReturnProducts){
 			$limitStart = 0;
@@ -833,7 +837,7 @@ class VmModel extends vObject{
 		} else {
 			$db->setQuery($q,$limitStart,$limit);
 		}
-
+		if($this->debug === 1) vmdebug('exeSortSearchListQuery my $limitStart '.$limitStart.'  $limit '.$limit.' q ',str_replace('#__',$db->getPrefix(),$db->getQuery()) );
 		if($object == 2){
 			 $this->ids = $db->loadColumn();
 		} else if($object == 1 ){
@@ -844,7 +848,6 @@ class VmModel extends vObject{
 		if($err=$db->getErrorMsg()){
 			vmError('exeSortSearchListQuery '.$err);
 		}
- 		//vmdebug('my $limitStart '.$limitStart.'  $limit '.$limit.' q '.str_replace('#__',$db->getPrefix(),$db->getQuery()) );
 
 		if($this->_withCount){
 
@@ -887,6 +890,119 @@ class VmModel extends vObject{
 
 	}
 
+	static public function joinLangTables($tablename, $prefix, $on, $method = 0){
+
+		static $useFb = null, $useFb2 = null, $isSite = null;
+		if($useFb === null){
+			$useFb = vmLanguage::getUseLangFallback();
+			$useFb2 = vmLanguage::getUseLangFallbackSecondary();
+			$isSite = vmConfig::isSite();
+		}
+
+		if($method===0){
+			$method = 'LEFT JOIN';
+			if($isSite and VmConfig::get('prodOnlyWLang',false)){
+				$method = 'INNER JOIN';
+			}
+		} else {
+			if($useFb2){
+				$prefix = 'ljd';
+			} else if($useFb){
+				$prefix = 'ld';
+			} else {
+				$prefix = 'l';
+			}
+		}
+
+		if($useFb2){
+			$q = ' '.$method.' `'.$tablename.'_' .VmConfig::$jDefLang . '` as ljd ';
+			if($prefix != 'ljd'){
+				$q .= 'ON ljd.`'.$on.'` = '.$prefix.'.`'.$on.'`';
+			}
+			$joinedTables[] = $q;
+			$method = 'LEFT JOIN';
+		}
+
+		if($useFb){
+			$q = ' '.$method.' `'.$tablename.'_' .VmConfig::$defaultLang . '` as ld ';
+			if($prefix != 'ld'){
+				$q .= 'ON ld.`'.$on.'` = '.$prefix.'.`'.$on.'`';
+			}
+			$joinedTables[] = $q;
+			$method = 'LEFT JOIN';
+		}
+
+		$q = ' '.$method.' `'.$tablename.'_' . VmConfig::$vmlang . '` as l ';
+		if($prefix != 'l'){
+			$q .= 'ON l.`'.$on.'` = '.$prefix.'.`'.$on.'`';
+		}
+		$joinedTables[] = $q;
+
+		return $joinedTables;
+	}
+
+	static public function joinLangSelectFields($langFields, $as = true){
+
+		static $useFb = null, $useFb2 = null;
+		if($useFb === null){
+			$useFb = vmLanguage::getUseLangFallback();
+			$useFb2 = vmLanguage::getUseLangFallbackSecondary();
+		}
+
+		$langFields = array_unique($langFields);
+		$fields = array();
+		if(count($langFields)>0){
+			foreach($langFields as $langField){
+				if($useFb){
+					$f2 = 'ld.'.$langField;
+					if($useFb2){
+						$f2 = 'IFNULL(ld.'.$langField.', ljd.'.$langField.')';
+					}
+					$q = 'IFNULL(l.'.$langField.','.$f2.')';
+					if($as) $q .= ' as '.$langField;
+					$fields[] = $q;
+				} else {
+					$fields[] = 'l.'.$langField;
+				}
+			}
+		}
+		return $fields;
+	}
+
+	static public function joinLangLikeFields($langFields, $keyword){
+		$r = array();
+		foreach ($langFields as $langField) {
+			$t = self::joinLangLikeField($langField, $keyword);
+			$r = array_merge($r, $t);
+		}
+		return $r;
+	}
+
+	static public function joinLangLikeField($searchField, $keyword){
+
+		static $useFb = null, $useFb2 = null;
+		if($useFb === null){
+			$useFb = vmLanguage::getUseLangFallback();
+			$useFb2 = vmLanguage::getUseLangFallbackSecondary();
+		}
+
+		if (strpos ($searchField, '`') !== FALSE){
+			$searchField = str_replace('`','',$searchField);
+		}
+
+		$keywords_plural = preg_replace('/\s+/', '%" AND `'.$searchField.'` LIKE "%', $keyword);
+		vmdebug('joinLangLikeField',$keyword,$keywords_plural);
+		$filter_search[] =  'l.`'.$searchField . '` LIKE ' . $keywords_plural;
+		if($useFb){
+			$filter_search[] =  'ld.`'.$searchField . '` LIKE ' . $keywords_plural;
+			if($useFb2){
+				$filter_search[] =  'ljd.`'.$searchField . '` LIKE ' . $keywords_plural;
+			}
+		}
+
+		return $filter_search;
+	}
+
 	public function emptyCache(){
 		$this->_cache = array();
 	}
@@ -907,7 +1023,7 @@ class VmModel extends vObject{
 
 			//just an idea
 			if(isset($this->_cache[$this->_id]->virtuemart_vendor_id) && empty($this->_data->virtuemart_vendor_id)){
-				if(!class_exists('VirtueMartModelVendor')) require(VMPATH_ADMIN.DS.'models'.DS.'vendor.php');
+				if(!class_exists('VirtueMartModelVendor')) require(VMPATH_ADMIN .'/models/vendor.php');
 				$this->_cache[$this->_id]->virtuemart_vendor_id = VirtueMartModelVendor::getLoggedVendor();
 			}
 		}

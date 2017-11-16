@@ -6,7 +6,7 @@
 * @package	VirtueMart
 * @subpackage
 * @author Max Milbers
-* @link http://www.virtuemart.net
+* @link https://virtuemart.net
 * @copyright Copyright (c) 2004 - 2010 VirtueMart Team. All rights reserved.
 * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
 * VirtueMart is free software. This version may have been modified pursuant
@@ -70,11 +70,8 @@ class VirtuemartControllerCustom extends VmController {
 	* @author Max Milbers
 	*/
 	public function createClone() {
-		$mainframe = Jfactory::getApplication();
 
-		/* Load the view object */
-		$view = $this->getView('custom', 'html');
-
+		$app = Jfactory::getApplication();
 		$model = VmModel::getModel('custom');
 		$msgtype = '';
 		$cids = vRequest::getInt($this->_cidName, vRequest::getInt('virtuemart_custom_id'));
@@ -86,7 +83,7 @@ class VirtuemartControllerCustom extends VmController {
 				$msgtype = 'error';
 			}
 		}
-		$mainframe->redirect('index.php?option=com_virtuemart&view=custom', $msg, $msgtype);
+		$app->redirect('index.php?option=com_virtuemart&view=custom', $msg, $msgtype);
 	}
 }
 // pure php no closing tag

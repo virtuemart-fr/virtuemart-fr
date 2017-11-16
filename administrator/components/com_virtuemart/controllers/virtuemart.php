@@ -8,7 +8,7 @@ defined('_JEXEC') or die('Restricted access');
 * @package	VirtueMart
 * @subpackage Core
 * @author Max Milbers
-* @link http://www.virtuemart.net
+* @link https://virtuemart.net
 * @copyright Copyright (c) 2011 VirtueMart Team. All rights reserved.
 * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
 * VirtueMart is free software. This version may have been modified pursuant
@@ -40,7 +40,6 @@ class VirtuemartControllerVirtuemart extends VmController {
 	 */
 	public function disableDangerousTools(){
 
-		$data = vRequest::getRequest();
 		$config = VmModel::getInstance('config', 'VirtueMartModel');
 		$config->setDangerousToolsOff();
 		$this->display();
@@ -52,4 +51,91 @@ class VirtuemartControllerVirtuemart extends VmController {
 		jExit();
 	}
 
+
+
+	public function getMemberStatus() {
+
+		vRequest::vmCheckToken();
+
+		$data = new stdClass();
+		if(!vmAccess::manager()){
+			$data->msg = 'No rights';
+			echo vmJsApi::safe_json_encode($data);
+			jExit();
+		}
+
+		$request = 0;
+		$ackey = VmConfig::get('member_access_number','');
+		$host = JUri::getInstance()->getHost();
+
+
+		if(!empty($host) AND !empty($ackey)) {
+
+			$link = '//extensions.virtuemart.net/index.php?option=com_virtuemart&view=plugin&name=istraxx_download_byhost&ackey='.base64_encode( $ackey ).'&host='.$host.'&vmlang='.VmConfig::$vmlangTag.'&sku=VMMS&vmver='.vmVersion::$RELEASE;
+
+			$opts = array(
+				'https'=>array(
+				'method'=>"GET"
+				/*'header'=>"Accept-language: en\r\n" .
+				"Cookie: foo=bar\r\n"*/
+				)
+			);
+			$context = stream_context_create($opts);
+
+			$request = file_get_contents('https:'.$link, false, $context);
+
+
+			//VmConfig::$echoDebug=1;
+			//vmdebug('my request ',$request);
+			if(!empty($request)) {
+				if(preg_match('@(error|access denied)@i', $request)) {
+					//return false;
+				} else {
+					$data = json_decode($request);
+
+					if(empty($data->res) or empty($data->html)){
+						vmdebug('Data is empty',$data);
+						$data = new stdClass();
+						$data->msg = 'Error getting validation file';
+					} else {
+						$data = $this->nag($data);
+					}
+				}
+
+			}
+			//vmdebug('my $data ',$data);//*/
+		}
+		//$data = array();
+		echo vmJsApi::safe_json_encode($data);
+		jExit();
+	}
+
+	private function nag($data){
+
+		if(!empty($data->res)){
+
+			if(!empty($data->html)){
+
+				if (!class_exists('ShopFunctions'))
+					require(VMPATH_ADMIN . DS . 'helpers' . DS . 'shopfunctions.php');
+				$safePath = ShopFunctions::checkSafePath();
+				if (empty($safePath)) {
+					return NULL;
+				}
+				$safePath .= '/vmm.ini';
+				$date = JFactory::getDate();
+				$today = $date->toUnix();
+
+				$content = ';<?php die(); */
+					[keys]
+					key = "'.VmConfig::get('member_access_number').'"
+					unixtime = "'.$today.'"
+					res = "'.vRequest::filter($data->res,FILTER_SANITIZE_STRING,FILTER_FLAG_STRIP_LOW).'"
+					html = "'.htmlspecialchars($data->html).'"
+					; */ ?>';
+				$result = JFile::write($safePath, $content);
+			}
+		}
+		return $data;
+	}
 }

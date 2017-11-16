@@ -8,8 +8,8 @@
  *
  * @package	VirtueMart
  * @subpackage Helpers
- * @author Max Milbers
- * @copyright Copyright (C) 2014-2015 Virtuemart Team. All rights reserved.
+ * @author Max Milbers, Stan Scholz
+ * @copyright Copyright (C) 2014-2017 Virtuemart Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
@@ -41,7 +41,7 @@ class VmViewAdmin extends JViewLegacy {
 	function __construct($config = array()) {
 		parent::__construct($config);
 	}
-	
+
 	/*
 	* Override the display function to include ACL
 	* Redirect to the control panel when user does not have access
@@ -51,8 +51,8 @@ class VmViewAdmin extends JViewLegacy {
 		$view = vRequest::getCmd('view', vRequest::getCmd('controller','virtuemart'));
 
 		if ($view == 'virtuemart' //Virtuemart view is always allowed since this is the page we redirect to in case the user does not have the rights
-			or $view == 'about' //About view always displayed
-			or $this->manager($view) ) {
+		or $view == 'about' //About view always displayed
+		or $this->manager($view) ) {
 			//or $this->canDo->get('core.admin')
 			//or $this->canDo->get('vm.'.$view) ) { //Super administrators always have access
 
@@ -100,10 +100,10 @@ class VmViewAdmin extends JViewLegacy {
 		if(vmAccess::manager($view.'.edit')){
 			JToolBarHelper::editList();
 		}
-		if(vmAccess::manager($view.'.create')){
+		if($showNew and vmAccess::manager($view.'.create')){
 			JToolBarHelper::addNew();
 		}
-		if(vmAccess::manager($view.'.delete')){
+		if($showDelete and vmAccess::manager($view.'.delete')){
 			JToolBarHelper::spacer('10');
 			JToolBarHelper::deleteList();
 		}
@@ -204,10 +204,10 @@ class VmViewAdmin extends JViewLegacy {
 
 	/**
 	 * Add simple search to form
-	* @param $searchLabel text to display before searchbox
-	* @param $name 		 lists and id name
-	* ??vmText::_('COM_VIRTUEMART_NAME')
-	*/
+	 * @param $searchLabel text to display before searchbox
+	 * @param $name 		 lists and id name
+	 * ??vmText::_('COM_VIRTUEMART_NAME')
+	 */
 
 	function displayDefaultViewSearch($searchLabel='COM_VIRTUEMART_NAME',$name ='search') {
 		return vmText::_('COM_VIRTUEMART_FILTER') . ' ' . vmText::_($searchLabel) . ':
@@ -218,9 +218,19 @@ class VmViewAdmin extends JViewLegacy {
 
 	function addStandardEditViewCommands($id = 0,$object = null) {
 
-        $view = vRequest::getCmd('view', vRequest::getCmd('controller','virtuemart'));
+		$view = vRequest::getCmd('view', vRequest::getCmd('controller','virtuemart'));
 
 		if (!class_exists('JToolBarHelper')) require(JPATH_ADMINISTRATOR.DS.'includes'.DS.'toolbar.php');
+
+		if ($view == 'product' and vmAccess::manager('product.create')) {
+			if (vmAccess::manager('product.create')) {
+				JToolBarHelper::custom( 'createchild', 'new', 'new', vmText::_( 'COM_VIRTUEMART_PRODUCT_CHILD' ), false );
+				JToolBarHelper::custom( 'cloneproduct', 'copy', 'copy', vmText::_( 'COM_VIRTUEMART_PRODUCT_CLONE' ), false );
+			}
+			if (vmAccess::manager('ratings.edit')) {
+				JToolBarHelper::custom('addrating', 'default', '', vmText::_('COM_VIRTUEMART_ADD_RATING'), false);
+			}
+		}
 
 		JToolBarHelper::divider();
 		if (vmAccess::manager($view.'.edit')) {
@@ -234,11 +244,9 @@ class VmViewAdmin extends JViewLegacy {
 		if($view != 'shipmentmethod' and $view != 'paymentmethod' and $view != 'media') $validate = true; else $validate = false;
 		$this->addJsJoomlaSubmitButton($validate);
 
-        $editView = vRequest::getCmd('view',vRequest::getCmd('controller','' ) );
-		$params = JComponentHelper::getParams('com_languages');
-
-		$selectedLangue = $params->get('site', 'en-GB');
-		$this->lang = strtolower(strtr($selectedLangue,'-','_'));
+		$editView = vRequest::getCmd('view',vRequest::getCmd('controller','' ) );
+		$selectedLangue = VmConfig::$vmlangTag;
+		$this->lang = vmConfig::$vmlang;
 
 		// Get all the published languages defined in Language manager > Content
 		$allLanguages	= JLanguageHelper::getLanguages();
@@ -247,15 +255,14 @@ class VmViewAdmin extends JViewLegacy {
 		}
 
 		// only add if ID and view not null
-		if ($editView and $id and (count(vmconfig::get('active_languages'))>1) ) {
+		if ($editView and ($id or VmConfig::get('prodOnlyWLang',false)) and (count(VmConfig::get('active_languages', array(VmConfig::$jDefLang)))>1) ) {
 
 			if ($editView =='user') $editView ='vendor';
 
-			jimport('joomla.language.helper');
-            $this->lang = vRequest::getVar('vmlang', $this->lang);
+			$this->lang = vRequest::getVar('vmlang', $this->lang);
 			// list of languages installed in #__extensions (may be more than the ones in the Language manager > Content if the user did not added them)
 			$languages = JLanguageHelper::createLanguageList($selectedLangue, constant('VMPATH_ROOT'), true);
-			$activeVmLangs = (vmconfig::get('active_languages') );
+			$activeVmLangs = (VmConfig::get('active_languages', array(VmConfig::$jDefLang)) );
 			$flagCss="";
 			foreach ($languages as $k => &$joomlaLang) {
 				if (!in_array($joomlaLang['value'], $activeVmLangs) ) {
@@ -275,97 +282,35 @@ class VmViewAdmin extends JViewLegacy {
 					if (!file_exists ($image_flag)) {
 						vmerror(vmText::sprintf('COM_VIRTUEMART_MISSING_FLAG', $image_flag,$joomlaLang['text'] ) );
 					} else {
-						$flagCss .="td.flag-".$key.",.flag-".$key."{background: url( ".$image_flag_url.") no-repeat 0 0; padding-left:20px !important;}\n";
+						$flagCss .="td.flag-".$key.",.flag-".$key."{background: url( ".$image_flag_url.") no-repeat 0 0 !important; padding-left:20px !important;}\n";
 					}
 				}
 			}
 			JFactory::getDocument()->addStyleDeclaration($flagCss);
-
-			$this->langList = JHtml::_('select.genericlist',  $languages, 'vmlang', 'class="inputbox" style="width:176px;"', 'value', 'text', $selectedLangue , 'vmlang');
-
-
-			if ($editView =='product') {
-				$productModel = VmModel::getModel('product');
-				$childproducts = $productModel->getProductChilds($id) ? $productModel->getProductChilds($id) : '';
-			}
-
+			
+			$childdata = array(); 
 			$token = vRequest::getFormToken();
-			$j = '
-			jQuery(function($) {
-				var oldflag = "";
-				$("select#vmlang").chosen().change(function() {
-					langCode = $(this).find("option:selected").val();
-					flagClass = "flag-"+langCode;
-					jQuery.ajax({
-						type: "GET",
-						cache: false,
-        				dataType: "json",
-        				url: "index.php?option=com_virtuemart&view=translate&task=paste&format=json&lg="+langCode+"&id='.$id.'&editView='.$editView.'&'.$token.'=1",
-    				}).done(
-						function(data) {
-							var items = [];
+			$childdata['id'][] = $id;
 
-							var theForm = document.forms["adminForm"];
-							if(typeof theForm.vmlang==="undefined"){
-							 	var input = document.createElement("input");
-								input.type = "hidden";
-								input.name = "vmlang";
-								input.value = langCode;
-								theForm.appendChild(input);
-							} else {
-								theForm.vmlang.value = langCode;
-							}
-							if (data.fields !== "error" ) {
-								if (data.structure == "empty") alert(data.msg);
-								$.each(data.fields , function(key, val) {
-									cible = jQuery("#"+key);
-									if (oldflag !== "") cible.parent().removeClass(oldflag)
-									var tmce_ver = 0;
-									if(typeof window.tinyMCE!=="undefined"){
-										var tmce_ver=window.tinyMCE.majorVersion;
-									}
-									if (tmce_ver>="4") {
-										if (cible.parent().addClass(flagClass).children().hasClass("mce_editable") && data.structure !== "empty" ) {
-											tinyMCE.get(key).execCommand("mceSetContent", false,val);
-											cible.val(val);
-										} else if (data.structure !== "empty") cible.val(val);
-									} else {
-										if (cible.parent().addClass(flagClass).children().hasClass("mce_editable") && data.structure !== "empty" ) {
-											tinyMCE.execInstanceCommand(key,"mceSetContent",false,val);
-											cible.val(val);
-										} else if (data.structure !== "empty") cible.val(val);
-									}
-									});
+			if($editView =='product') {
+				$productModel = VmModel::getModel('product');
+				$childproducts = $productModel->getProductChildIds($id);
 
-							} else alert(data.msg);';
-
-			if($editView =='product' && !empty($childproducts)) {
-				foreach($childproducts as $child) {
-					$j .= 'jQuery.ajax({
-        						type: "GET",
-								cache: false,
-        						dataType: "json",
-        						url: "index.php?option=com_virtuemart&view=translate&task=paste&format=json&lg="+langCode+"&id='.$child->virtuemart_product_id.'&editView='.$editView.'&'.$token.'=1",
-    					}).done(
-								//	$.getJSON( "index.php?option=com_virtuemart&view=translate&task=paste&format=json&lg="+langCode+"&id='.$child->virtuemart_product_id.'&editView='.$editView.'&'.$token.'=1" ,
-										function(data) {
-											cible = jQuery("#child'. $child->virtuemart_product_id .'product_name");
-											if (oldflag !== "") cible.parent().removeClass(oldflag)
-											cible.parent().addClass(flagClass);
-											cible.val(data.fields.product_name);
-											jQuery("#child'. $child->virtuemart_product_id .'slug").val(data.fields["slug"]);
-										}
-									)
-								';
+				if(!empty($childproducts)){
+					foreach($childproducts as $ids) {
+						$childdata['id'][] = (int) $ids;
+					}
 				}
 			}
+			
+			$childdata[$token] = 1; 
+			$childdata['editView'] = $editView; 
 
-			$j .= 'oldflag = flagClass ;
-						}
-					)
-				});
-			})';
-			vmJsApi::addJScript('vmlang', $j);
+			//stAn: added json data as needed
+			$this->langList = JHtml::_('select.genericlist',  $languages, 'vmlang', 'class="inputbox" style="width:176px;" data-json="'.htmlentities(json_encode($childdata)).'" onchange="javascript: updateLanguageVars(this, event);"', 'value', 'text', $selectedLangue , 'vmlang');
+			//stAn: script can be loaded async and deferred
+			vmJsApi::addJScript('/administrator/components/com_virtuemart/assets/js/vmlang.js', false, true, true);
+			
 		} else {
 			$jlang = JFactory::getLanguage();
 			$langs = $jlang->getKnownLanguages();
@@ -402,7 +347,7 @@ class VmViewAdmin extends JViewLegacy {
 
 		$viewText = vmText::_('COM_VIRTUEMART_' . strtoupper($name));
 
-		$taskName = ' <small><small>[ ' . vmText::_('COM_VIRTUEMART_' . $task) . ' ]</small></small>';
+		$taskName = ' <small><small>[ ' . vmText::_('COM_VIRTUEMART_' . strtoupper($task)) . ' ]</small></small>';
 
 		JToolBarHelper::title($viewText . ' ' . $taskName . $msg, 'head vm_' . $icon . '_48');
 		$this->assignRef('viewName',$viewText); //was $viewName?
@@ -426,7 +371,7 @@ class VmViewAdmin extends JViewLegacy {
 			<input type="hidden" name="filter_order_Dir" value="'.$this->lists['filter_order_Dir'].'" />';
 		}
 
-		if(vRequest::get('manage',false) or JFactory::getApplication()->isSite()){
+		if(vRequest::getInt('manage',false) or JFactory::getApplication()->isSite()){
 			$hidden .='<input type="hidden" name="manage" value="1" />';
 		}
 		return  $hidden.'
@@ -472,11 +417,11 @@ class VmViewAdmin extends JViewLegacy {
 
 		if (JVM_VERSION < 3){
 			return ('<a href="javascript:void(0);" onclick="return listItemTask(\'cb'. $i .'\',\''. $task .'\')" title="'. $action .'">'
-					. $image .'</a>');
+			. $image .'</a>');
 		} else {
 			$icon 	= $field ? 'publish' : 'unpublish';
 			return ('<a href="javascript:void(0);" onclick="return listItemTask(\'cb'. $i .'\',\''. $task .'\')" title="'. $action .'">'
-				. '<span class="icon-'.$icon.'"><span>' .'</a>');
+			. '<span class="icon-'.$icon.'"><span>' .'</a>');
 		}
 
 
@@ -503,19 +448,20 @@ class VmViewAdmin extends JViewLegacy {
 		}
 		if (!class_exists( 'VmConfig' )) require(VMPATH_ADMIN .'/helpers/config.php');
 		VmConfig::loadConfig();
-		VmConfig::loadJLang('com_virtuemart_help');
+		vmLanguage::loadJLang('com_virtuemart_help');
 		$lang = JFactory::getLanguage();
 		$key=  'COM_VIRTUEMART_HELP_'.$view.$task;
-		 if ($lang->hasKey($key)) {
-				$help_url  = vmText::_($key)."?tmpl=component";
-				$bar = JToolBar::getInstance('toolbar');
-				$bar->appendButton( 'Popup', 'help', 'JTOOLBAR_HELP', $help_url, 960, 500 );
+
+		if ($lang->hasKey($key)) {
+			$help_url  = vmText::_($key)."?tmpl=component";
+			$bar = JToolBar::getInstance('toolbar');
+			$bar->appendButton( 'Popup', 'help', 'JTOOLBAR_HELP', $help_url, 960, 500 );
 		}
 
 	}
 
 	function showACLPref(){
-		
+
 		if (vmAccess::manager('core')) {
 			JToolBarHelper::divider();
 			$bar = JToolBar::getInstance('toolbar');
@@ -550,4 +496,11 @@ class VmViewAdmin extends JViewLegacy {
 		return vmAccess::manager($view);
 	}
 
+	public function setOrigLang($model){
+		$origLang = '';
+		if(!empty($model->_loadedWithLangFallback)){
+			$origLang = '(<span class="allflags flag-'.$model->_loadedWithLangFallback.'"></span>)';
+		}
+		$this->origLang = '<span class="langfallback">'.$origLang.'</span>';
+	}
 }

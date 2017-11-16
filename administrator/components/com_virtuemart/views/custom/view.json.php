@@ -6,7 +6,7 @@
 * @package	VirtueMart
 * @subpackage
 * @author  Patrick Kohl
-* @link http://www.virtuemart.net
+* @link https://virtuemart.net
 * @copyright Copyright (c) 2004 - 2010 VirtueMart Team. All rights reserved.
 * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
 * VirtueMart is free software. This version may have been modified pursuant
@@ -47,7 +47,7 @@ class VirtuemartViewCustom extends JViewLegacy {
 				echo vmJsApi::safe_json_encode($json);
 			} else {
 				$json->msg =  '<b>'.vmText::_('COM_VIRTUEMART_NO_IMAGE_SET').'</b>';
-				echo json_encode($json);
+				echo vmJsApi::safe_json_encode($json);
 			}
 		}
 		elseif ( $custom_jplugin_id = vRequest::getInt('custom_jplugin_id') ) {
@@ -65,7 +65,7 @@ class VirtuemartViewCustom extends JViewLegacy {
 			// Get the payment XML.
 			$formFile	= vRequest::filterPath( VMPATH_ROOT .DS. 'plugins' .DS. 'vmcustom' .DS . $this->jCustom->element . DS . $this->jCustom->element . '.xml');
 			if (file_exists($formFile)){
-				VmConfig::loadJLang('plg_vmpsplugin', false);
+				vmLanguage::loadJLang('plg_vmpsplugin', false);
 				if (!class_exists('vmPlugin')) require(VMPATH_PLUGINLIBS . DS . 'vmplugin.php');
 				$filename = 'plg_vmcustom_' .  $this->jCustom->element;
 				vmPlugin::loadJLang($filename,'vmcustom',$this->jCustom->element);

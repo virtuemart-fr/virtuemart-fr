@@ -9,7 +9,7 @@ vmJsApi::jPrice();
 		<div class="vmheader"><?php echo $headerText ?></div>
 	<?php } ?>
 
-	<div class="vmproduct<?php echo $params->get( 'moduleclass_sfx' ); ?>">
+	<div class="product-container vmproduct<?php echo $params->get( 'moduleclass_sfx' ); ?> productdetails">
 		<?php foreach( $products as $product ) { ?>
 			<div style="text-align:center;">
 				<div class="spacer">

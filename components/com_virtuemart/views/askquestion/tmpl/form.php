@@ -6,7 +6,7 @@
  * @package	VirtueMart
  * @subpackage
  * @author Kohl Patrick, Maik K�nnemann
- * @link http://www.virtuemart.net
+ * @link https://virtuemart.net
  * @copyright Copyright (c) 2004 - 2014 VirtueMart Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
@@ -89,14 +89,7 @@ if (empty ( $this->product )) {
 
 					<div class="submit">
 						<?php // captcha addition
-						if(VmConfig::get ('ask_captcha') && JFactory::getUser()->guest == 1){
-							JHTML::_('behavior.framework');
-							JPluginHelper::importPlugin('captcha');
-							$dispatcher = JDispatcher::getInstance(); $dispatcher->trigger('onInit','dynamic_recaptcha_1');
-							?>
-							<div id="dynamic_recaptcha_1"></div>
-						<?php 
-						}
+							echo $this->captcha;
 						// end of captcha addition 
 						?>
             <div>

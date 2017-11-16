@@ -6,7 +6,7 @@
 * @package	VirtueMart
 * @subpackage UpdatesMigration
 * @author Max Milbers
-* @link http://www.virtuemart.net
+* @link https://virtuemart.net
 * @copyright Copyright (c) 2004 - 2011 VirtueMart Team. All rights reserved.
 * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
 * VirtueMart is free software. This version may have been modified pursuant
@@ -19,57 +19,79 @@
 $session = JFactory::getSession();
 
 ?>
+
+<table>
+    <tr>
+        <td align="center">
+			<?php
+			echo $this->renderTaskButton('deleteInheritedCustoms','COM_VIRTUEMART_UPDATE_DELETE_INHERITEDC');
+			/*$link=JROUTE::_('index.php?option=com_virtuemart&view=updatesmigration&task=deleteInheritedCustoms&'.JSession::getFormToken().'=1' ); ?>
+            <div class="icon"><a onclick="javascript:confirmation('<?php echo addslashes( vmText::_('COM_VIRTUEMART_UPDATE_DELETE_INHERITEDC') ); ?>', '<?php echo $link; ?>');">
+                    <span class="vmicon48"></span>
+                    <br />
+					<?php echo vmText::_('COM_VIRTUEMART_UPDATE_DELETE_INHERITEDC'); ?>
+                </a></div>*/ ?>
+        </td>
+        <td align="center">
+			<?php $link=JROUTE::_('index.php?option=com_virtuemart&view=updatesmigration&task=fixCustomsParams&'.JSession::getFormToken().'=1' ); ?>
+            <div class="icon"><a onclick="javascript:confirmation('<?php echo addslashes( vmText::_('COM_VIRTUEMART_UPDATE_OLD_CUSTOMFORMAT') ); ?>', '<?php echo $link; ?>');">
+                    <span class="vmicon48"></span>
+                    <br />
+					<?php echo vmText::_('COM_VIRTUEMART_UPDATE_OLD_CUSTOMFORMAT'); ?>
+                </a></div>
+        </td>
+    </tr>
+</table>
+
 <form action="index.php" method="post" name="adminForm" enctype="multipart/form-data" >
 <input type="hidden" name="task" value="" />
 
-<table>
+<table width="900px">
+
 <tr>
-	<td align="left" colspan="5" >
+	<td align="left" colspan="2" >
 		<h3> <?php echo vmText::_('COM_VIRTUEMART_UPDATE_MIGRATION_TITLE'); ?> </h3>
 	</td>
 </tr>
 
 <tr>
-	<td align="left" colspan="5" >
-		<?php if (!class_exists('ShopFunctions')) require(VMPATH_ADMIN . DS . 'helpers' . DS . 'shopfunctions.php');
+	<?php if (!class_exists('ShopFunctions')) require(VMPATH_ADMIN . DS . 'helpers' . DS . 'shopfunctions.php');
 
-		$max_execution_time = ini_get('max_execution_time');
-		echo 'max_execution_time '.$max_execution_time;
-		echo '<br />';
-		@ini_set( 'max_execution_time', (int)$max_execution_time+1 );
-		$new_max_execution_time = ini_get('max_execution_time');
-		if($max_execution_time===$new_max_execution_time){
-			echo 'Server settings do not allow changes of your max_execution_time in the php.ini file, you may get problems migrating a big shop';
-		} else {
-			echo vmText::_('COM_VIRTUEMART_UPDATE_MIGRATION_CHANGE_MAX_EXECUTION_TIME').'<input class="inputbox" type="text" name="max_execution_time" size="15" value="'.$max_execution_time.'" />';
-		}
-		@ini_set( 'max_execution_time', $max_execution_time );
+	$max_execution_time = ini_get('max_execution_time');
+	?>
+	<td align="left" colspan="1" >max_execution_time</td>
+    <td><?php echo $max_execution_time ?></td>
+</tr>
+<tr>
+    <?php
+	@ini_set( 'max_execution_time', (int)$max_execution_time+1 );
+	$new_max_execution_time = ini_get('max_execution_time');
+	if($max_execution_time===$new_max_execution_time){
+		echo '<td colspan="2">Server settings do not allow changes of your max_execution_time in the php.ini file, you may get problems migrating a big shop</td>';
+	} else {
+		echo '<td>'.vmText::_('COM_VIRTUEMART_UPDATE_MIGRATION_CHANGE_MAX_EXECUTION_TIME').'</td><td><input class="inputbox" type="text" name="max_execution_time" size="15" value="'.$max_execution_time.'" />'.'</td>';
+	}
+	@ini_set( 'max_execution_time', $max_execution_time );
+    ?>
+</tr>
+<tr>
+    <?php
+	$memory_limit = VmConfig::getMemoryLimit();
+    ?>
+    <td align="left" colspan="1" >
+        memory_limit</td>
+    <td><?php echo $memory_limit.' MB' ?></td>
+</tr>
+<tr>
+    <td><?php echo vmText::_('COM_VIRTUEMART_UPDATE_MIGRATION_CHANGE_MEMORY_LIMIT').'</td><td><input class="inputbox" type="text" name="memory_limit" size="15" value="'.$memory_limit.'" />' ?></td>
 
-		echo '<br />';
-		$memory_limit = ini_get('memory_limit');
-		echo 'memory_limit '.$memory_limit;
-		echo '<br />';
-		if($memory_limit!=='128MB'){
-
-// 			@ini_set( 'memory_limit', '128MB' );
-// 			$new_memory_limit = ini_get('memory_limit');
-// 			if($memory_limit===$new_memory_limit){
-// 				echo 'Server settings do not allow changes of your memory_limit in the php.ini file, you may get problems migrating a big shop';
-// 			}else {
-				echo vmText::_('COM_VIRTUEMART_UPDATE_MIGRATION_CHANGE_MEMORY_LIMIT').'<input class="inputbox" type="text" name="memory_limit" size="15" value="'.$memory_limit.'" />';
-// 			}
-// 			@ini_set( 'max_execution_time', $memory_limit );
-		}
-
-		?>
-	</td>
 </tr>
 
 <tr>
     <td align="center">
 		<button class="default" type="submit" ><?php echo vmText::_('COM_VIRTUEMART_MIGRATE'); ?></button>
     </td>
-<tr>
+</tr>
 
 <tr>
 	<td>
@@ -111,26 +133,5 @@ echo VmHTML::row('input','COM_VIRTUEMART_MIGRATION_DCAT_FLY','migration_default_
 	<?php echo JHtml::_( 'form.token' ); ?>
 </form>
 
-<form action="index.php" method="post" name="adminForm" enctype="multipart/form-data" >
-<input type="hidden" name="task" value="setStoreOwner" />
 
-<table>
-<tr>
-	<td>
-		<?php echo vmText::_('COM_VIRTUEMART_MIGRATION_STOREOWNERID'); ?>
-	</td>
-	<td>
-		<input class="inputbox" type="text" name="storeOwnerId" size="15" value="" />
-	</td>
-    <td>
-        <button class="default" type="submit" ><?php echo vmText::_('COM_VIRTUEMART_SETSTOREOWNER'); ?></button>
-    </td>
-</tr>
-</table>
-
-<!-- Hidden Fields -->
-<input type="hidden" name="option" value="com_virtuemart" />
-<input type="hidden" name="view" value="updatesmigration" />
-<?php echo JHtml::_( 'form.token' ); ?>
-</form>
 <?php ?>

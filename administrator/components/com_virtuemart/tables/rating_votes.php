@@ -6,7 +6,7 @@
 * @package	VirtueMart
 * @subpackage
 * @author RolandD
-* @link http://www.virtuemart.net
+* @link https://virtuemart.net
 * @copyright Copyright (c) 2004 - 2012 VirtueMart Team. All rights reserved.
 * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
 * VirtueMart is free software. This version may have been modified pursuant
@@ -50,6 +50,20 @@ class TableRating_votes extends VmTable {
 		$this->setLoggable();
 	}
 
+	function check(){
 
+		if($this->created_by>0) {
+			$q = 'SELECT `virtuemart_rating_vote_id` FROM `#__virtuemart_rating_votes` WHERE `virtuemart_product_id`="'.$this->virtuemart_product_id.'" AND `created_by`="'.$this->created_by.'" ';
+			$this->_db->setQuery($q);
+			if($r = $this->_db->loadResult()){
+				vmdebug('__virtuemart_rating_votes check set virtuemart_rating_vote_id',$r);
+				$this->virtuemart_rating_vote_id = $r;
+			}
+		} else if(empty($this->created_by) and !empty($this->customer) and vmAccess::manager('ratings')){
+			$this->created_by = -1;
+		}
+
+		return parent::check();
+	}
 }
 // pure php no closing tag

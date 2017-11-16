@@ -1,4 +1,4 @@
-<?php  defined('_JEXEC') or die();
+<?php  defined ('_JEXEC') or die();
 /**
  * @version $Id:$
  * Heidelpay credit card plugin
@@ -15,7 +15,7 @@
 ?>
 
 <iframe id="payment_frame" width="500px" height="650px" frameborder="0"
-		border="0" src="<?php echo $viewData['response'] ?>"
-		style="width: 450px; height: 650px; border: 0px solid #000;"></iframe></center>
+				border="0" src="<?php echo $viewData['response'] ?>" 
+				style="width: 450px; height: 650px; border: 0px solid #000;"></iframe></center>
 
 

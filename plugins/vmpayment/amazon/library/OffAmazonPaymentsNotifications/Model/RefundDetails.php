@@ -30,6 +30,7 @@ require_once 'OffAmazonPayments/Model.php';
  * <li>FeeRefunded: OffAmazonPaymentsNotifications_Model_Price</li>
  * <li>CreationTimestamp: string</li>
  * <li>RefundStatus: OffAmazonPaymentsNotifications_Model_Status</li>
+ * <li>ProviderCreditReversalSummaryList: OffAmazonPaymentsNotifications_Model_ProviderCreditReversalSummaryList</li>
  * <li>SoftDescriptor: string</li>
  *
  * </ul>
@@ -52,6 +53,7 @@ class OffAmazonPaymentsNotifications_Model_RefundDetails extends OffAmazonPaymen
      * <li>FeeRefunded: OffAmazonPaymentsNotifications_Model_Price</li>
      * <li>CreationTimestamp: string</li>
      * <li>RefundStatus: OffAmazonPaymentsNotifications_Model_Status</li>
+     * <li>ProviderCreditReversalSummaryList: OffAmazonPaymentsNotifications_Model_ProviderCreditReversalSummaryList</li>
      * <li>SoftDescriptor: string</li>
      *
      * </ul>
@@ -86,6 +88,10 @@ class OffAmazonPaymentsNotifications_Model_RefundDetails extends OffAmazonPaymen
             'RefundStatus' => array(
                 'FieldValue' => null, 
                 'FieldType' => 'OffAmazonPaymentsNotifications_Model_Status'
+            ),
+            'ProviderCreditReversalSummaryList' => array(
+                'FieldValue' => null, 
+                'FieldType' => 'OffAmazonPaymentsNotifications_Model_ProviderCreditReversalSummaryList'
             ),
             'SoftDescriptor' => array(
                 'FieldValue' => null, 
@@ -473,5 +479,50 @@ class OffAmazonPaymentsNotifications_Model_RefundDetails extends OffAmazonPaymen
     {
         return !is_null($this->fields['SoftDescriptor']['FieldValue']);
     }
+    
+    /**
+     * Gets the value of the ProviderCreditReversalSummaryList.
+     *
+     * @return ProviderCreditReversalSummaryList ProviderCreditReversalSummaryList
+     */
+    public function getProviderCreditReversalSummaryList()
+    {
+    	return $this->fields['ProviderCreditReversalSummaryList']['FieldValue'];
+    }
+    
+    /**
+     * Sets the value of the ProviderCreditReversalSummaryList.
+     *
+     * @param ProviderCreditReversalSummaryList ProviderCreditReversalSummaryList
+     * @return void
+     */
+    public function setProviderCreditReversalSummaryList($value)
+    {
+    	$this->fields['ProviderCreditReversalSummaryList']['FieldValue'] = $value;
+    	return;
+    }
+    
+    /**
+     * Sets the value of the ProviderCreditReversalSummaryList  and returns this instance
+     *
+     * @param ProviderCreditReversalSummaryList $value ProviderCreditReversalSummaryList
+     * @return OffAmazonPaymentsService_Model_RefundDetails instance
+     */
+    public function withProviderCreditReversalSummaryList($value)
+    {
+    	$this->setProviderCreditReversalSummaryList($value);
+    	return $this;
+    }
+    
+    
+    /**
+     * Checks if ProviderCreditReversalSummaryList  is set
+     *
+     * @return bool true if ProviderCreditReversalSummaryList property is set
+     */
+    public function isSetProviderCreditReversalSummaryList()
+    {
+    	return !is_null($this->fields['ProviderCreditReversalSummaryList']['FieldValue']);
+    
+    }
 }
-?>

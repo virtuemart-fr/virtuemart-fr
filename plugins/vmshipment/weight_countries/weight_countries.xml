@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <extension version="2.5" type="plugin" group="vmshipment" method="upgrade">
     <name>By weight, ZIP and countries</name>
-    <creationDate>March 11 2016</creationDate>
+    <creationDate>August 23 2017</creationDate>
     <author>The VirtueMart Development Team</author>
-    <authorUrl>http://www.virtuemart.net</authorUrl>
-    <copyright>Copyright (C) 2004-2016 Virtuemart Team. All rights reserved.</copyright>
+    <authorUrl>https://virtuemart.net</authorUrl>
+    <copyright>Copyright (C) 2004 - 2017 Virtuemart Team. All rights reserved.</copyright>
     <license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
-    <version>3.0.14</version>
+    <version>3.2.4</version>
     <description>VMSHIPMENT_WEIGHT_COUNTRIES_PLUGIN_DESC</description>
     <languages>
         <language tag="en-GB">en-GB.plg_vmshipment_weight_countries.ini</language>
@@ -19,7 +19,7 @@
     <vmconfig>
         <fields name="params">
             <fieldset name="template">
-                <field name="shipment_logos" type="vmfiles" multiple="true" directory="/images/stories/virtuemart/shipment"
+                <field name="shipment_logos" type="vmfiles" multiple="true" directory="/images/virtuemart/shipment"
                         label="VMSHIPMENT_WEIGHT_COUNTRIES_LOGOS"
                        size="40"
                        default="" hide_default="1" hide_none="true"
@@ -27,11 +27,12 @@
                        description="VMSHIPMENT_WEIGHT_COUNTRIES_LOGOS_DESC"/>
             </fieldset>
             <fieldset name="restrictions">
-                <field name="show_on_pdetails" type="radio" scope="com_virtuemart" default="1"
-                               label="VMSHIPMENT_WEIGHT_COUNTRIES_SHOW_ON_PRDETAILS"
-                               description="VMSHIPMENT_WEIGHT_COUNTRIES_SHOW_ON_PRDETAILS_TIP">
-                            <option value="0">COM_VIRTUEMART_NO</option>
-                            <option value="1">COM_VIRTUEMART_YES</option>
+                <field name="show_on_pdetails" type="radio" default="0"
+                        label="VMSHIPMENT_WEIGHT_COUNTRIES_SHOW_ON_PRDETAILS"
+                        extension="com_virtuemart"
+                        description="VMSHIPMENT_WEIGHT_COUNTRIES_SHOW_ON_PRDETAILS_TIP">
+                    <option value="0">COM_VIRTUEMART_NO</option>
+                    <option value="1">COM_VIRTUEMART_YES</option>
                 </field>
                 <field name="categories" value_field="category_name" type="vmcategories" multiple="true" size="10" default="" label="VMSHIPMENT_WEIGHT_CATEGORIES"
                        description="VMSHIPMENT_WEIGHT_CATEGORIES_DESC"/>

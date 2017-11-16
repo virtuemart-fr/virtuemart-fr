@@ -6,14 +6,14 @@
 * @package	VirtueMart
 * @subpackage Manufacturer
 * @author Patrick Kohl
-* @link http://www.virtuemart.net
+* @link https://virtuemart.net
 * @copyright Copyright (c) 2004 - 2010 VirtueMart Team. All rights reserved.
 * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
 * VirtueMart is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
-* @version $Id: default.php 8534 2014-10-28 10:23:03Z Milbo $
+* @version $Id: default.php 9585 2017-06-22 13:08:16Z Milbo $
 */
 
 // Check to ensure this file is included in Joomla!
@@ -23,7 +23,7 @@ AdminUIHelper::startAdminArea($this);
 
 ?>
 
-<form action="index.php" method="post" name="adminForm" id="adminForm">
+<form action="index.php?option=com_virtuemart&view=manufacturer" method="post" name="adminForm" id="adminForm">
 <div id="header">
 <div id="filterbox">
 	<table class="">
@@ -82,7 +82,7 @@ AdminUIHelper::startAdminArea($this);
 		<td align="left">
 			<?php
 			if(empty($row->mf_name)){
-				$row->mf_name = 'Language Missing id '.$row->virtuemart_manufacturer_id;
+				$row->mf_name = vmText::sprintf('COM_VM_TRANSLATION_MISSING','virtuemart_manufacturer_id',$row->virtuemart_manufacturer_id);
 			}
 			?>
 		    <a href="<?php echo $editlink; ?>"><?php echo $row->mf_name; ?></a>

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <extension version="2.5" type="plugin" group="vmpayment" method="upgrade">
     <name>AMAZON</name>
-    <creationDate>March 11 2016</creationDate>
+    <creationDate>August 23 2017</creationDate>
     <author>The VirtueMart Development Team</author>
-    <authorUrl>http://www.virtuemart.net</authorUrl>
-    <copyright>Copyright (C) 2004-2016 Virtuemart Team. All rights reserved.</copyright>
+    <authorUrl>https://virtuemart.net</authorUrl>
+    <copyright>Copyright (C) 2004 - 2017 Virtuemart Team. All rights reserved.</copyright>
     <license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
-    <version>3.0.14</version>
-    <description>AMAZON payment plugin</description>
+    <version>3.2.4</version>
+    <description>AMAZON PAY plugin</description>
     <languages>
         <language tag="en-GB">en-GB.plg_vmpayment_amazon.ini</language>
     </languages>
@@ -48,7 +48,9 @@
                 <field name="secretKey" class="required" type="password" size="100" default=""
                        label="VMPAYMENT_AMAZON_CONF_SECRET_KEY"
                        description="VMPAYMENT_AMAZON_CONF_SECRET_KEY_TIP"/>
-
+                <!-- field name="cnname" class="required" type="cnname" size="100" default=""
+                       label="VMPAYMENT_AMAZON_CONF_CNNAME"
+                       description="VMPAYMENT_AMAZON_CONF_CNNAME_TIP"/ -->
                 <!-- OPTIONS       -->
                 <!-- ============ -->
                 <field class="level1" type="vmtitle" default="VMPAYMENT_AMAZON_CONF_ACCOUNT_OPTIONS"/>
@@ -116,12 +118,7 @@
                 <field class="ipnurl level3" name="ipn_url" type="ipnurl" size="100" default="" editable="false" label="VMPAYMENT_AMAZON_CONF_IPN_URL" description="VMPAYMENT_AMAZON_IPN_WARNING"/>
                 <field class="ipn_warning warning" type="vmtitle"
                        default="" description="VMPAYMENT_AMAZON_IPN_WARNING"/>
-                <field class="language_restriction" name="language_restriction" type="list" default="1"
-                       label="VMPAYMENT_AMAZON_CONF_LANGUAGE_RESTRICTION"
-                       description="VMPAYMENT_AMAZON_CONF_LANGUAGE_RESTRICTION_TIP" >
-                    <option value="1">COM_VIRTUEMART_YES</option>
-                    <option value="0">COM_VIRTUEMART_NO</option>
-                </field>
+
 
                 <!--field class="region region-other required" type="vmtitle" default="VMPAYMENT_AMAZON_CONF_ENDPOINTS_SECTION" />
                 <field class="region region-other required" size="120" name="sandbox_serviceURL" type="text" default=""
@@ -155,12 +152,12 @@
 
                 <field name="status_authorization"
                        class="status_authorization" type="vmorderstate"
-                       scope="com_virtuemart" default="C"
+                       scope="com_virtuemart" default="U"
                        label="VMPAYMENT_AMAZON_CONF_STATUS_AUTHORIZATION"
                        description="VMPAYMENT_AMAZON_CONF_STATUS_AUTHORIZATION_TIP"/>
 
                 <field name="status_capture" class="status_capture" type="vmorderstate" scope="com_virtuemart"
-                       default="S"
+                       default="C"
                        label="VMPAYMENT_AMAZON_CONF_STATUS_CAPTURE"
                        description="VMPAYMENT_AMAZON_CONF_STATUS_CAPTURE_TIP"/>
 
@@ -258,12 +255,18 @@
                        label="VMPAYMENT_AMAZON_CONF_COUNTRIES" description="VMPAYMENT_AMAZON_CONF_COUNTRIES_TIP"/>
                 <!--field name="languages" type="languages" label="VMPAYMENT_AMAZON_CONF_LANGUAGES"
                        description="VMPAYMENT_AMAZON_CONF_LANGUAGES_TIP"/ -->
+                <!--field class="language_restriction" name="language_restriction" type="list" default="0"
+                       label="VMPAYMENT_AMAZON_CONF_LANGUAGE_RESTRICTION"
+                       description="VMPAYMENT_AMAZON_CONF_LANGUAGE_RESTRICTION_TIP" >
+                    <option value="1">COM_VIRTUEMART_YES</option>
+                    <option value="0">COM_VIRTUEMART_NO</option>
+                </field-->
                 <field name="ip_whitelist" type="textarea" label="VMPAYMENT_AMAZON_CONF_IP_WHITELIST"
                        description="VMPAYMENT_AMAZON_CONF_IP_WHITELIST_TIP"/>
-                <field name="digital_goods" type="radio" default="0" label="VMPAYMENT_AMAZON_CONF_DIGITAL_GOODS">
+                <!--field name="digital_goods" type="radio" default="0" label="VMPAYMENT_AMAZON_CONF_DIGITAL_GOODS">
                     <option value="0">COM_VIRTUEMART_NO</option>
                     <option value="1">COM_VIRTUEMART_YES</option>
-                </field>
+                </field-->
                 <!-- Template -->
                 <!-- ============ -->
                 <field type="vmtitle" class="level1" default="VMPAYMENT_AMAZON_CONF_TEMPLATE_SECTION"

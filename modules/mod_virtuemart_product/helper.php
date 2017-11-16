@@ -9,7 +9,7 @@
  *
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL
  *
- * www.virtuemart.net
+ * @link https://virtuemart.net
  */
 
 class mod_virtuemart_product {

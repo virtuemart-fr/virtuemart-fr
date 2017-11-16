@@ -6,7 +6,7 @@
 * @package	VirtueMart
 * @subpackage User
 * @author Oscar van Eijk
-* @link http://www.virtuemart.net
+* @link https://virtuemart.net
 * @copyright Copyright (c) 2004 - 2010 VirtueMart Team. All rights reserved.
 * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
 * VirtueMart is free software. This version may have been modified pursuant
@@ -21,6 +21,9 @@ defined('_JEXEC') or die('Restricted access');
 
 if(!file_exists(VMPATH_LIBS.DS.'tcpdf'.DS.'tcpdf.php')){
 	vmError('vmPdf: For the pdf, you must install the tcpdf library at '.VMPATH_LIBS.DS.'tcpdf');
+}
+if(!vmAccess::manager('user.editshop')){
+	?><div><?php echo vmText::_('COM_VM_PERM_MISSING_VENDOR');?></div> <?php
 }
 ?>
 <div class="col50">
@@ -108,6 +111,8 @@ if(!file_exists(VMPATH_LIBS.DS.'tcpdf'.DS.'tcpdf.php')){
 							'vendor_letter_add_tos', $this->vendor->vendor_letter_add_tos); ?> 
 						<?php echo VmHTML::row('checkbox', 'COM_VIRTUEMART_VENDOR_LETTER_ADD_TOS_PAGEBREAK', 
 							'vendor_letter_add_tos_newpage', $default=$this->vendor->vendor_letter_add_tos_newpage); ?> 
+						<?php echo VmHTML::row('checkbox', 'COM_VIRTUEMART_VENDOR_LETTER_FOR_PRODUCT_PDF', 
+							'vendor_letter_for_product_pdf', $default=$this->vendor->vendor_letter_for_product_pdf); ?> 
 					</table>
 				</fieldset>
 			</td>

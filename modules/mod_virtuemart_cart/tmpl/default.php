@@ -55,7 +55,12 @@ if ($show_product_list) {
 	<?php if ($data->totalProduct) echo  $data->cart_show; ?>
 </div>
 <div style="clear:both;"></div>
-	<div class="payments-signin-button" ></div>
+<?php
+$view = vRequest::getCmd('view');
+if($view!='cart' and $view!='user'){
+	?><div class="payments-signin-button" ></div><?php
+}
+?>
 <noscript>
 <?php echo vmText::_('MOD_VIRTUEMART_CART_AJAX_CART_PLZ_JAVASCRIPT') ?>
 </noscript>

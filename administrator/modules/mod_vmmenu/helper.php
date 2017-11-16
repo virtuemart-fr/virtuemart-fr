@@ -32,11 +32,11 @@ abstract class ModVMMenuHelper {
 
 		$q = 'SELECT m.id, m.title, m.alias, m.link, m.parent_id, m.img, e.element FROM `#__menu` as m
 				LEFT JOIN #__extensions AS e ON m.component_id = e.extension_id
-		         WHERE m.client_id = 1 AND e.enabled = 1 AND m.id > 1 AND e.element = \'com_virtuemart\'
+		         WHERE m.client_id = 1 AND e.enabled = 1 AND m.id > 1 AND e.element = \'com_virtuemart\' AND m.menutype="main"
 		         AND (m.parent_id=1 OR m.parent_id =
 			                        (SELECT m.id FROM `#__menu` as m
 									LEFT JOIN #__extensions AS e ON m.component_id = e.extension_id
-			                        WHERE m.parent_id=1 AND m.client_id = 1 AND e.enabled = 1 AND m.id > 1 AND e.element = \'com_virtuemart\'))
+			                        WHERE m.parent_id=1 AND m.client_id = 1 AND e.enabled = 1 AND m.id > 1 AND e.element = \'com_virtuemart\' AND m.menutype="main"))
 		         ORDER BY m.lft';
 		$db->setQuery($q);
 
@@ -48,7 +48,7 @@ abstract class ModVMMenuHelper {
 		if ($vmComponentItems) {
 
 			if (!class_exists( 'VmConfig' )) require(JPATH_ADMINISTRATOR.DS.'components'.DS.'com_virtuemart'.DS.'helpers'.DS.'config.php');
-			VmConfig::loadJLang('com_virtuemart.sys');
+			vmLanguage::loadJLang('com_virtuemart.sys');
 			// Parse the list of extensions.
 			foreach ($vmComponentItems as &$vmComponentItem) {
 				$vmComponentItem->link = vRequest::vmSpecialChars(trim($vmComponentItem->link));

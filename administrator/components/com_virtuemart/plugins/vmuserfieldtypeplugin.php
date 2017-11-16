@@ -20,41 +20,36 @@
  */
 defined( '_JEXEC' ) or die( 'Restricted access' );
 
-if (!class_exists('vmPlugin')) require(VMPATH_PLUGINLIBS . DS . 'vmplugin.php');
+if (!class_exists('vmPlugin')) require(VMPATH_PLUGINLIBS .'/vmplugin.php');
 
 abstract class vmUserfieldPlugin extends vmPlugin {
 
 	function __construct(& $subject, $config) {
-
 		parent::__construct($subject, $config);
-
-		// $this->_tablename = '#__virtuemart_userfield_' . $this->_name;
-		// $this->_createTable();
-		// $this->_tableChecked = true;
 	}
 
-	// add params fields in object 
-	
+	/**
+	 * add params fields in object
+	 */
 	function AddUserfieldParameter($params){
-
-		$plgParams = explode('|', $params);
-		foreach($plgParams as $item){
-			if (empty($item)) continue;
-			$param = explode('=',$item);
-			$this->$param[0] = json_decode($param[1]);
-			//unset($item[0]);
+		if(is_array($params)){
+			vmTable::bindParameterable($this,'userfield_params',$params);
+		} else {
+			$this->userfield_params = $params;
+			vmTable::bindParameterable($this,'userfield_params',$this->_varsToPushParam);
 		}
-
 	}
-	// add params fields in object by name
-	
-	function AddUserfieldParameterByPlgName($plgName){
-		if(empty($this->_db)) $this->_db = JFactory::getDBO();
-		$q = 'SELECT `userfield_params` FROM `#__virtuemart_userfields` WHERE `type` = "plugin' . $plgName.'"';
-		$this->_db->setQuery($q);
-		$params = $this->_db->loadResult();
-		$this->AddUserfieldParameter($params);
-	}	
 
+	/**
+	 * add params fields in object by name
+	 */
+	function addUserfieldParameterByPlgName($plgName){
+
+		if(empty($this->_db)) $this->_db = JFactory::getDBO();
+		$q = 'SELECT `userfield_params` FROM `#__virtuemart_userfields` WHERE `type` = "plugin' . $plgName .'"';
+		$this->_db->setQuery($q);
+		$this->userfield_params = $this->_db->loadResult();
+		vmTable::bindParameterable($this,'userfield_params',$this->_varsToPushParam);
+	}
 
 }

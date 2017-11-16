@@ -1,5 +1,5 @@
 # Required configuration data for the VirtueMart installer
-# http://www.virtuemart.net
+# https://virtuemart.net
 # Copyright (c) 2004 - 2014 VirtueMart Team. All rights reserved.
 # http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
 # VirtueMart is free software. This version may have been modified pursuant
@@ -22,7 +22,7 @@
 #dbpsdescsize
 #dbnamesize
 #updelcols  //controlls if columns are deleted
-#prodOnlyWLang          //dont use fallbacks for products
+#vmDefLang				//Virtuemart Shop Language
 #vm_lfbs                //eg vm_lfbs=it-IT~de-DE; maps the fallback of the it-IT language to de-DE
 #product.published=1    //controlls if new products are automatically published
 #seo_full=1             //with 0 no categories are added to the URL of products
@@ -31,9 +31,14 @@
 #reuseorders        //default enabled, prevents creation of pending orders if confirmed later
 #randOrderNr
 #randOrderPw
+#sef_for_cart_links
 #full_catname_tree
 #pricesbyCurrency       //currency depended selected price; the selected currency determines the selected price of the product if availabe
-#vm_num_ratings_show     //amojunt of ratings to show
+#vm_num_ratings_show     //amount of ratings to show
+#invoiceInUserLang
+#invoiceNameInShopLang
+
+
 
 useSSL=0
 dangeroustools=0
@@ -78,7 +83,7 @@ product_navigation=1
 display_stock=1
 vmtemplate=0
 categorytemplate=0
-showCategory=1
+showcategory=1
 categorylayout=0
 categories_per_row=3
 productlayout=0
@@ -88,24 +93,23 @@ llimit_init_FE=24
 vmlayout=0
 show_store_desc=1
 show_categories=1
-homepage_categories_per_row=3
-homepage_products_per_row=3
-show_featured=1
-featured_products_rows=1
-show_topTen=1
-topTen_products_rows=1
-show_recent=1
-recent_products_rows=1
-show_latest=1
-latest_products_rows=1
+
+featured_rows=1
+topten=1
+topten_rows=1
+recent=1
+recent_rows=1
+latest=1
+latest_rows=1
+legacylayouts=0
 
 ##Paths
     assets_general_path=components/com_virtuemart/assets/
-    media_category_path=images/stories/virtuemart/category/
-    media_product_path=images/stories/virtuemart/product/
-    media_manufacturer_path=images/stories/virtuemart/manufacturer/
-    media_vendor_path=images/stories/virtuemart/vendor/
-	forSale_path_thumb=images/stories/virtuemart/forSale/resized/
+    media_category_path=images/virtuemart/category/
+    media_product_path=images/virtuemart/product/
+    media_manufacturer_path=images/virtuemart/manufacturer/
+    media_vendor_path=images/virtuemart/vendor/
+	forSale_path_thumb=images/virtuemart/forSale/resized/
     img_resize_enable=1
     img_width=0
     img_height=90
@@ -114,7 +118,7 @@ latest_products_rows=1
     
 ##Product order settings
 
-browse_orderby_field=pc.ordering
+browse_orderby_field=pc.ordering,product_name
 browse_cat_orderby_field=c.ordering,category_name
 browse_orderby_fields=array:`p`.product_sku|category_name|mf_name|product_name|pc.ordering
 
@@ -168,7 +172,6 @@ browse_search_fields=array:`p`.product_sku|category_name|category_description|mf
     automatic_shipment=0
     oncheckout_opc=1
     oncheckout_ajax=1
-    oncheckout_show_steps=1
     oncheckout_show_legal_info=1
     oncheckout_show_register=1
     oncheckout_show_steps=0

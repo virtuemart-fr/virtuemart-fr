@@ -6,14 +6,14 @@
 * @package	VirtueMart
 * @subpackage State
 * @author RickG, Max Milbers
-* @link http://www.virtuemart.net
+* @link https://virtuemart.net
 * @copyright Copyright (c) 2004 - 2010 VirtueMart Team. All rights reserved.
 * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
 * VirtueMart is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
-* @version $Id: default.php 8670 2015-01-27 14:10:38Z Milbo $
+* @version $Id: default.php 9413 2017-01-04 17:20:58Z Milbo $
 */
 
 // Check to ensure this file is included in Joomla!
@@ -42,10 +42,11 @@ AdminUIHelper::startAdminArea($this);
 			<?php echo vmText::_('COM_VIRTUEMART_STATE_2_CODE'); ?>
 		    </th>
 		    <th>
-			<?php echo vmText::_('COM_VIRTUEMART_STATE_3_CODE'); ?>
+			    <?php echo vmText::_('COM_VIRTUEMART_STATE_3_CODE'); ?>
+
 		    </th>
 		    <th width="20px">
-			<?php echo vmText::_('COM_VIRTUEMART_PUBLISHED'); ?>
+			    <?php echo vmText::_('COM_VIRTUEMART_PUBLISHED'); ?>
 		    </th>
 			<th width="20px">
 				<?php echo $this->sort('virtuemart_state_id', 'COM_VIRTUEMART_ID')  ?>
@@ -59,8 +60,8 @@ AdminUIHelper::startAdminArea($this);
 		$row = $this->states[$i];
 
 		$checked = JHtml::_('grid.id', $i, $row->virtuemart_state_id,null,'virtuemart_state_id');
-		$published = JHtml::_('grid.published', $row, $i);
-		$editlink = JROUTE::_('index.php?option=com_virtuemart&view=state&task=edit&virtuemart_state_id=' . $row->virtuemart_state_id);
+		    $published = $this->gridPublished( $row, $i );
+		    $editlink = JROUTE::_('index.php?option=com_virtuemart&view=state&task=edit&virtuemart_state_id=' . $row->virtuemart_state_id);
 
 		?>
 	    <tr class="row<?php echo $k ; ?>">

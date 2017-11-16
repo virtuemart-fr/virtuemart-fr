@@ -56,6 +56,7 @@ class OffAmazonPaymentsNotifications_Model_CaptureNotification
                         'OffAmazonPaymentsNotifications_Model_CaptureDetails'
                 )
         );
+       
         parent::__construct(
             $notificationMetadata,
             "CaptureNotification", 
@@ -156,4 +157,3 @@ class OffAmazonPaymentsNotifications_Model_CaptureNotification
         return $xml;
     }
 }
-?>

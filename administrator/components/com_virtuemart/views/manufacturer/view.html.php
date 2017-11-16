@@ -6,14 +6,14 @@
  * @package	VirtueMart
  * @subpackage Manufacturer
  * @author Patrick Kohl
- * @link http://www.virtuemart.net
+ * @link https://virtuemart.net
  * @copyright Copyright (c) 2004 - 2010 VirtueMart Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
- * @version $Id: view.html.php 8724 2015-02-18 14:03:29Z Milbo $
+ * @version $Id: view.html.php 9589 2017-06-26 13:52:48Z Milbo $
  */
 
 // Check to ensure this file is included in Joomla!
@@ -34,8 +34,6 @@ class VirtuemartViewManufacturer extends VmViewAdmin {
 	function display($tpl = null) {
 
 		// Load the helper(s)
-
-
 		if (!class_exists('VmHTML'))
 			require(VMPATH_ADMIN . DS . 'helpers' . DS . 'html.php');
 
@@ -50,7 +48,20 @@ class VirtuemartViewManufacturer extends VmViewAdmin {
 		$layoutName = vRequest::getCmd('layout', 'default');
 		if ($layoutName == 'edit') {
 
+			$ids = vRequest::getVar('virtuemart_manufacturer_id',  vRequest::getVar('cid',  0));
+			if($ids){
+				if(is_array($ids) and isset($ids[0])){
+					$ids = $ids[0];
+				}
+				$model->setId($ids);
+			}
+
 			$this->manufacturer = $model->getManufacturer();
+
+			if(!empty($this->manufacturer->_loadedWithLangFallback)){
+				vmInfo('COM_VM_LOADED_WITH_LANGFALLBACK',$this->manufacturer->_loadedWithLangFallback);
+			}
+			$this->setOrigLang($this->manufacturer);
 
 			$isNew = ($this->manufacturer->virtuemart_manufacturer_id < 1);
 

@@ -41,9 +41,9 @@ class VmConnector {
 	$http_status = intval( $http_status );
 	@header("HTTP/1.0 $http_status");
 	if( $mime_type ) {
-	    @header( "Content-type: $mime_type; charset=".vmGetCharset() );
+	    @header( "Content-type: $mime_type; charset=UTF-8" );
 	} elseif( $mime_type != '' ) {
-	    @header( "Content-type: text/html; charset=".vmGetCharset() );
+	    @header( "Content-type: text/html; charset=UTF-8" );
 	}
 	if( $content ) {
 	    echo $content;

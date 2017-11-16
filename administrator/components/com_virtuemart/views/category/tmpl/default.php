@@ -6,14 +6,14 @@
 * @package	VirtueMart
 * @subpackage Category
 * @author RickG, jseros, RolandD, Max Milbers
-* @link http://www.virtuemart.net
+* @link https://virtuemart.net
 * @copyright Copyright (c) 2004 - 2010 VirtueMart Team. All rights reserved.
 * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
 * VirtueMart is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
-* @version $Id: default.php 9182 2016-02-19 09:10:08Z Milbo $
+* @version $Id: default.php 9592 2017-06-28 18:04:13Z Milbo $
 */
 
 // Check to ensure this file is included in Joomla!
@@ -26,8 +26,29 @@ AdminUIHelper::startAdminArea($this);
 
 ?>
 
-<form action="index.php" method="post" name="adminForm" id="adminForm">
+<form action="index.php?option=com_virtuemart&view=category" method="post" name="adminForm" id="adminForm">
 <div id="header">
+<?php if ($this->task=='massxref_cats' or $this->task=='massxref_cats_exe') : ?>
+<div id="massxref_task">
+	<table class="">
+		<tr>
+			<td align="left">
+				<?php echo vmText::_('COM_VIRTUEMART_PRODUCT_XREF_TASK') ?>
+			</td>
+			<td>
+				<?php
+				$options = array(
+				'replace' => vmText::_('COM_VIRTUEMART_PRODUCT_XREF_TASK_REPLACE'),
+				'add' => vmText::_('COM_VIRTUEMART_PRODUCT_XREF_TASK_ADD'),
+				'remove' => vmText::_('COM_VIRTUEMART_PRODUCT_XREF_TASK_REMOVE')
+				);
+				echo VmHTML::selectList('massxref_task', 'replace', $options);
+				?>
+			</td>
+		</tr>
+	</table>
+</div>
+<?php endif; ?>
 <div id="filterbox">
 	<table class="">
 		<tr>
@@ -37,7 +58,6 @@ AdminUIHelper::startAdminArea($this);
 			<td>
 			<select class="inputbox" id="top_category_id" name="top_category_id" onchange="this.form.submit(); return false;">
 				<option value=""><?php echo vmText::sprintf( 'COM_VIRTUEMART_SELECT' ,  vmText::_('COM_VIRTUEMART_CATEGORY_FORM_TOP_LEVEL')) ; ?></option>
-				<?php echo $this->category_tree; ?>
 			</select>
 			</td>
 			<td>
@@ -105,6 +125,9 @@ AdminUIHelper::startAdminArea($this);
 			$published = $this->gridPublished( $cat, $i );
 
 			$editlink = JRoute::_('index.php?option=com_virtuemart&view=category&task=edit&cid=' . $cat->virtuemart_category_id, FALSE);
+			if(empty($cat->category_name)){
+				$cat->category_name = vmText::sprintf('COM_VM_TRANSLATION_MISSING','virtuemart_category_id',$cat->virtuemart_category_id);
+			}
 // 			$statelink	= JRoute::_('index.php?option=com_virtuemart&view=category&virtuemart_category_id=' . $cat->virtuemart_category_id);
 			$showProductsLink = JRoute::_('index.php?option=com_virtuemart&view=product&virtuemart_category_id=' . $cat->virtuemart_category_id, FALSE);
 			$shared = $this->toggle($cat->shared, $i, 'toggle.shared');
@@ -135,11 +158,12 @@ AdminUIHelper::startAdminArea($this);
 				<td align="left">
 
 					<?php
-
-					echo shopFunctionsF::limitStringByWord(JFilterOutput::cleanText($cat->category_description),200); ?>
+					/*$descr = htmlspecialchars_decode($cat->category_description);
+					echo shopFunctionsF::limitStringByWord(JFilterOutput::cleanText($descr),200);*/
+					echo shopFunctionsF::limitStringByWord($cat->category_description,200); ?>
 				</td>
 				<td>
-					<?php echo  $this->catmodel->countProducts($cat->virtuemart_category_id);//ShopFunctions::countProductsByCategory($row->virtuemart_category_id);?>
+					<?php echo  $this->categories[$i]->productcount;//ShopFunctions::countProductsByCategory($row->virtuemart_category_id);?>
 					&nbsp;<a href="<?php echo $showProductsLink; ?>">[ <?php echo vmText::_('COM_VIRTUEMART_SHOW');?> ]</a>
 				</td>
 				<td align="center" class="vm-order">

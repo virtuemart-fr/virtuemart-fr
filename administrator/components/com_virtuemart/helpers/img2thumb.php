@@ -52,7 +52,7 @@ class Img2Thumb	{
 *	@param int $bgblue				0-255 - blue color variable for background filler
 *
 */
-	function Img2Thumb($filename, $newxsize=60, $newysize=60, $fileout='',
+	function __construct($filename, $newxsize=60, $newysize=60, $fileout='',
 		$thumbMaxSize=0, $bgred=0, $bggreen=0, $bgblue=0)
 	{
 

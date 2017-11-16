@@ -1,17 +1,16 @@
 html, body {
     background-color: #ffffff;
-    color: #00000;
+    color: #000000;
 }
 
 tr#notMandatoryRow, tr#addressBlock, tr#userInfoBlock, tr#contactBlock, tr#spacer1, tr#spacer2, tr#spacer3, tr#spacer4 {
     display: none;
 }
-
 .frm_box {
     border-style: solid;
-    border-color: #DDD;
+    border-color: #FFF;
     border-width: 1px;
-    background-color: #EEEEEE;
+    background-color: #FFF;
 }
 
 input, select {
@@ -64,7 +63,12 @@ input#send, input#continue {
 }
 
 input#send, input#continue {
-    background: #e8e8e8 url(http://testshops.heidelpay.de/Virtuemart/backgrounds.png) top repeat-x;
+    background: #84df54;
+	background-image: -webkit-linear-gradient(top, #84df54, #00c900);
+	background-image: -moz-linear-gradient(top, #84df54, #00c900);
+	background-image: -ms-linear-gradient(top, #84df54, #00c900);
+	background-image: -o-linear-gradient(top, #84df54, #00c900);
+	background-image: linear-gradient(to bottom, #84df54, #00c900);
     background-position: 0 -160px;
     color: #fff;
     border: solid #00a000 1px;
@@ -81,13 +85,17 @@ input#send, input#continue {
 }
 
 input#send:hover, input#continue:hover {
-    background-position: 0 -200px;
-    color: #f2f2f2;
-    text-decoration: none;
+background: #00c900;
+  text-decoration: none;
 }
 
 input#cancel, input.btn {
-    background: #e8e8e8 url(http://testshops.heidelpay.de/Virtuemart/backgrounds.png) top repeat-x;
+    background: #ffffff;
+	background-image: -webkit-linear-gradient(top, #ffffff, #f7f6f6);
+	background-image: -moz-linear-gradient(top, #ffffff, #f7f6f6);
+	background-image: -ms-linear-gradient(top, #ffffff, #f7f6f6);
+	background-image: -o-linear-gradient(top, #ffffff, #f7f6f6);
+	background-image: linear-gradient(to bottom, #ffffff, #f7f6f6);
     border: solid #CAC9C9 1px;
     border-radius: 4px;
     -webkit-border-radius: 4px;
@@ -95,23 +103,14 @@ input#cancel, input.btn {
     color: #777;
     text-decoration: none;
     padding: 5px 5px 4px;
-}
-
-input#cancel:hover, input.btn:hover {
-    background: #e8e8e8 url(../images/vmgeneral/backgrounds.png) repeat-x;
-    background-position: 0 -40px;
-    color: #000;
-    text-decoration: none;
-}
-
-input#cancel, input.btn {
     display: inline-block;
     cursor: pointer;
     padding: 5px 8px 4px;
 }
 
 input#cancel:hover, input.btn:hover {
-    color: #777;
+    background: #dfdfdf;
+  text-decoration: none;
 }
 
 

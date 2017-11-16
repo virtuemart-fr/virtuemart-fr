@@ -7,14 +7,14 @@
  * @package	VirtueMart
  * @subpackage User
  * @author Oscar van Eijk, Eugen Stranz
- * @link http://www.virtuemart.net
+ * @link https://virtuemart.net
  * @copyright Copyright (c) 2004 - 2010 VirtueMart Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
- * @version $Id: edit_address_userfields.php 8895 2015-07-02 05:51:05Z kkmediaproduction $
+ * @version $Id: edit_address_userfields.php 9625 2017-08-17 12:49:57Z Milbo $
  */
 // Check to ensure this file is included in Joomla!
 defined('_JEXEC') or die('Restricted access');
@@ -23,6 +23,26 @@ defined('_JEXEC') or die('Restricted access');
 $closeDelimiter = false;
 $openTable = true;
 $hiddenFields = '';
+
+$i=0;
+//When only one Delimiter exists, set it to begin of the array
+//not an elegant solution, but works for the moment.
+foreach($this->userFields['fields'] as $k=>$field){
+	if($field['type'] == 'delimiter') {
+	    $tmp = $field;
+	    $pos = $k;
+	    $i++;
+	}
+	if($i>1){
+	    $tmp = false;
+	    break;
+	}
+}
+
+if($tmp){
+    unset($this->userFields['fields'][$pos]);
+    array_unshift($this->userFields['fields'],$tmp);
+}
 
 // Output: Userfields
 foreach($this->userFields['fields'] as $field) {
@@ -37,15 +57,18 @@ foreach($this->userFields['fields'] as $field) {
 		</fieldset>
 		<?php
 			$closeDelimiter = false;
-		} //else {
-			?>
-			<fieldset>
-			<span class="userfields_info"><?php echo $field['title'] ?></span>
-
+		} else if(!$openTable){ ?>
+            </table>
 			<?php
-			$closeDelimiter = true;
-			$openTable = true;
-		//}
+		}
+
+        ?>
+        <fieldset>
+        <legend class="userfields_info"><?php echo $field['title'] ?></legend>
+
+        <?php
+        $closeDelimiter = true;
+        $openTable = true;
 
 	} elseif ($field['hidden'] == true) {
 
@@ -71,7 +94,7 @@ foreach($this->userFields['fields'] as $field) {
 				<tr title="<?php echo strip_tags($descr) ?>">
 					<td class="key"  >
 						<label class="<?php echo $field['name'] ?>" for="<?php echo $field['name'] ?>_field">
-							<?php echo $field['title'] . ($field['required'] ? ' *' : '') ?>
+							<?php echo $field['title'] . ($field['required'] ? ' <span class="asterisk">*</span>' : '') ?>
 						</label>
 					</td>
 					<td>
@@ -81,6 +104,13 @@ foreach($this->userFields['fields'] as $field) {
 	<?php
 	}
 
+}
+
+if($closeDelimiter) { ?>
+    </table>
+    </fieldset>
+	<?php
+	$closeDelimiter = false;
 }
 
 // At the end we have to close the current

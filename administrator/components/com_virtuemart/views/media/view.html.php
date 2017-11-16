@@ -6,14 +6,14 @@
 * @package	VirtueMart
 * @subpackage
 * @author
-* @link http://www.virtuemart.net
+* @link https://virtuemart.net
 * @copyright Copyright (c) 2004 - 2010 VirtueMart Team. All rights reserved.
 * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
 * VirtueMart is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
-* @version $Id: view.html.php 8933 2015-07-30 10:17:11Z Milbo $
+* @version $Id: view.html.php 9590 2017-06-27 12:46:05Z Milbo $
 */
 
 // Check to ensure this file is included in Joomla!
@@ -69,14 +69,15 @@ class VirtuemartViewMedia extends VmViewAdmin {
 				'manufacturer' => vmText::_('COM_VIRTUEMART_MANUFACTURER'),
 				'vendor' => vmText::_('COM_VIRTUEMART_VENDOR')
 				);
-			$this->lists['search_type'] = VmHTML::selectList('search_type', vRequest::getVar('search_type'),$options,1,'','onchange="this.form.submit();"');
+			$this->lists['search_type'] = VmHTML::selectList('search_type', vRequest::getVar('search_type'),$options,1,'','onchange="this.form.submit();" style="width:180px;"');
 
+			$this->lists['vendors'] = Shopfunctions::renderVendorList();
 			$options = array( '' => vmText::_('COM_VIRTUEMART_LIST_ALL_ROLES'),
 				'file_is_displayable' => vmText::_('COM_VIRTUEMART_FORM_MEDIA_DISPLAYABLE'),
 				'file_is_downloadable' => vmText::_('COM_VIRTUEMART_FORM_MEDIA_DOWNLOADABLE'),
 				'file_is_forSale' => vmText::_('COM_VIRTUEMART_FORM_MEDIA_SET_FORSALE'),
 				);
-			$this->lists['search_role'] = VmHTML::selectList('search_role', vRequest::getVar('search_role'),$options,1,'','onchange="this.form.submit();"');
+			$this->lists['search_role'] = VmHTML::selectList('search_role', vRequest::getVar('search_role'),$options,1,'','onchange="this.form.submit();" style="width:180px"');
 
 			$this->files = $model->getFiles(false,false,$virtuemart_product_id,$cat_id);
 

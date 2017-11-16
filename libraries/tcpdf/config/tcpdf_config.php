@@ -2,7 +2,7 @@
 //============================================================+
 // File name   : tcpdf_config.php
 // Begin       : 2004-06-11
-// Last Update : 2014-09-02
+// Last Update : 2014-12-11
 //
 // Description : Configuration file for TCPDF.
 // Author      : Nicola Asuni - Tecnick.com LTD - www.tecnick.com - info@tecnick.com
@@ -46,9 +46,12 @@
  * By default it is automatically calculated but you can also set it as a fixed string to improve performances.
  */
 defined('DS') or define('DS', DIRECTORY_SEPARATOR);
-if (!class_exists( 'VmConfig' )) require(JPATH_ROOT.DS.'administrator'.DS.'components'.DS.'com_virtuemart'.DS.'helpers'.DS.'config.php');
+if (!class_exists( 'VmConfig' )) {
+	require(JPATH_ROOT .'/administrator/components/com_virtuemart/helpers/config.php');
+	VmConfig::loadConfig();
+}
 
-define("K_PATH_MAIN", JPATH_VM_LIBRARIES.DS.'tcpdf'.DS);
+define("K_PATH_MAIN", VMPATH_LIBS.DS.'tcpdf'.DS);
 
 /**
  * URL path to tcpdf installation folder (http://localhost/tcpdf/).
@@ -66,7 +69,7 @@ define ('K_PATH_FONTS', K_PATH_MAIN.'fonts'.DS);
  * Default images directory.
  * By default it is automatically set but you can also set it as a fixed string to improve performances.
  */
-define ('K_PATH_IMAGES', VMPATH_ROOT.DS);
+define ('K_PATH_IMAGES', VMPATH_ROOT.DS.'images'.DS.'tcpdf'.DS);
 
 /**
  * Deafult image logo used be the default Header() method.
@@ -218,7 +221,7 @@ define('K_TCPDF_CALLS_IN_HTML', true);
 /**
  * If true and PHP version is greater than 5, then the Error() method throw new exception instead of terminating the execution.
  */
-define('K_TCPDF_THROW_EXCEPTION_ERROR', false);
+define('K_TCPDF_THROW_EXCEPTION_ERROR', true);
 
 /**
  * Default timezone for datetime functions

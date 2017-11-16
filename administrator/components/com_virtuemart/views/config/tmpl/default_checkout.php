@@ -5,14 +5,14 @@
  * @package	VirtueMart
  * @subpackage Config
  * @author Oscar van Eijk
- * @link http://www.virtuemart.net
+ * @link https://virtuemart.net
  * @copyright Copyright (c) 2004 - 2011 VirtueMart Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
- * @version $Id: default_checkout.php 9035 2015-11-03 10:37:57Z Milbo $
+ * @version $Id: default_checkout.php 9413 2017-01-04 17:20:58Z Milbo $
  */
 defined('_JEXEC') or die('Restricted access');
 

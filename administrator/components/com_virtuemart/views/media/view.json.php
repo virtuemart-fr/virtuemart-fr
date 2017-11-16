@@ -6,7 +6,7 @@
 * @package	VirtueMart
 * @subpackage
 * @author  Patrick Kohl
-* @link http://www.virtuemart.net
+* @link https://virtuemart.net
 * @copyright Copyright (c) 2004 - 2010 VirtueMart Team. All rights reserved.
 * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
 * VirtueMart is free software. This version may have been modified pursuant
@@ -36,7 +36,7 @@ class VirtuemartViewMedia extends VmViewAdmin {
 	function display($tpl = null) {
 		$document =JFactory::getDocument();
 		$document->setMimeEncoding( 'application/json' );
-
+		header ('Content-Type: application/json');
 		if ($virtuemart_media_id = vRequest::getInt('virtuemart_media_id')) {
 			//JResponse::setHeader( 'Content-Disposition', 'attachment; filename="media'.$virtuemart_media_id.'.json"' );
 
@@ -53,7 +53,7 @@ class VirtuemartViewMedia extends VmViewAdmin {
 					echo vmJsApi::safe_json_encode($this->json);
 				} else {
 					$this->json->msg =  '<b>'.vmText::_('COM_VIRTUEMART_NO_IMAGE_SET').'</b>';
-					echo @json_encode($this->json);
+					echo @vmJsApi::safe_json_encode($this->json);
 				}
 			}
 		}

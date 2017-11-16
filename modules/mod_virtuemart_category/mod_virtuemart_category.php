@@ -13,7 +13,7 @@ defined('_JEXEC') or  die( 'Direct Access to '.basename(__FILE__).' is not allow
 * VirtueMart is Free Software.
 * VirtueMart comes with absolute no warranty.
 *
-* www.virtuemart.net
+* @link https://virtuemart.net
 *----------------------------------------------------------------------
 * This code creates a list of the bestselling products
 * and displays it wherever you want
@@ -21,10 +21,10 @@ defined('_JEXEC') or  die( 'Direct Access to '.basename(__FILE__).' is not allow
 */
 
 defined('DS') or define('DS', DIRECTORY_SEPARATOR);
-if (!class_exists( 'VmConfig' )) require(JPATH_ROOT.DS.'administrator'.DS.'components'.DS.'com_virtuemart'.DS.'helpers'.DS.'config.php');
+if (!class_exists( 'VmConfig' )) require(JPATH_ROOT .'/administrator/components/com_virtuemart/helpers/config.php');
 
 VmConfig::loadConfig();
-VmConfig::loadJLang('mod_virtuemart_category', true);
+vmLanguage::loadJLang('mod_virtuemart_category', true);
 vmJsApi::jQuery();
 vmJsApi::cssSite();
 

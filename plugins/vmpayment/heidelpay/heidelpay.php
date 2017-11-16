@@ -6,24 +6,23 @@ defined ('_JEXEC') or die();
  * Heidelpay credit card plugin
  *
  * @author Heidelberger Payment GmbH <Jens Richter>
- * @version 12.05
+ * @version 17.08.08
  * @package VirtueMart
  * @subpackage payment
  * @copyright Copyright (C) Heidelberger Payment GmbH
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  */
 if (!class_exists ('vmPSPlugin')) {
-	require(JPATH_VM_PLUGINS . DS . 'vmpsplugin.php');
+	require(VMPATH_PLUGINLIBS . DS . 'vmpsplugin.php');
 }
 
 class plgVmPaymentHeidelpay extends vmPSPlugin {
 
 	public static $_this = FALSE;
-	protected $version = '15.03.18';
+	protected $version = '17.08.08';
 
 	function __construct (& $subject, $config) {
-		//if (self::$_this)
-		//   return self::$_this;
+
 		parent::__construct ($subject, $config);
 
 		$this->_loggable = TRUE;
@@ -34,7 +33,7 @@ class plgVmPaymentHeidelpay extends vmPSPlugin {
 
 		$varsToPush = $this->getVarsToPush ();
 		$this->setConfigParameterable ($this->_configTableFieldName, $varsToPush);
-		//self::$_this = $this;
+
 	}
 
 	public function getVmPluginCreateTableSQL () {
@@ -155,7 +154,7 @@ class plgVmPaymentHeidelpay extends vmPSPlugin {
 		$cd = CurrencyDisplay::getInstance ($cart->pricesCurrency);
 
 		// prepare the post var values:
-		$languageTag = $this->getLang ();
+		//$languageTag = $this->getLang ();
 		$params = array();
 		/*
 		* Default configuration for hco
@@ -169,7 +168,7 @@ class plgVmPaymentHeidelpay extends vmPSPlugin {
 
 		$params['PRESENTATION.AMOUNT'] = $totalInPaymentCurrency;
 		$params['PRESENTATION.CURRENCY'] = $currency_code_3;
-		$params['FRONTEND.LANGUAGE'] = $languageTag;
+		$params['FRONTEND.LANGUAGE'] = strtolowerr(substr(vmConfig::$vmlangTag, 0,2));
 		$params['CRITERION.LANG'] = $params['FRONTEND.LANGUAGE'];
 		$params['IDENTIFICATION.TRANSACTIONID'] = $order['details']['BT']->order_number;
 		/*
@@ -261,16 +260,17 @@ class plgVmPaymentHeidelpay extends vmPSPlugin {
 		$params['CONTACT.IP'] = $_SERVER['REMOTE_ADDR'];
 		
 		if ($method->HEIDELPAY_PAYMENT_TYPE == "VAPAYPAL") {
-			if(!empty($order['details']['ST'])) {
-			$params['NAME.GIVEN'] 		= $order['details']['ST']->first_name;
-			$params['NAME.FAMILY']		= $order['details']['ST']->last_name;
-			if(!empty($order['details']['ST']->company)) $params['NAME.COMPANY'] = $order['details']['ST']->company ;
-			$params['ADDRESS.STREET'] 	= $order['details']['ST']->address_1;
-			isset($order['details']['ST']->address_2) ? $params['ADDRESS.STREET'] .= " " . $order['details']['ST']->address_2 : '';
-			$params['ADDRESS.ZIP'] 		= $order['details']['ST']->zip;
-			$params['ADDRESS.CITY'] 	= $order['details']['ST']->city;
-			$params['ADDRESS.COUNTRY']	= ShopFunctions::getCountryByID ($order['details']['ST']->virtuemart_country_id, 'country_2_code');
-			}
+			if (!empty($order['details']['ST'])) {
+				$params['NAME.GIVEN'] 		= $order['details']['ST']->first_name;
+				$params['NAME.FAMILY']		= $order['details']['ST']->last_name;
+				if(!empty($order['details']['ST']->company)) $params['NAME.COMPANY'] = $order['details']['ST']->company ;
+				$params['ADDRESS.STREET'] 	= $order['details']['ST']->address_1;
+				isset($order['details']['ST']->address_2) ? $params['ADDRESS.STREET'] .= " " . $order['details']['ST']->address_2 : '';
+				$params['ADDRESS.ZIP'] 		= $order['details']['ST']->zip;
+				$params['ADDRESS.CITY'] 	= $order['details']['ST']->city;
+				$params['ADDRESS.COUNTRY']	= ShopFunctions::getCountryByID ($order['details']['ST']->virtuemart_country_id, 'country_2_code');
+			} 
+			
 		}
 		
 		/*
@@ -411,7 +411,7 @@ class plgVmPaymentHeidelpay extends vmPSPlugin {
 		}
 		$orgSecret = $this->createSecretHash ($order_number, $method->HEIDELPAY_SECRET);
 		$order['comments']="";
-		if ($virtuemart_order_id && $paymentData->created_on == '0000-00-00 00:00:00') {
+		if ($virtuemart_order_id) {
 			$order['customer_notified'] = 0;
 			$order['order_status'] = $this->getStatus ($method, $paymentData->processing_result);
 			$modelOrder = VmModel::getModel ('orders');
@@ -585,11 +585,11 @@ class plgVmPaymentHeidelpay extends vmPSPlugin {
 	}
 
 
-	protected function getLang () {
+	/*protected function getLang () {
 		$language =& JFactory::getLanguage ();
 		$tag = strtolower (substr ($language->get ('tag'), 0, 2));
 		return $tag;
-	}
+	}*/
 
 	private function doRequest ($url, $params, $debug) {
 		$data = $params;
@@ -619,6 +619,7 @@ class plgVmPaymentHeidelpay extends vmPSPlugin {
 			curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER, 0);
 			curl_setopt ($ch, CURLOPT_SSL_VERIFYHOST, 0);
 			curl_setopt ($ch, CURLOPT_USERAGENT, "php ctpepost");
+			curl_setopt ($ch, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_2);
 
 			$this->response = curl_exec ($ch);
 			$this->error = curl_error ($ch);

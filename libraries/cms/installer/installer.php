@@ -3,8 +3,8 @@
  * @package     Joomla.Libraries
  * @subpackage  Installer
  *
- * @copyright   Copyright (C) 2005 - 2015 Open Source Matters, Inc. All rights reserved.
- * @license     GNU General Public License version 2 or later; see LICENSE
+ * @copyright   Copyright (C) 2005 - 2017 Open Source Matters, Inc. All rights reserved.
+ * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
 defined('JPATH_PLATFORM') or die;
@@ -101,6 +101,14 @@ class JInstaller extends JAdapter
 	 * @since  3.1
 	 */
 	protected $redirect_url = null;
+
+	/**
+	 * Flag if the uninstall process was triggered by uninstalling a package
+	 *
+	 * @var    boolean
+	 * @since  3.7.0
+	 */
+	protected $packageUninstall = false;
 
 	/**
 	 * JInstaller instance container.
@@ -226,6 +234,32 @@ class JInstaller extends JAdapter
 	}
 
 	/**
+	 * Get whether this installer is uninstalling extensions which are part of a package
+	 *
+	 * @return  boolean
+	 *
+	 * @since   3.7.0
+	 */
+	public function isPackageUninstall()
+	{
+		return $this->packageUninstall;
+	}
+
+	/**
+	 * Set whether this installer is uninstalling extensions which are part of a package
+	 *
+	 * @param   boolean  $uninstall  True if a package triggered the uninstall, false otherwise
+	 *
+	 * @return  void
+	 *
+	 * @since   3.7.0
+	 */
+	public function setPackageUninstall($uninstall)
+	{
+		$this->packageUninstall = $uninstall;
+	}
+
+	/**
 	 * Get the upgrade switch
 	 *
 	 * @return  boolean
@@ -265,7 +299,7 @@ class JInstaller extends JAdapter
 	/**
 	 * Get the installation manifest object
 	 *
-	 * @return  object  Manifest object
+	 * @return  SimpleXMLElement  Manifest object
 	 *
 	 * @since   3.1
 	 */
@@ -359,9 +393,8 @@ class JInstaller extends JAdapter
 					break;
 
 				case 'query':
-					// Placeholder in case this is necessary in the future
-					// $stepval is always false because if this step was called it invariably failed
-					$stepval = false;
+					// Execute the query.
+					$stepval = $this->parseSQLFiles($step['script']);
 					break;
 
 				case 'extension':
@@ -373,7 +406,20 @@ class JInstaller extends JAdapter
 					$query->delete($db->quoteName('#__extensions'))
 						->where($db->quoteName('extension_id') . ' = ' . (int) $step['id']);
 					$db->setQuery($query);
-					$stepval = $db->execute();
+
+					try
+					{
+						$db->execute();
+
+						$stepval = true;
+					}
+					catch (JDatabaseExceptionExecuting $e)
+					{
+						// The database API will have already logged the error it caught, we just need to alert the user to the issue
+						JLog::add(JText::_('JLIB_INSTALLER_ABORT_ERROR_DELETING_EXTENSIONS_RECORD'), JLog::WARNING, 'jerror');
+
+						$stepval = false;
+					}
 
 					break;
 
@@ -461,7 +507,7 @@ class JInstaller extends JAdapter
 				'method' => 'install',
 				'type' => $this->manifest->attributes()->type,
 				'manifest' => $this->manifest,
-				'extension' => 0
+				'extension' => 0,
 			)
 		);
 
@@ -519,9 +565,7 @@ class JInstaller extends JAdapter
 
 		// Load the adapter(s) for the install manifest
 		$type   = $this->extension->type;
-		$params = array(
-			'extension' => $this->extension, 'route' => 'discover_install'
-		);
+		$params = array('extension' => $this->extension, 'route' => 'discover_install');
 
 		$adapter = $this->getAdapter($type, $params);
 
@@ -567,7 +611,7 @@ class JInstaller extends JAdapter
 				'method' => 'discover_install',
 				'type' => $this->extension->get('type'),
 				'manifest' => null,
-				'extension' => $this->extension->get('extension_id')
+				'extension' => $this->extension->get('extension_id'),
 			)
 		);
 
@@ -848,26 +892,34 @@ class JInstaller extends JAdapter
 		// Get the array of query nodes to process
 		$queries = $element->children();
 
-		if (count($queries) == 0)
+		if (count($queries) === 0)
 		{
 			// No queries to process
 			return 0;
 		}
 
+		$update_count = 0;
+
 		// Process each query in the $queries array (children of $tagName).
 		foreach ($queries as $query)
 		{
-			$db->setQuery($query->data());
+			$db->setQuery($db->convertUtf8mb4QueryToUtf8($query));
 
-			if (!$db->execute())
+			try
 			{
-				JLog::add(JText::sprintf('JLIB_INSTALLER_ERROR_SQL_ERROR', $db->stderr(true)), JLog::WARNING, 'jerror');
+				$db->execute();
+			}
+			catch (JDatabaseExceptionExecuting $e)
+			{
+				JLog::add(JText::sprintf('JLIB_INSTALLER_ERROR_SQL_ERROR', $e->getMessage()), JLog::WARNING, 'jerror');
 
 				return false;
 			}
+
+			$update_count++;
 		}
 
-		return (int) count($queries);
+		return $update_count;
 	}
 
 	/**
@@ -887,27 +939,30 @@ class JInstaller extends JAdapter
 			return 0;
 		}
 
-		$queries = array();
 		$db = & $this->_db;
+
+		// TODO - At 4.0 we can change this to use `getServerType()` since SQL Server will not be supported
 		$dbDriver = strtolower($db->name);
 
-		if ($dbDriver == 'mysqli' || $dbDriver == 'pdomysql')
+		if ($db->getServerType() === 'mysql')
 		{
 			$dbDriver = 'mysql';
 		}
 
+		$update_count = 0;
+
 		// Get the name of the sql file to process
 		foreach ($element->children() as $file)
 		{
-			$fCharset = (strtolower($file->attributes()->charset) == 'utf8') ? 'utf8' : '';
-			$fDriver = strtolower($file->attributes()->driver);
+			$fCharset = strtolower($file->attributes()->charset) === 'utf8' ? 'utf8' : '';
+			$fDriver  = strtolower($file->attributes()->driver);
 
-			if ($fDriver == 'mysqli' || $fDriver == 'pdomysql')
+			if ($fDriver === 'mysqli' || $fDriver === 'pdomysql')
 			{
 				$fDriver = 'mysql';
 			}
 
-			if ($fCharset == 'utf8' && $fDriver == $dbDriver)
+			if ($fCharset === 'utf8' && $fDriver == $dbDriver)
 			{
 				$sqlfile = $this->getPath('extension_root') . '/' . trim($file);
 
@@ -932,7 +987,7 @@ class JInstaller extends JAdapter
 				// Create an array of queries from the sql file
 				$queries = JDatabaseDriver::splitSql($buffer);
 
-				if (count($queries) == 0)
+				if (count($queries) === 0)
 				{
 					// No queries to process
 					return 0;
@@ -941,24 +996,25 @@ class JInstaller extends JAdapter
 				// Process each query in the $queries array (split out of sql file).
 				foreach ($queries as $query)
 				{
-					$query = trim($query);
+					$db->setQuery($db->convertUtf8mb4QueryToUtf8($query));
 
-					if ($query != '' && $query{0} != '#')
+					try
 					{
-						$db->setQuery($query);
-
-						if (!$db->execute())
-						{
-							JLog::add(JText::sprintf('JLIB_INSTALLER_ERROR_SQL_ERROR', $db->stderr(true)), JLog::WARNING, 'jerror');
-
-							return false;
-						}
+						$db->execute();
 					}
+					catch (JDatabaseExceptionExecuting $e)
+					{
+						JLog::add(JText::sprintf('JLIB_INSTALLER_ERROR_SQL_ERROR', $e->getMessage()), JLog::WARNING, 'jerror');
+
+						return false;
+					}
+
+					$update_count++;
 				}
 			}
 		}
 
-		return (int) count($queries);
+		return $update_count;
 	}
 
 	/**
@@ -987,7 +1043,7 @@ class JInstaller extends JAdapter
 			{
 				$dbDriver = strtolower($db->name);
 
-				if ($dbDriver == 'mysqli' || $dbDriver == 'pdomysql')
+				if ($db->getServerType() === 'mysql')
 				{
 					$dbDriver = 'mysql';
 				}
@@ -1005,7 +1061,7 @@ class JInstaller extends JAdapter
 					}
 				}
 
-				if (strlen($schemapath))
+				if ($schemapath !== '')
 				{
 					$files = str_replace('.sql', '', JFolder::files($this->getPath('extension_root') . '/' . $schemapath, '\.sql$'));
 					usort($files, 'version_compare');
@@ -1052,9 +1108,10 @@ class JInstaller extends JAdapter
 
 			if (count($schemapaths))
 			{
+				// TODO - At 4.0 we can change this to use `getServerType()` since SQL Server will not be supported
 				$dbDriver = strtolower($db->name);
 
-				if ($dbDriver == 'mysqli' || $dbDriver == 'pdomysql')
+				if ($db->getServerType() === 'mysql')
 				{
 					$dbDriver = 'mysql';
 				}
@@ -1068,7 +1125,7 @@ class JInstaller extends JAdapter
 					// Assuming that the type is a mandatory attribute but if it is not mandatory then there should be a discussion for it.
 					$uDriver = strtolower($attrs['type']);
 
-					if ($uDriver == 'mysqli' || $uDriver == 'pdomysql')
+					if ($uDriver === 'mysqli' || $uDriver === 'pdomysql')
 					{
 						$uDriver = 'mysql';
 					}
@@ -1080,14 +1137,14 @@ class JInstaller extends JAdapter
 					}
 				}
 
-				if (strlen($schemapath))
+				if ($schemapath !== '')
 				{
 					$files = str_replace('.sql', '', JFolder::files($this->getPath('extension_root') . '/' . $schemapath, '\.sql$'));
 					usort($files, 'version_compare');
 
 					if (!count($files))
 					{
-						return false;
+						return $update_count;
 					}
 
 					$query = $db->getQuery(true)
@@ -1120,7 +1177,7 @@ class JInstaller extends JAdapter
 							// Create an array of queries from the sql file
 							$queries = JDatabaseDriver::splitSql($buffer);
 
-							if (count($queries) == 0)
+							if (count($queries) === 0)
 							{
 								// No queries to process
 								continue;
@@ -1129,27 +1186,24 @@ class JInstaller extends JAdapter
 							// Process each query in the $queries array (split out of sql file).
 							foreach ($queries as $query)
 							{
-								$query = trim($query);
+								$db->setQuery($db->convertUtf8mb4QueryToUtf8($query));
 
-								if ($query != '' && $query{0} != '#')
+								try
 								{
-									$db->setQuery($query);
-
-									if (!$db->execute())
-									{
-										JLog::add(JText::sprintf('JLIB_INSTALLER_ERROR_SQL_ERROR', $db->stderr(true)), JLog::WARNING, 'jerror');
-
-										return false;
-									}
-									else
-									{
-										$queryString = (string) $query;
-										$queryString = str_replace(array("\r", "\n"), array('', ' '), substr($queryString, 0, 80));
-										JLog::add(JText::sprintf('JLIB_INSTALLER_UPDATE_LOG_QUERY', $file, $queryString), JLog::INFO, 'Update');
-									}
-
-									$update_count++;
+									$db->execute();
 								}
+								catch (JDatabaseExceptionExecuting $e)
+								{
+									JLog::add(JText::sprintf('JLIB_INSTALLER_ERROR_SQL_ERROR', $e->getMessage()), JLog::WARNING, 'jerror');
+
+									return false;
+								}
+
+								$queryString = (string) $query;
+								$queryString = str_replace(array("\r", "\n"), array('', ' '), substr($queryString, 0, 80));
+								JLog::add(JText::sprintf('JLIB_INSTALLER_UPDATE_LOG_QUERY', $file, $queryString), JLog::INFO, 'Update');
+
+								$update_count++;
 							}
 						}
 					}
@@ -1277,7 +1331,7 @@ class JInstaller extends JAdapter
 			$path['dest'] = $destination . '/' . $file;
 
 			// Is this path a file or folder?
-			$path['type'] = ($file->getName() == 'folder') ? 'folder' : 'file';
+			$path['type'] = $file->getName() === 'folder' ? 'folder' : 'file';
 
 			/*
 			 * Before we can add a file to the copyfiles array we need to ensure
@@ -1285,7 +1339,7 @@ class JInstaller extends JAdapter
 			 * we need to create it.
 			 */
 
-			if (basename($path['dest']) != $path['dest'])
+			if (basename($path['dest']) !== $path['dest'])
 			{
 				$newdir = dirname($path['dest']);
 
@@ -1367,11 +1421,11 @@ class JInstaller extends JAdapter
 			// We will only install language files where a core language pack
 			// already exists.
 
-			if ((string) $file->attributes()->tag != '')
+			if ((string) $file->attributes()->tag !== '')
 			{
 				$path['src'] = $source . '/' . $file;
 
-				if ((string) $file->attributes()->client != '')
+				if ((string) $file->attributes()->client !== '')
 				{
 					// Override the client
 					$langclient = JApplicationHelper::getClientInfo((string) $file->attributes()->client, true);
@@ -1401,7 +1455,7 @@ class JInstaller extends JAdapter
 			 * we need to create it.
 			 */
 
-			if (basename($path['dest']) != $path['dest'])
+			if (basename($path['dest']) !== $path['dest'])
 			{
 				$newdir = dirname($path['dest']);
 
@@ -1474,7 +1528,7 @@ class JInstaller extends JAdapter
 			$path['dest'] = $destination . '/' . $file;
 
 			// Is this path a file or folder?
-			$path['type'] = ($file->getName() == 'folder') ? 'folder' : 'file';
+			$path['type'] = $file->getName() === 'folder' ? 'folder' : 'file';
 
 			/*
 			 * Before we can add a file to the copyfiles array we need to ensure
@@ -1482,7 +1536,7 @@ class JInstaller extends JAdapter
 			 * we need to create it.
 			 */
 
-			if (basename($path['dest']) != $path['dest'])
+			if (basename($path['dest']) !== $path['dest'])
 			{
 				$newdir = dirname($path['dest']);
 
@@ -1502,12 +1556,12 @@ class JInstaller extends JAdapter
 	}
 
 	/**
-	 * Method to parse the parameters of an extension, build the INI
-	 * string for its default parameters, and return the INI string.
+	 * Method to parse the parameters of an extension, build the JSON string for its default parameters, and return the JSON string.
 	 *
-	 * @return  string   INI string of parameter values
+	 * @return  string  JSON string of parameter values
 	 *
 	 * @since   3.1
+	 * @note    This method must always return a JSON compliant string
 	 */
 	public function getParams()
 	{
@@ -1516,6 +1570,7 @@ class JInstaller extends JAdapter
 		{
 			return '{}';
 		}
+
 		// Getting the fieldset tags
 		$fieldsets = $this->manifest->config->fields->fieldset;
 
@@ -1528,7 +1583,7 @@ class JInstaller extends JAdapter
 			if (!count($fieldset->children()))
 			{
 				// Either the tag does not exist or has no children therefore we return zero files processed.
-				return null;
+				return '{}';
 			}
 
 			// Iterating through the fields and collecting the name/default values:
@@ -1574,7 +1629,7 @@ class JInstaller extends JAdapter
 		 * allowOverwrite flag.
 		 */
 
-		if (is_null($overwrite) || !is_bool($overwrite))
+		if ($overwrite === null || !is_bool($overwrite))
 		{
 			$overwrite = $this->overwrite;
 		}
@@ -1605,7 +1660,7 @@ class JInstaller extends JAdapter
 				elseif (($exists = file_exists($filedest)) && !$overwrite)
 				{
 					// It's okay if the manifest already exists
-					if ($this->getPath('manifest') == $filesource)
+					if ($this->getPath('manifest') === $filesource)
 					{
 						continue;
 					}
@@ -1619,9 +1674,9 @@ class JInstaller extends JAdapter
 				else
 				{
 					// Copy the folder or file to the new location.
-					if ($filetype == 'folder')
+					if ($filetype === 'folder')
 					{
-						if (!(JFolder::copy($filesource, $filedest, null, $overwrite)))
+						if (!JFolder::copy($filesource, $filedest, null, $overwrite))
 						{
 							JLog::add(JText::sprintf('JLIB_INSTALLER_ERROR_FAIL_COPY_FOLDER', $filesource, $filedest), JLog::WARNING, 'jerror');
 
@@ -1632,7 +1687,7 @@ class JInstaller extends JAdapter
 					}
 					else
 					{
-						if (!(JFile::copy($filesource, $filedest, null)))
+						if (!JFile::copy($filesource, $filedest, null))
 						{
 							JLog::add(JText::sprintf('JLIB_INSTALLER_ERROR_FAIL_COPY_FILE', $filesource, $filedest), JLog::WARNING, 'jerror');
 
@@ -1702,7 +1757,7 @@ class JInstaller extends JAdapter
 		// Get the array of file nodes to process
 		$files = $element->children();
 
-		if (count($files) == 0)
+		if (count($files) === 0)
 		{
 			// No files to process
 			return true;
@@ -1777,7 +1832,7 @@ class JInstaller extends JAdapter
 			 * would go in the en_US subdirectory of the languages directory.
 			 */
 
-			if ($file->getName() == 'language' && (string) $file->attributes()->tag != '')
+			if ($file->getName() === 'language' && (string) $file->attributes()->tag !== '')
 			{
 				if ($source)
 				{
@@ -1888,17 +1943,17 @@ class JInstaller extends JAdapter
 				// Is it a valid Joomla installation manifest file?
 				$manifest = $this->isManifest($file);
 
-				if (!is_null($manifest))
+				if ($manifest !== null)
 				{
 					// If the root method attribute is set to upgrade, allow file overwrite
-					if ((string) $manifest->attributes()->method == 'upgrade')
+					if ((string) $manifest->attributes()->method === 'upgrade')
 					{
 						$this->upgrade = true;
 						$this->overwrite = true;
 					}
 
 					// If the overwrite option is set, allow file overwriting
-					if ((string) $manifest->attributes()->overwrite == 'true')
+					if ((string) $manifest->attributes()->overwrite === 'true')
 					{
 						$this->overwrite = true;
 					}
@@ -1933,7 +1988,7 @@ class JInstaller extends JAdapter
 	 *
 	 * @param   string  $file  An xmlfile path to check
 	 *
-	 * @return  mixed  A SimpleXMLElement, or null if the file failed to parse
+	 * @return  SimpleXMLElement|null  A SimpleXMLElement, or null if the file failed to parse
 	 *
 	 * @since   3.1
 	 */
@@ -1944,13 +1999,13 @@ class JInstaller extends JAdapter
 		// If we cannot load the XML file return null
 		if (!$xml)
 		{
-			return null;
+			return;
 		}
 
 		// Check for a valid XML root tag.
-		if ($xml->getName() != 'extension')
+		if ($xml->getName() !== 'extension')
 		{
-			return null;
+			return;
 		}
 
 		// Valid manifest file return the object
@@ -2150,6 +2205,12 @@ class JInstaller extends JAdapter
 	 */
 	public static function parseXMLInstallFile($path)
 	{
+		// Check if xml file exists.
+		if (!file_exists($path))
+		{
+			return false;
+		}
+
 		// Read the file to see if it's a valid component XML file
 		$xml = simplexml_load_file($path);
 
@@ -2162,7 +2223,9 @@ class JInstaller extends JAdapter
 
 		// Extensions use 'extension' as the root tag.  Languages use 'metafile' instead
 
-		if ($xml->getName() != 'extension' && $xml->getName() != 'metafile')
+		$name = $xml->getName();
+
+		if ($name !== 'extension' && $name !== 'metafile')
 		{
 			unset($xml);
 
@@ -2174,10 +2237,10 @@ class JInstaller extends JAdapter
 		$data['name'] = (string) $xml->name;
 
 		// Check if we're a language. If so use metafile.
-		$data['type'] = $xml->getName() == 'metafile' ? 'language' : (string) $xml->attributes()->type;
+		$data['type'] = $xml->getName() === 'metafile' ? 'language' : (string) $xml->attributes()->type;
 
-		$data['creationDate'] = ((string) $xml->creationDate) ? (string) $xml->creationDate : JText::_('Unknown');
-		$data['author'] = ((string) $xml->author) ? (string) $xml->author : JText::_('Unknown');
+		$data['creationDate'] = ((string) $xml->creationDate) ?: JText::_('JLIB_UNKNOWN');
+		$data['author'] = ((string) $xml->author) ?: JText::_('JLIB_UNKNOWN');
 
 		$data['copyright'] = (string) $xml->copyright;
 		$data['authorEmail'] = (string) $xml->authorEmail;
@@ -2251,7 +2314,7 @@ class JInstaller extends JAdapter
 			$fileName = $file->getFilename();
 
 			// Only load for php files.
-			if (!$file->isFile() || $file->getExtension() != 'php')
+			if (!$file->isFile() || $file->getExtension() !== 'php')
 			{
 				continue;
 			}
@@ -2264,7 +2327,7 @@ class JInstaller extends JAdapter
 			if (!class_exists($class))
 			{
 				// Try to load the adapter object
-				require_once $this->_basepath . '/' . $this->_adapterfolder . '/' . $fileName;
+				JLoader::register($class, $this->_basepath . '/' . $this->_adapterfolder . '/' . $fileName);
 
 				if (!class_exists($class))
 				{
@@ -2325,7 +2388,7 @@ class JInstaller extends JAdapter
 			}
 
 			// Try once more to find the class
-			require_once $path;
+			JLoader::register($class, $path);
 
 			if (!class_exists($class))
 			{

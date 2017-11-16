@@ -3,10 +3,10 @@ defined('_JEXEC') or die('Restricted access');
 
 /**
  * @author Valérie Isaksen
- * @version $Id: sofort_ideal.php 8675 2015-01-31 10:11:32Z alatak $
+ * @version $Id: sofort_ideal.php 9560 2017-05-30 14:13:21Z Milbo $
  * @package VirtueMart
  * @subpackage payment
- * @copyright Copyright (C) 2004-Copyright (C) 2004-2016 Virtuemart Team. All rights reserved.   - All rights reserved.
+ * @copyright Copyright (C) 2004-Copyright (C) 2004 - 2017 Virtuemart Team. All rights reserved.   - All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
@@ -17,11 +17,11 @@ defined('_JEXEC') or die('Restricted access');
  * http://virtuemart.net
  */
 if (!class_exists('vmPSPlugin')) {
-	require(JPATH_VM_PLUGINS . DS . 'vmpsplugin.php');
+	require(VMPATH_PLUGINLIBS . DS . 'vmpsplugin.php');
 }
 
 class plgVmPaymentSofort_Ideal extends vmPSPlugin {
-	const RELEASE = 'VM 3.0.14';
+	const RELEASE = 'VM 3.2.4';
 	const PAYMENT_CURRENCY_CODE_3 = 'EUR';
 
 	function __construct(& $subject, $config) {
@@ -52,45 +52,45 @@ class plgVmPaymentSofort_Ideal extends vmPSPlugin {
 	function getTableSQLFields() {
 
 		$SQLfields = array(
-			'id' => 'int(11) UNSIGNED NOT NULL AUTO_INCREMENT',
-			'virtuemart_order_id' => 'int(1) UNSIGNED',
-			'order_number' => 'char(64)',
-			'virtuemart_paymentmethod_id' => 'mediumint(1) UNSIGNED',
-			'payment_name' => 'varchar(1000)',
-			'payment_order_total' => 'decimal(15,5) NOT NULL',
-			'payment_currency' => 'smallint(1)',
-			'cost_per_transaction' => 'decimal(10,2)',
-			'cost_percent_total' => 'decimal(10,2)',
-			'tax_id' => 'smallint(1)',
-			'sofort_custom' => 'varchar(255)',
-			'sofort_ideal_hidden_response_user_id' => 'int(1) UNSIGNED',
-			'sofort_ideal_hidden_response_project_id' => 'int(1) UNSIGNED',
-			'sofort_ideal_response_transaction' => 'varchar(27)',
-			'sofort_ideal_response_sender_holder' => 'varchar(255)',
-			'sofort_ideal_response_sender_account_number' => 'varchar(30)',
-			'sofort_ideal_response_sender_bank_name' => 'varchar(255)',
-			'sofort_ideal_response_sender_bank_bic' => 'varchar(50)',
-			'sofort_ideal_response_sender_iban' => 'varchar(50)',
-			'sofort_ideal_response_sender_country_id' => 'varchar(2)',
-			'sofort_ideal_hidden_response_recipient_holder' => 'varchar(255)',
-			'sofort_ideal_hidden_response_recipient_account_number' => 'varchar(30)',
-			'sofort_ideal_hidden_response_recipient_bank_code' => 'varchar(30)',
-			'sofort_ideal_hidden_response_recipient_bank_name' => 'varchar(255)',
-			'sofort_ideal_hidden_response_recipient_bank_bic' => 'varchar(50)',
-			'sofort_ideal_hidden_response_recipient_iban' => 'varchar(50)',
-			'sofort_ideal_hidden_response_recipient_country_id' => 'varchar(2)',
-			'sofort_ideal_response_amount' => 'decimal(15,5) NOT NULL',
-			'sofort_ideal_response_currency_id' => 'varchar(3)',
-			'sofort_ideal_hidden_response_reason_1' => 'char(255)',
-			'sofort_ideal_response_created' => 'varchar(30)',
-			'sofort_ideal_response_status' => 'varchar(20)',
+		'id' => 'int(11) UNSIGNED NOT NULL AUTO_INCREMENT',
+		'virtuemart_order_id' => 'int(1) UNSIGNED',
+		'order_number' => 'char(64)',
+		'virtuemart_paymentmethod_id' => 'mediumint(1) UNSIGNED',
+		'payment_name' => 'varchar(1000)',
+		'payment_order_total' => 'decimal(15,5) NOT NULL',
+		'payment_currency' => 'smallint(1)',
+		'cost_per_transaction' => 'decimal(10,2)',
+		'cost_percent_total' => 'decimal(10,2)',
+		'tax_id' => 'smallint(1)',
+		'sofort_custom' => 'varchar(255)',
+		'sofort_ideal_hidden_response_user_id' => 'int(1) UNSIGNED',
+		'sofort_ideal_hidden_response_project_id' => 'int(1) UNSIGNED',
+		'sofort_ideal_response_transaction' => 'varchar(27)',
+		'sofort_ideal_response_sender_holder' => 'varchar(255)',
+		'sofort_ideal_response_sender_account_number' => 'varchar(30)',
+		'sofort_ideal_response_sender_bank_name' => 'varchar(255)',
+		'sofort_ideal_response_sender_bank_bic' => 'varchar(50)',
+		'sofort_ideal_response_sender_iban' => 'varchar(50)',
+		'sofort_ideal_response_sender_country_id' => 'varchar(2)',
+		'sofort_ideal_hidden_response_recipient_holder' => 'varchar(255)',
+		'sofort_ideal_hidden_response_recipient_account_number' => 'varchar(30)',
+		'sofort_ideal_hidden_response_recipient_bank_code' => 'varchar(30)',
+		'sofort_ideal_hidden_response_recipient_bank_name' => 'varchar(255)',
+		'sofort_ideal_hidden_response_recipient_bank_bic' => 'varchar(50)',
+		'sofort_ideal_hidden_response_recipient_iban' => 'varchar(50)',
+		'sofort_ideal_hidden_response_recipient_country_id' => 'varchar(2)',
+		'sofort_ideal_response_amount' => 'decimal(15,5) NOT NULL',
+		'sofort_ideal_response_currency_id' => 'varchar(3)',
+		'sofort_ideal_hidden_response_reason_1' => 'char(255)',
+		'sofort_ideal_response_created' => 'varchar(30)',
+		'sofort_ideal_response_status' => 'varchar(20)',
 			// this parameter is not documented, but it is returned, and important for order status update
-			'sofort_ideal_response_status_reason' => 'varchar(20)',
-			'sofort_ideal_response_status_modified' => 'varchar(20)',
-			'sofort_ideal_hidden_response_hash' => 'varchar(20)', // hash is stored, but we do not need to display it
+		'sofort_ideal_response_status_reason' => 'varchar(20)',
+		'sofort_ideal_response_status_modified' => 'varchar(20)',
+		'sofort_ideal_hidden_response_hash' => 'varchar(20)', // hash is stored, but we do not need to display it
 			// even though this parameter is in the doc
 			//'sofort_ideal_response_amount_refunded' => 'decimal(15,5) NOT NULL',
-			'sofort_ideal_hidden_response_amount_refunded_integer' => 'int(1) ',
+		'sofort_ideal_hidden_response_amount_refunded_integer' => 'int(1) ',
 		);
 		return $SQLfields;
 	}
@@ -114,13 +114,15 @@ class plgVmPaymentSofort_Ideal extends vmPSPlugin {
 		}
 		$htmla = array();
 		$html = '';
-		vmdebug('methods', $this->methods);
-		VmConfig::loadJLang('com_virtuemart');
+
+		vmLanguage::loadJLang('com_virtuemart');
 		$currency = CurrencyDisplay::getInstance();
 		foreach ($this->methods as $method) {
 
 			if ($this->checkConditions($cart, $method, $cart->cartPrices)) {
+
 				$methodSalesPrice = $this->calculateSalesPrice($cart, $method, $cart->cartPrices);
+
 				//$method->payment_name = $method->payment_name
 				if (!class_exists('SofortLib')) {
 					require(VMPATH_ROOT . DS . 'plugins' . DS . 'vmpayment' . DS . 'sofort' . DS . 'sofort' . DS . 'library' . DS . 'sofortLib.php');
@@ -129,7 +131,7 @@ class plgVmPaymentSofort_Ideal extends vmPSPlugin {
 					require(VMPATH_ROOT . DS . 'plugins' . DS . 'vmpayment' . DS . 'sofort' . DS . 'sofort' . DS . 'library' . DS . 'sofortLib_ideal_classic.php');
 				}
 
-				$selected_bank = self::_getSelectedBank($method->virtuemart_paymentmethod_id);
+				$selected_bank = self::_getSelectedBankCode($method->virtuemart_paymentmethod_id);
 				if (empty($method->configuration_key) or empty($method->project_password)) {
 					vmError('Missing essentials infos for this published payment. Check the configuration  key and the password:' . $method->payment_name . ' (' . $method->virtuemart_paymentmethod_id . ')');
 					continue;
@@ -152,11 +154,11 @@ class plgVmPaymentSofort_Ideal extends vmPSPlugin {
 					$checked = '';
 				}
 				$html = $this->renderByLayout('display_payment', array(
-					'plugin' => $method,
-					'checked' => $checked,
-					'payment_logo' => $logo,
-					'payment_cost' => $payment_cost,
-					'relatedBanks' => $relatedBanksDropDown
+				'plugin' => $method,
+				'checked' => $checked,
+				'payment_logo' => $logo,
+				'payment_cost' => $payment_cost,
+				'relatedBanks' => $relatedBanksDropDown
 				));
 
 				$htmla[] = $html;
@@ -169,14 +171,7 @@ class plgVmPaymentSofort_Ideal extends vmPSPlugin {
 		return true;
 	}
 
-	private function _getSelectedBank($paymentmethod_id) {
-		$session_params = self::_getSofortIdealFromSession();
 
-		if (!isset($session_params['sofort_ideal_bank_selected_' . $paymentmethod_id])) {
-			return NULL;
-		}
-		return $session_params['sofort_ideal_bank_selected_' . $paymentmethod_id];
-	}
 
 	private function getRelatedBanksDropDown($relatedBanks, $paymentmethod_id, $selected_bank) {
 		//vmdebug('getRelatedBanks', $relatedBanks);
@@ -187,7 +182,8 @@ class plgVmPaymentSofort_Ideal extends vmPSPlugin {
 
 		foreach ($relatedBanks as $key => $relatedBank) {
 			$code = array('code' => $relatedBank['code'], 'name' => $relatedBank['name']);
-			$options[] = JHTML::_('select.option', json_encode($code), $relatedBank['name']);
+			//$options[] = JHTML::_('select.option', json_encode($code), $relatedBank['name']);
+			$options[] = JHTML::_('select.option', $relatedBank['code'], $relatedBank['name']);
 		}
 
 		return JHTML::_('select.genericlist', $options, $idA, $attrs, 'value', 'text', $selected_bank);
@@ -314,19 +310,30 @@ class plgVmPaymentSofort_Ideal extends vmPSPlugin {
 		}
 	}
 
-	function _getSelectedBankCode($paymentmethod_id) {
-		$selected_bank = self::_getSelectedBank($paymentmethod_id);
-		$selected_bank_decoded = json_decode($selected_bank);
-		return $selected_bank_decoded->code;
+	private function _getSelectedBankCode($paymentmethod_id) {
 
+		return self::_getSelectedBank($paymentmethod_id);
+		/*$selected_bank = self::_getSelectedBank($paymentmethod_id);
+		$selected_bank_decoded = json_decode($selected_bank);
+		return $selected_bank_decoded->code;*/
 	}
 
+	private function _getSelectedBank($paymentmethod_id) {
+		$payment_params = self::_getSofortIdealFromSession();
+
+		$v = 'sofort_ideal_bank_selected_' . $paymentmethod_id;
+		if (empty($payment_params->$v)) {
+			return NULL;
+		}
+		return $payment_params->$v;
+	}
+	
 	/**
 	 * @param $html : Clients information
 	 * @return bool','null','string
 	 */
 	function plgVmOnPaymentResponseReceived(&$html) {
-		VmConfig::loadJLang('com_virtuemart_orders', TRUE);
+		vmLanguage::loadJLang('com_virtuemart_orders', TRUE);
 		if (!class_exists('CurrencyDisplay')) {
 			require(VMPATH_ADMIN . DS . 'helpers' . DS . 'currencydisplay.php');
 		}
@@ -357,7 +364,7 @@ class plgVmPaymentSofort_Ideal extends vmPSPlugin {
 			// JError::raiseWarning(500, $db->getErrorMsg());
 			return '';
 		}
-		VmConfig::loadJLang('com_virtuemart');
+		vmLanguage::loadJLang('com_virtuemart');
 		$orderModel = VmModel::getModel('orders');
 		$order = $orderModel->getOrder($virtuemart_order_id);
 		$paymentCurrency = CurrencyDisplay::getInstance($order['details']['BT']->order_currency);
@@ -369,13 +376,14 @@ class plgVmPaymentSofort_Ideal extends vmPSPlugin {
 		$nb = count($paymentTables);
 		$pluginName = $this->renderPluginName($method, 'post_payment');
 		$html = $this->renderByLayout('post_payment', array(
-			'order' => $order,
-			'paymentInfos' => $paymentTables[$nb - 1],
-			'pluginName' => $pluginName,
-			'displayTotalInPaymentCurrency' => $totalInPaymentCurrency['display']
+		'order' => $order,
+		'paymentInfos' => $paymentTables[$nb - 1],
+		'pluginName' => $pluginName,
+		'displayTotalInPaymentCurrency' => $totalInPaymentCurrency['display']
 		));
 		vmdebug('_getPaymentResponseHtml', $paymentTables);
 
+		$this->emptyCart();
 		return $html;
 
 	}
@@ -484,36 +492,36 @@ class plgVmPaymentSofort_Ideal extends vmPSPlugin {
 		}
 
 		$hash_keys = array(
-			'transaction',
-			'user_id',
-			'project_id',
-			'sender_holder',
-			'sender_account_number',
-			'sender_bank_name',
-			'sender_bank_bic',
-			'sender_iban',
-			'sender_country_id',
-			'recipient_holder',
-			'recipient_account_number',
-			'recipient_bank_code',
-			'recipient_bank_name',
-			'recipient_bank_bic',
-			'recipient_iban',
-			'recipient_country_id',
-			'amount',
-			'currency_id',
-			'reason_1',
-			'reason_2',
-			'user_variable_0',
-			'user_variable_1',
-			'user_variable_2',
-			'user_variable_3',
-			'user_variable_4',
-			'user_variable_5',
-			'created',
-			'status',
-			'status_modified',
-			'notification_password'
+		'transaction',
+		'user_id',
+		'project_id',
+		'sender_holder',
+		'sender_account_number',
+		'sender_bank_name',
+		'sender_bank_bic',
+		'sender_iban',
+		'sender_country_id',
+		'recipient_holder',
+		'recipient_account_number',
+		'recipient_bank_code',
+		'recipient_bank_name',
+		'recipient_bank_bic',
+		'recipient_iban',
+		'recipient_country_id',
+		'amount',
+		'currency_id',
+		'reason_1',
+		'reason_2',
+		'user_variable_0',
+		'user_variable_1',
+		'user_variable_2',
+		'user_variable_3',
+		'user_variable_4',
+		'user_variable_5',
+		'created',
+		'status',
+		'status_modified',
+		'notification_password'
 		);
 
 		foreach ($hash_keys as $key) {
@@ -599,19 +607,19 @@ class plgVmPaymentSofort_Ideal extends vmPSPlugin {
 	 */
 	private function getNewOrderStatus($dbvalues) {
 		$newOrderStatus = array(
-			'pending' => array('not_credited_yet' => 'status_pending'),
-			'received' => array('credited' => 'status_confirmed'),
-			'loss' => array('not_credited' => 'status_canceled'),
-			'refunded' => array('refunded' => 'status_refunded', 'compensation' => 'status_compensation'),
+		'pending' => array('not_credited_yet' => 'status_pending'),
+		'received' => array('credited' => 'status_confirmed'),
+		'loss' => array('not_credited' => 'status_canceled'),
+		'refunded' => array('refunded' => 'status_refunded', 'compensation' => 'status_compensation'),
 			// Special case is the following status that can occur (only with iDEAL payments),
 			//if after a timeout in our system the payment is marked as loss and then iDEAL reports (too late) a successful iDEAL payment.
 			// Then our SOFORT backend starts an automatic refund which is reported to the shopsystem as follows:
-			'late_succeed' => array('automatic_refund_to_customer' => 'status_refunded'),
+		'late_succeed' => array('automatic_refund_to_customer' => 'status_refunded'),
 		);
 		$this->logInfo('IN getNewOrderStatus   ' . $dbvalues['sofort_ideal_response_status'] . ":" . $dbvalues['sofort_ideal_response_status_reason'], 'message');
 
 		if (!(array_key_exists($dbvalues['sofort_ideal_response_status'], $newOrderStatus) AND
-			array_key_exists($dbvalues['sofort_ideal_response_status_reason'], $newOrderStatus[$dbvalues['sofort_ideal_response_status']]))
+		array_key_exists($dbvalues['sofort_ideal_response_status_reason'], $newOrderStatus[$dbvalues['sofort_ideal_response_status']]))
 		) {
 			// received an unknown combination.
 			//
@@ -685,7 +693,7 @@ class plgVmPaymentSofort_Ideal extends vmPSPlugin {
 	 * @return string
 	 */
 	function _getPaymentResponseHtml($method, $order) {
-		VmConfig::loadJLang('com_virtuemart_orders', TRUE);
+		vmLanguage::loadJLang('com_virtuemart_orders', TRUE);
 		if (!class_exists('CurrencyDisplay')) {
 			require(VMPATH_ADMIN . DS . 'helpers' . DS . 'currencydisplay.php');
 		}
@@ -703,9 +711,9 @@ class plgVmPaymentSofort_Ideal extends vmPSPlugin {
 
 		$pluginName = $this->renderPluginName($method, 'post_payment');
 		$html = $this->renderByLayout('post_payment', array(
-			'order' => $order,
-			'pluginName' => $pluginName,
-			'displayTotalInPaymentCurrency' => $totalInPaymentCurrency['display']
+		'order' => $order,
+		'pluginName' => $pluginName,
+		'displayTotalInPaymentCurrency' => $totalInPaymentCurrency['display']
 
 		));
 		//vmdebug('_getPaymentResponseHtml', $html,$pluginName,$paypalTable );
@@ -721,28 +729,41 @@ class plgVmPaymentSofort_Ideal extends vmPSPlugin {
 	protected function renderPluginName($method, $where = 'checkout') {
 
 		$display_logos = "";
-		$session_params = self::_getSofortIdealFromSession();
-		if (empty($session_params)) {
-			$payment_param = self::getEmptyPaymentParams($method->virtuemart_paymentmethod_id);
-		} else {
-			foreach ($session_params as $key => $session_param) {
-				$payment_param[$key] = json_decode($session_param);
-			}
-		}
 
 		$logos = $method->payment_logos;
 		if (!empty($logos)) {
 			$display_logos = $this->displayLogos($logos) . ' ';
 		}
 		$payment_name = $method->payment_name;
-		$bank_name = isset($payment_param['sofort_ideal_bank_selected_' . $method->virtuemart_paymentmethod_id]->name) ? $payment_param['sofort_ideal_bank_selected_' . $method->virtuemart_paymentmethod_id]->name : "";
-		vmdebug('renderPluginName', $payment_param);
+		if (!class_exists('SofortLib')) {
+			require(VMPATH_ROOT . DS . 'plugins' . DS . 'vmpayment' . DS . 'sofort' . DS . 'sofort' . DS . 'library' . DS . 'sofortLib.php');
+		}
+		if (!class_exists('SofortLib_iDealClassic')) {
+			require(VMPATH_ROOT . DS . 'plugins' . DS . 'vmpayment' . DS . 'sofort' . DS . 'sofort' . DS . 'library' . DS . 'sofortLib_ideal_classic.php');
+		}
+		$sofort_ideal = new SofortLib_iDealClassic(trim($method->configuration_key), trim($method->project_password));
+		$relatedBanks = $sofort_ideal->getRelatedBanks();
+		if (empty($relatedBanks)) {
+			vmError('getRelatedBanks: error, returned NULL' . $method->virtuemart_paymentmethod_id . '.');
+		}
+
+		$bankCode = self::_getSelectedBankCode($method->virtuemart_paymentmethod_id);
+		$bank_name = '';
+		if($bankCode){
+			foreach ($relatedBanks as $key => $relatedBank) {
+				if($relatedBank['code'] == $bankCode){
+					$bank_name = $relatedBank['name'];
+					break;
+				}
+			}
+		}
+
 		$html = $this->renderByLayout('render_pluginname', array(
-			'where' => $where,
-			'logo' => $display_logos,
-			'payment_name' => $payment_name,
-			'bank_name' => $bank_name,
-			'payment_description' => $method->payment_desc,
+		'where' => $where,
+		'logo' => $display_logos,
+		'payment_name' => $payment_name,
+		'bank_name' => $bank_name,
+		'payment_description' => $method->payment_desc,
 		));
 
 		return $html;
@@ -781,8 +802,8 @@ class plgVmPaymentSofort_Ideal extends vmPSPlugin {
 		$address = (($cart->ST == 0) ? $cart->BT : $cart->ST);
 
 		$amount_cond = ($amount >= $method->min_amount AND $amount <= $method->max_amount
-			OR
-			($method->min_amount <= $amount AND ($method->max_amount == 0)));
+		OR
+		($method->min_amount <= $amount AND ($method->max_amount == 0)));
 
 
 		$countries[0] = ShopFunctions::getCountryIDByName('NL');
@@ -917,8 +938,8 @@ class plgVmPaymentSofort_Ideal extends vmPSPlugin {
 		$nb = count($payments);
 
 		$payment_name = $this->renderByLayout('order_fe', array(
-			'paymentInfos' => $payments[$nb - 1],
-			'paymentName' => $payments[0]->payment_name,
+		'paymentInfos' => $payments[$nb - 1],
+		'paymentName' => $payments[0]->payment_name,
 		));
 	}
 
@@ -1004,7 +1025,8 @@ class plgVmPaymentSofort_Ideal extends vmPSPlugin {
 	private function _validate_sofortideal_data($payment_params, $paymentmethod_id, &$error_msg) {
 
 		$errors = array();
-		if (empty($payment_params['sofort_ideal_bank_selected_' . $paymentmethod_id])) {
+		$v = 'sofort_ideal_bank_selected_' . $paymentmethod_id;
+		if (empty($payment_params->$v)) {
 			$errors[] = vmText::_('VMPAYMENT_SOFORT_IDEAL_PLEASE_SELECT_BANK');
 		}
 
@@ -1018,12 +1040,6 @@ class plgVmPaymentSofort_Ideal extends vmPSPlugin {
 		return TRUE;
 	}
 
-	private static function getEmptyPaymentParams($paymentmethod_id) {
-
-		$payment_params['sofort_ideal_bank_selected_' . $paymentmethod_id] = "";
-
-		return $payment_params;
-	}
 
 	private static function _clearSofortIdealSession() {
 

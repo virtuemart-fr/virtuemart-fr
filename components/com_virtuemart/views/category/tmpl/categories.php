@@ -8,7 +8,7 @@
 * @author RolandD
 * @author Max Milbers
 * @todo add pagination
-* @link http://www.virtuemart.net
+* @link https://virtuemart.net
 * @copyright Copyright (c) 2004 - 2012 VirtueMart Team. All rights reserved.
 * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
 * VirtueMart is free software. This version may have been modified pursuant
@@ -21,12 +21,6 @@
 // Check to ensure this file is included in Joomla!
 defined('_JEXEC') or die('Restricted access');
 
-if ($this->category->haschildren) {
-
-	// Calculating Categories Per Row
-	//$categories_per_row = VmConfig::get ( 'categories_per_row', 3 );
-
-	// Start the Output
-	echo ShopFunctionsF::renderVmSubLayout('categories',array('categories'=> $this->category->children));
-
+if (!empty($this->category->haschildren)) {
+	echo ShopFunctionsF::renderVmSubLayout('categories',array('categories'=>$this->category->children, 'categories_per_row'=>$this->categories_per_row));
 } ?>

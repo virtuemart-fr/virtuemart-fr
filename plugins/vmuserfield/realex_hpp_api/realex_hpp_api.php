@@ -7,10 +7,10 @@ defined('_JEXEC') or die();
  * Realex User Field plugin
  *
  * @author Valerie Isaksen
- * @version $Id: realex_hpp_api.php 9023 2015-10-21 09:49:30Z alatak $
+ * @version $Id: realex_hpp_api.php 9560 2017-05-30 14:13:21Z Milbo $
  * @package VirtueMart
  * @subpackage userfield
- * Copyright (C) 2004-2016 Virtuemart Team. All rights reserved.
+ * Copyright (C) 2004 - 2017 Virtuemart Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
@@ -22,7 +22,7 @@ defined('_JEXEC') or die();
  */
 
 if (!class_exists('vmUserfieldPlugin')) {
-	require(JPATH_VM_PLUGINS . DS . 'vmuserfieldtypeplugin.php');
+	require(VMPATH_PLUGINLIBS . DS . 'vmuserfieldtypeplugin.php');
 }
 define('USERFIELD_REALEX', 1);
 
@@ -107,12 +107,7 @@ class plgVmUserfieldRealex_hpp_api extends vmUserfieldPlugin {
 	 */
 	function plgVmOnStoreInstallPluginTable($type, $data) {
 
-		if ($type == $this->_type and !empty($data->name)) {
-			return $this->onStoreInstallPluginTable($type, $data->name);
-		} else {
-			return false;
-		}
-
+		return $this->onStoreInstallPluginTable($type, $data->name);
 	}
 
 

@@ -6,14 +6,14 @@
 * @package	VirtueMart
 * @subpackage Country
 * @author RickG, Max Milbers, jseros
-* @link http://www.virtuemart.net
+* @link https://virtuemart.net
 * @copyright Copyright (c) 2004 - 2010 VirtueMart Team. All rights reserved.
 * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
 * VirtueMart is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
-* @version $Id: state.php 8953 2015-08-19 10:30:52Z Milbo $
+* @version $Id: state.php 9413 2017-01-04 17:20:58Z Milbo $
 */
 
 // Check to ensure this file is included in Joomla!
@@ -90,11 +90,13 @@ class VirtueMartModelState extends VmModel {
 	 * @author Max Milbers
 	 * @return String Attention, this function gives a 0=false back in case of success
 	 */
-	public static function testStateCountry($countryId,$stateId)
+	public static function testStateCountry(&$countryId,&$stateId)
 	{
 
 		$countryId = (int)$countryId;
 		$stateId = (int)$stateId;
+
+		if(empty($countryId)) return true;
 
 		$db = JFactory::getDBO();
 		$q = 'SELECT * FROM `#__virtuemart_countries` WHERE `virtuemart_country_id`= "'.$countryId.'" AND `published`="1"';
@@ -111,16 +113,21 @@ class VirtueMartModelState extends VmModel {
 					return true;
 				} else {
 					//There is a country, but the state does not exist or is unlisted
+					$stateId = 0;
 					return false;
 				}
 			} else {
 				//This country has no states listed
+				$stateId = 0;
 				return true;
 			}
 
 		} else {
-			//The given country does not exist, this can happen, when no country was chosen, which maybe valid.
-			return true;
+			//The given country does not exist, this can happen, when non published country was chosen
+			$countryId = 0;
+			$stateId = 0;
+			vmInfo('COM_VIRTUEMART_COUNTRY_NOTEXIST');
+			return false;
 		}
 	}
 

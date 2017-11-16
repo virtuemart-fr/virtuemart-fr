@@ -39,7 +39,7 @@ abstract class vmCalculationPlugin extends vmPlugin {
 	 	$datas = $this->getPluginInternalData($calcData->virtuemart_calc_id,'virtuemart_calc_id');
 
 		if($datas){
-			$attribsCalc = get_object_vars($datas);
+			$attribsCalc = $datas->getProperties();
 
 			unset($attribsCalc['virtuemart_calc_id']);
 			foreach($attribsCalc as $k=>$v){

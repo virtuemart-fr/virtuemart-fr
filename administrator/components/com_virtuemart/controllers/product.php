@@ -6,14 +6,14 @@
  * @package	VirtueMart
  * @subpackage
  * @author Max Milbers
- * @link http://www.virtuemart.net
+ * @link https://virtuemart.net
  * @copyright Copyright (c) 2004 - 2010 VirtueMart Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
- * @version $Id: product.php 9074 2015-11-26 15:28:54Z Milbo $
+ * @version $Id: product.php 9478 2017-03-16 09:33:17Z Milbo $
  */
 
 // Check to ensure this file is included in Joomla!
@@ -144,18 +144,21 @@ class VirtuemartControllerProduct extends VmController {
 		$cids = vRequest::getInt($this->_cidName, vRequest::getint('virtuemart_product_id',false));
 		if(!is_array($cids) and $cids > 0){
 			$cids = array($cids);
+		} else {
+			$cids = array_unique($cids);
 		}
 		$target = vRequest::getCmd('target',false);
 
 		$msgtype = 'info';
 		foreach($cids as $cid){
+			$cid = (int) $cid;
 			if ($id=$model->createChild($cid)){
 				$msg = vmText::_('COM_VIRTUEMART_PRODUCT_CHILD_CREATED_SUCCESSFULLY');
 
 
 				if($target=='parent'){
 					vmdebug('toParent');
-					$redirect = 'index.php?option=com_virtuemart&view=product&task=edit&virtuemart_product_id='.$cids[0];
+					$redirect = 'index.php?option=com_virtuemart&view=product&task=edit&virtuemart_product_id='.$cid;
 				} else {
 					$redirect = 'index.php?option=com_virtuemart&view=product&task=edit&virtuemart_product_id='.$id;
 				}
@@ -178,14 +181,28 @@ class VirtuemartControllerProduct extends VmController {
 
 	public function massxref_sgrps_exe(){
 
-		$virtuemart_shoppergroup_ids = vRequest::getInt('virtuemart_shoppergroup_id');
+		$virtuemart_shoppergroup_ids = vRequest::getInt('virtuemart_shoppergroup_id', array() );
+		$massxref_task = vRequest::getCmd('massxref_task', 'replace' );
 
 		$session = JFactory::getSession();
-		$cids = json_decode($session->get('vm_product_ids', array(), 'vm'),true);
+		$pids = json_decode($session->get('vm_product_ids', array(), 'vm'),true);
 
 		$productModel = VmModel::getModel('product');
-		foreach($cids as $cid){
-			$data = array('virtuemart_product_id' => $cid, 'virtuemart_shoppergroup_id' => $virtuemart_shoppergroup_ids);
+
+		foreach($pids as $pid){
+			if ($massxref_task != 'replace') {
+				$db = JFactory::getDBO ();
+				$db->setQuery (' SELECT `virtuemart_shoppergroup_id` FROM `#__virtuemart_product_shoppergroups` WHERE `virtuemart_product_id` =' . (int)$pid);
+				$pcats = $db->loadColumn ();
+				if ($massxref_task == 'add') {
+					$massxref_sgrps = array_unique(array_merge($virtuemart_shoppergroup_ids, $pcats));
+				} else if ($massxref_task == 'remove') {
+					$massxref_sgrps = array_diff($pcats, $virtuemart_shoppergroup_ids);
+				}
+			} else {
+				$massxref_sgrps = $virtuemart_shoppergroup_ids;
+			}
+			$data = array('virtuemart_product_id' => $pid, 'virtuemart_shoppergroup_id' => $massxref_sgrps);
 			$data = $productModel->updateXrefAndChildTables ($data, 'product_shoppergroups');
 		}
 
@@ -199,13 +216,27 @@ class VirtuemartControllerProduct extends VmController {
 	public function massxref_cats_exe(){
 
 		$virtuemart_cat_ids = vRequest::getInt('cid', array() );
+		$massxref_task = vRequest::getCmd('massxref_task', 'replace' );
 
 		$session = JFactory::getSession();
-		$cids = json_decode($session->get('vm_product_ids', array(), 'vm'),true);
+		$pids = json_decode($session->get('vm_product_ids', array(), 'vm'),true);
 
 		$productModel = VmModel::getModel('product');
-		foreach($cids as $cid){
-			$data = array('virtuemart_product_id' => $cid, 'virtuemart_category_id' => $virtuemart_cat_ids);
+
+		foreach($pids as $pid){
+			if ($massxref_task != 'replace') {
+				$db = JFactory::getDBO ();
+				$db->setQuery (' SELECT `virtuemart_category_id` FROM `#__virtuemart_product_categories` WHERE `virtuemart_product_id` =' . (int)$pid);
+				$pcats = $db->loadColumn ();
+				if ($massxref_task == 'add') {
+					$massxref_cats = array_unique(array_merge($virtuemart_cat_ids, $pcats));
+				} else if ($massxref_task == 'remove') {
+					$massxref_cats = array_diff($pcats, $virtuemart_cat_ids);
+				}
+			} else {
+				$massxref_cats = $virtuemart_cat_ids;
+			}
+			$data = array('virtuemart_product_id' => $pid, 'virtuemart_category_id' => $massxref_cats);
 			$data = $productModel->updateXrefAndChildTables ($data, 'product_categories',TRUE);
 		}
 
@@ -258,23 +289,27 @@ class VirtuemartControllerProduct extends VmController {
 	public function CloneProduct() {
 		$mainframe = Jfactory::getApplication();
 
-		$view = $this->getView('product', 'html');
-
 		$model = VmModel::getModel('product');
 		$msgtype = '';
 
 		$cids = vRequest::getInt($this->_cidName, vRequest::getInt('virtuemart_product_id'));
-
+		if(is_array($cids)){
+			$cids = array_unique($cids);
+		} else {
+			$cids = (array)$cids;
+		}
+		$msg = '';
 		foreach($cids as $cid){
-			if ($model->createClone($cid)) {
-				$msg = vmText::_('COM_VIRTUEMART_PRODUCT_CLONED_SUCCESSFULLY');
+			$cid = (int) $cid;
+			if ($cid and $l=$model->createClone($cid)) {
+				$msg .= vmText::_('COM_VIRTUEMART_PRODUCT_CLONED_SUCCESSFULLY');
 			} else {
-				$msg = vmText::_('COM_VIRTUEMART_PRODUCT_NOT_CLONED_SUCCESSFULLY');
+				$msg .= vmText::_('COM_VIRTUEMART_PRODUCT_NOT_CLONED_SUCCESSFULLY');
 				$msgtype = 'error';
 			}
 		}
 
-		$mainframe->redirect('index.php?option=com_virtuemart&view=product', $msg, $msgtype);
+		$mainframe->redirect('index.php?option=com_virtuemart&view=product&task=edit&virtuemart_product_id='.$l, $msg, $msgtype);
 	}
 
 

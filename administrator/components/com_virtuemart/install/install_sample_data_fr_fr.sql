@@ -101,26 +101,26 @@ INSERT IGNORE INTO `#__virtuemart_manufacturer_medias` (`virtuemart_manufacturer
 	(2, 5, 1);
 
 INSERT IGNORE INTO `#__virtuemart_medias` (`virtuemart_media_id`, `file_is_product_image`, `file_type`, `file_mimetype`, `file_title`, `file_description`, `file_meta`, `file_url`, `file_url_thumb`, `file_params`, `published`) VALUES
- (01, 0, 'vendor', 'image/gif','ShopLogo','Used in the invoice','virtuemart shop','images/stories/virtuemart/vendor/vendor.gif', 'images/stories/virtuemart/vendor/resized/vendor_0x90.gif', '', 1),
+ (01, 0, 'vendor', 'image/gif','ShopLogo','Used in the invoice','virtuemart shop','images/virtuemart/vendor/vendor.gif', 'images/virtuemart/vendor/resized/vendor_0x90.gif', '', 1),
 
- (05, 0, 'manufacturer', 'image/jpeg', 'Manufacturer','','','images/stories/virtuemart/manufacturer/manufacturer.jpg', '', '', 1),
- (06, 0, 'manufacturer', 'image/jpeg', 'Producer','','','images/stories/virtuemart/manufacturer/producer.jpg', '', '', 1),
+ (05, 0, 'manufacturer', 'image/jpeg', 'Manufacturer','','','images/virtuemart/manufacturer/manufacturer.jpg', '', '', 1),
+ (06, 0, 'manufacturer', 'image/jpeg', 'Producer','','','images/virtuemart/manufacturer/producer.jpg', '', '', 1),
 
- (10, 0, 'category', 'image/jpeg', 'student hat', 'Products in this category showing tips and tricks','student_hat_16','images/stories/virtuemart/category/student_hat_16.jpg', '', '', 1),
- (11, 0, 'product', 'image/png', 'T-Shirts', 'Warp5 T-Shirts','virtuemart warp5','images/stories/virtuemart/product/tshirt5.png', '', '', 1),
- (12, 0, 'product', 'image/png', 'Hats', 'Hat #1','virtuemart #1','images/stories/virtuemart/product/hat1.png', '', '', 1),
- (13, 0, 'product', 'image/png', 'Skirts', 'Skirt #1','virtuemart #1','images/stories/virtuemart/product/skirt1.png', '', '', 1),
+ (10, 0, 'category', 'image/jpeg', 'student hat', 'Products in this category showing tips and tricks','student_hat_16','images/virtuemart/category/student_hat_16.jpg', '', '', 1),
+ (11, 0, 'product', 'image/png', 'T-Shirts', 'Warp5 T-Shirts','virtuemart warp5','images/virtuemart/product/tshirt5.png', '', '', 1),
+ (12, 0, 'product', 'image/png', 'Hats', 'Hat #1','virtuemart #1','images/virtuemart/product/hat1.png', '', '', 1),
+ (13, 0, 'product', 'image/png', 'Skirts', 'Skirt #1','virtuemart #1','images/virtuemart/product/skirt1.png', '', '', 1),
 
- (20, 1, 'product', 'image/jpeg', 'VM Cart Logo','The Famous VirtueMart Cart Logo','virtuemart cart logo','images/stories/virtuemart/product/cart_logo.jpg', '', '', 1),
- (21, 1, 'product', 'image/png', 'Hat 1','VirtueMart Sample','virtuemart sample','images/stories/virtuemart/product/hat1.png', '', '', 1),
- (22, 1, 'product', 'image/png', 'Hat 2','VirtueMart Sample','virtuemart sample','images/stories/virtuemart/product/hat2.png', '', '', 1),
- (23, 1, 'product', 'image/png', 'Hat 3','VirtueMart Sample','virtuemart sample','images/stories/virtuemart/product/hat3.png', '', '', 1),
- (24, 1, 'product', 'image/png', 'shirt 1','VirtueMart Sample','virtuemart sample','images/stories/virtuemart/product/shirt1.png', '', '', 1),
- (25, 1, 'product', 'image/png', 'shirt 2','VirtueMart Sample','virtuemart sample','images/stories/virtuemart/product/shirt2.png', '', '', 1),
- (26, 1, 'product', 'image/png', 'Coat','','','images/stories/virtuemart/product/coat1.png', '', '', 1),
- (27, 1, 'product', 'image/png', 'Skirt 1','VirtueMart Sample','virtuemart sample','images/stories/virtuemart/product/skirt1.png', '', '', 1),
- (28, 1, 'product', 'image/png', 'Skirt 2','VirtueMart Sample','virtuemart sample','images/stories/virtuemart/product/skirt2.png', '', '', 1),
- (29, 1, 'product', 'image/png', 'T-Shirt EightBall','VirtueMart Sample','virtuemart sample','images/stories/virtuemart/product/tshirt8.png', '', '', 1);
+ (20, 1, 'product', 'image/jpeg', 'VM Cart Logo','The Famous VirtueMart Cart Logo','virtuemart cart logo','images/virtuemart/product/cart_logo.jpg', '', '', 1),
+ (21, 1, 'product', 'image/png', 'Hat 1','VirtueMart Sample','virtuemart sample','images/virtuemart/product/hat1.png', '', '', 1),
+ (22, 1, 'product', 'image/png', 'Hat 2','VirtueMart Sample','virtuemart sample','images/virtuemart/product/hat2.png', '', '', 1),
+ (23, 1, 'product', 'image/png', 'Hat 3','VirtueMart Sample','virtuemart sample','images/virtuemart/product/hat3.png', '', '', 1),
+ (24, 1, 'product', 'image/png', 'shirt 1','VirtueMart Sample','virtuemart sample','images/virtuemart/product/shirt1.png', '', '', 1),
+ (25, 1, 'product', 'image/png', 'shirt 2','VirtueMart Sample','virtuemart sample','images/virtuemart/product/shirt2.png', '', '', 1),
+ (26, 1, 'product', 'image/png', 'Coat','','','images/virtuemart/product/coat1.png', '', '', 1),
+ (27, 1, 'product', 'image/png', 'Skirt 1','VirtueMart Sample','virtuemart sample','images/virtuemart/product/skirt1.png', '', '', 1),
+ (28, 1, 'product', 'image/png', 'Skirt 2','VirtueMart Sample','virtuemart sample','images/virtuemart/product/skirt2.png', '', '', 1),
+ (29, 1, 'product', 'image/png', 'T-Shirt EightBall','VirtueMart Sample','virtuemart sample','images/virtuemart/product/tshirt8.png', '', '', 1);
 
 #Common associations for patterns
 INSERT IGNORE INTO `#__virtuemart_products` (`virtuemart_product_id`, `product_parent_id`, `product_sku`, `product_weight`, `product_length`, `product_width`, `product_height`, `product_in_stock`, `product_params`, `published`) VALUES

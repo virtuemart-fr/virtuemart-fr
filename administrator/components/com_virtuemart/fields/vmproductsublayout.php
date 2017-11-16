@@ -5,7 +5,7 @@
  * @package	VirtueMart
  * @subpackage   Models Fields
  * @author Max Milbers
- * @link http://www.virtuemart.net
+ * @link https://virtuemart.net
  * @copyright Copyright (c) 2004 - 2014 VirtueMart Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
@@ -15,12 +15,6 @@
  * @version $Id: $
  */
 defined('JPATH_BASE') or die;
-defined('DS') or define('DS', DIRECTORY_SEPARATOR);
-if (!class_exists( 'VmConfig' )) require(JPATH_ROOT.DS.'administrator'.DS.'components'.DS.'com_virtuemart'.DS.'helpers'.DS.'config.php');
-if (!class_exists('ShopFunctions'))
-    require(VMPATH_ADMIN . DS . 'helpers' . DS . 'shopfunctions.php');
-if (!class_exists('VirtueMartModelConfig'))
-    require(VMPATH_ADMIN . DS . 'models' . DS . 'config.php');
 jimport('joomla.form.formfield');
 
 /**
@@ -42,8 +36,9 @@ class JFormFieldVmproductsublayout extends JFormField
 	 */
   
 	function getInput() {
-
-		VmConfig::loadJLang('com_virtuemart');
+		if (!class_exists( 'VmConfig' )) require(JPATH_ROOT.'/administrator/components/com_virtuemart/helpers/config.php');
+		VmConfig::loadConfig();
+		vmLanguage::loadJLang('com_virtuemart');
 		$view = substr($this->fieldname,0,-6);
 		$model = vmModel::getModel('config');
 		$vmLayoutList = $model->getFieldList('products');

@@ -7,7 +7,7 @@
  * @subpackage User
  * @author Oscar van Eijk
  * @author Max Milbers
- * @link http://www.virtuemart.net
+ * @link https://virtuemart.net
  * @copyright Copyright (c) 2004 - 2014 VirtueMart Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
@@ -36,7 +36,7 @@ class VirtueMartControllerInvoice extends JControllerLegacy
 	public function __construct()
 	{
 		parent::__construct();
-		$this->useSSL = VmConfig::get('useSSL',0);
+		$this->useSSL = vmURI::useSSL();
 		$this->useXHTML = false;
 	}
 
@@ -201,6 +201,14 @@ class VirtueMartControllerInvoice extends JControllerLegacy
 
 		if(file_exists($path) and !$force){
 			return $path;
+		}
+
+		if(VmConfig::get('invoiceInUserLang', false) and !empty($orderDetails['details']) and !empty($orderDetails['details']['BT']->order_language)) {
+			$orderLang = $orderDetails['details']['BT']->order_language;
+			shopFunctionsF::loadOrderLanguages($orderLang);
+			$orderDetails = $orderModel->getOrder($orderDetails['details']['BT']->virtuemart_order_id);
+		} else {
+			shopFunctionsF::loadOrderLanguages(VmConfig::$jDefLangTag);
 		}
 
 		$this->addViewPath( VMPATH_SITE.DS.'views' );

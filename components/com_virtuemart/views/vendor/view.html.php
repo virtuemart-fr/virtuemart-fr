@@ -7,7 +7,7 @@
  * @package	VirtueMart
  * @subpackage User
  * @author Max Milbers
- * @link http://www.virtuemart.net
+ * @link https://virtuemart.net
  * @copyright Copyright (c) 2004 - 2010 VirtueMart Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
@@ -80,19 +80,51 @@ class VirtuemartViewVendor extends VmView {
 			$userId = VirtueMartModelVendor::getUserIdByVendorId($virtuemart_vendor_id);
 
 			if ($layoutName=='tos') {
-				$document->setTitle( vmText::_('COM_VIRTUEMART_VENDOR_TOS') );
+				$customtitle = vmText::_('COM_VIRTUEMART_VENDOR_TOS');
 				$pathway->addItem(vmText::_('COM_VIRTUEMART_VENDOR_TOS'));
 			}
 			elseif ($layoutName=='contact') {
 				$user = JFactory::getUser();
-				$document->setTitle( vmText::_('COM_VIRTUEMART_VENDOR_CONTACT') );
+				$customtitle = vmText::_('COM_VIRTUEMART_VENDOR_CONTACT');
 				$pathway->addItem(vmText::_('COM_VIRTUEMART_VENDOR_CONTACT'));
 				$this->assignRef('user', $user);
 
 			} else {
-				$document->setTitle( vmText::_('COM_VIRTUEMART_VENDOR_DETAILS') );
+				$customtitle = vmText::_('COM_VIRTUEMART_VENDOR_DETAILS');
 				$pathway->addItem(vmText::_('COM_VIRTUEMART_VENDOR_DETAILS'));
 				$this->setLayout('details');
+			}
+
+			$metadesc = '';
+			$metakey = '';
+			$metarobot = '';
+			$metaauthor = '';
+
+			if(!empty($this->vendor->metadesc)) $metadesc = $this->vendor->metadesc;
+			if(!empty($this->vendor->metakey)) $metakey = $this->vendor->metakey;
+			if(!empty($this->vendor->metarobot)) $metarobot = $this->vendor->metarobot;
+			if(!empty($this->vendor->metaauthor)) $metaauthor = $this->vendor->metaauthor;
+
+			$menus = $mainframe->getMenu();
+			$menu = $menus->getActive();
+			if(!empty($menu)){
+				$metadesc = !empty($menu->params->get('menu-meta_description')) ? $menu->params->get('menu-meta_description') : $metadesc;
+				$metakey = !empty($menu->params->get('menu-meta_keywords')) ? $menu->params->get('menu-meta_keywords') : $metakey;
+				$metarobot = !empty($menu->params->get('robots')) ? $menu->params->get('robots') : $metarobot;
+				$customtitle = !empty($menu->params->get('page_title')) ? $menu->params->get('page_title') : $customtitle;
+				if(!empty($customtitle)){
+					$document->setTitle( $customtitle );
+					if ($mainframe->getCfg('MetaTitle') == '1') {
+						$document->setMetaData('title',  $customtitle);
+					}
+				}
+			}
+
+			$document->setMetaData('description',$metadesc);
+			$document->setMetaData('keywords', $metakey);
+			$document->setMetaData('robots', $metarobot);
+			if ($mainframe->getCfg('MetaAuthor') == '1' and !empty($metaauthor)) {
+				$document->setMetaData('author', $metaauthor);
 			}
 
 			$linkdetails = '<a href="'.JRoute::_('index.php?option=com_virtuemart&view=vendor&layout=details&virtuemart_vendor_id=' .

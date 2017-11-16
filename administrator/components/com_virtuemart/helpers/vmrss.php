@@ -24,7 +24,7 @@ class vmRSS{
 	 */
 	static public function getCPsRssFeed($rssUrl,$max, $cache_time=2880) {  // 2880 = 2days
 
-		$cache = JFactory::getCache ('com_virtuemart_rss');
+		$cache = VmConfig::getCache ('com_virtuemart_rss');
 
 		$cache->setLifeTime($cache_time);
 		$cache->setCaching (1);
@@ -45,7 +45,7 @@ class vmRSS{
 				self::$extFeeds = self::getCPsRssFeed( "http://extensions.virtuemart.net/?format=feed&type=rss", $items,$cache_time );
 				//self::$extFeeds =  self::getRssFeed("http://extensions.virtuemart.net/?format=feed&type=rss", 15);
 			} catch (Exception $e) {
-				echo 'Where not able to parse extension feed';
+				echo 'Were not able to parse extension feed';
 			}
 		}
 		return self::$extFeeds;
@@ -76,7 +76,7 @@ class vmRSS{
 	static public function getRssFeed($rssURL, $max, $cache_time) {
 
 		//if (JVM_VERSION < 3){
-			$erRep = VmConfig::setErrorReporting(false,true);
+			$erRep = VmConfig::setErrRepDefault(true);
 			jimport('simplepie.simplepie');
 			$rssFeed = new SimplePie($rssURL);
 

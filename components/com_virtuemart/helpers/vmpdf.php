@@ -21,7 +21,7 @@ defined('_JEXEC') or die('');
  */
 
 defined('DS') or define('DS', DIRECTORY_SEPARATOR);
-if (!class_exists( 'VmConfig' )) require(JPATH_ROOT.DS.'administrator'.DS.'components'.DS.'com_virtuemart'.DS.'helpers'.DS.'config.php');
+if (!class_exists( 'VmConfig' )) require(JPATH_ROOT .'/administrator/components/com_virtuemart/helpers/config.php');
 VmConfig::loadConfig();
 if(!class_exists('VmModel')) require(VMPATH_ADMIN.DS.'helpers'.DS.'vmmodel.php');
 
@@ -100,12 +100,14 @@ if(!file_exists(VMPATH_LIBS.DS.'tcpdf'.DS.'tcpdf.php')){
 			
 			// set document information
 			$this->SetCreator(vmText::_('COM_VIRTUEMART_PDF_CREATOR'));
+
+			$this->vendorImage = '';
 			if(empty($this->vendor->images[0])){
 				vmError('Vendor image given path empty ');
 			} else if(empty($this->vendor->images[0]->file_url_folder) or empty($this->vendor->images[0]->file_name) or empty($this->vendor->images[0]->file_extension) ){
 				vmError('Vendor image given image is not complete '.$this->vendor->images[0]->file_url_folder.$this->vendor->images[0]->file_name.'.'.$this->vendor->images[0]->file_extension);
-			} else if(!empty($this->vendor->images[0]->file_extension) and strtolower($this->vendor->images[0]->file_extension)=='png'){
-				vmError('Warning extension of the image is a png, tpcdf has problems with that in the header, choose a jpg or gif');
+			/*} else if(!empty($this->vendor->images[0]->file_extension) and strtolower($this->vendor->images[0]->file_extension)=='png'){
+				vmError('Warning extension of the vendor image '.$this->vendor->images[0]->file_name.'is a png, tpcdf has problems with that in the header, choose a jpg or gif');*/
 			} else {
 				$imagePath = str_replace('/',DS, $this->vendor->images[0]->file_url_folder.$this->vendor->images[0]->file_name.'.'.$this->vendor->images[0]->file_extension);
 				if(!file_exists(VMPATH_ROOT . DS . $imagePath)){
@@ -181,9 +183,9 @@ if(!file_exists(VMPATH_LIBS.DS.'tcpdf'.DS.'tcpdf.php')){
 		function replace_variables($txt) {
 			// TODO: Implement more Placeholders (ordernr, invoicenr, etc.)
 			// Use PageNo rather than getAliasNumPage, since the alias will be misaligned (spaced like the {:npn:} text rather than the final number)
-			$txt = str_replace('{vm:pagenum}', $this->/*getAliasNumPage*/PageNo(), $txt);
+			$txt = str_replace('{vm:pagenum}', $this->PageNo(), $txt);
 			// Can't use getNumPages, because when this is evaluated, we don't know the final number of pages (getNumPages is always equal to the current page numbe)
-			$txt = str_replace('{vm:pagecount}', $this->getAliasNbPages/*getNumPages*/(), $txt);
+			$txt = str_replace('{vm:pagecount}', $this->getAliasNbPages(), $txt);
 			$txt = str_replace('{vm:vendorname}', $this->vendor->vendor_store_name, $txt);
 			$imgrepl='';
 			if (!empty($this->vendor->images)) {
@@ -260,6 +262,7 @@ if(!file_exists(VMPATH_LIBS.DS.'tcpdf'.DS.'tcpdf.php')){
 			$headertxt .= '<div id="vmdoc-header" class="vmdoc-header">' . $this->replace_variables($headerdata['string']) . '</div>';
 			$currentCHRF = $this->getCellHeightRatio();
 			$this->setCellHeightRatio($this->vendor->vendor_letter_header_cell_height_ratio);
+			$this->tcpdf6 = JFile::exists(VMPATH_LIBS.DS.'tcpdf'.DS.'include'.DS.'tcpdf_images.php');
 
 			if ($this->rtl) {
 				$this->x = $this->w - $this->original_rMargin;
@@ -273,7 +276,6 @@ if(!file_exists(VMPATH_LIBS.DS.'tcpdf'.DS.'tcpdf.php')){
 				if (!class_exists ('JFile')) {
 					require(VMPATH_LIBS . DS . 'joomla' . DS . 'filesystem' . DS . 'file.php');
 				}
-				$this->tcpdf6 = JFile::exists(VMPATH_LIBS.DS.'tcpdf'.DS.'include'.DS.'tcpdf_images.php');
 				if($this->tcpdf6){
 					if (!class_exists ('TCPDF_IMAGES')) {
 						require(VMPATH_LIBS.DS.'tcpdf'.DS.'include'.DS.'tcpdf_images.php');
@@ -304,10 +306,16 @@ if(!file_exists(VMPATH_LIBS.DS.'tcpdf'.DS.'tcpdf.php')){
 			$this->SetFont($headerfont[0], $headerfont[1], $headerfont[2]);
 			$this->SetX($header_x);
 			
-			$this->writeHTMLCell($cw, /*$cell_height*/0, $this->x, $this->header_margin, $headertxt, '', /*$ln=*/2, false, /*$reseth*/true, '', /*$autopadding=*/true);
+			$this->writeHTMLCell($cw, 0, $this->x, $this->header_margin, $headertxt, '', 2, false, true, '', true);
 			// print an ending header line
 			if ($this->vendor->vendor_letter_header_line == 1) {
-				$this->SetLineStyle(array('width' => 0.85 / $this->k, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => $headerdata['line_color']));
+				if($this->tcpdf6){
+					$getAllSpotColors = TCPDF::getAllSpotColors();
+					$vlheaderlcolor = TCPDF_COLORS::convertHTMLColorToDec($this->vendor->vendor_letter_header_line_color,$getAllSpotColors);
+				} else {
+					$vlheaderlcolor = $this->convertHTMLColorToDec($this->vendor->vendor_letter_header_line_color);
+				}
+				$this->SetLineStyle(array('width' => 0.85 / $this->k, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => $vlheaderlcolor));
 				$this->SetY(max($imgy,$this->y));
 				if ($this->rtl) {
 					$this->SetX($this->original_rMargin);

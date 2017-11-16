@@ -7,19 +7,25 @@
 *
 * @package	VirtueMart
 * @subpackage Orders
-* @author Oscar van Eijk
-* @link http://www.virtuemart.net
-* @copyright Copyright (c) 2004 - 2010 VirtueMart Team. All rights reserved.
+* @author Oscar van Eijk, Andrew Hutson
+* @link https://virtuemart.net
+* @copyright Copyright (c) 2004 - 2016 VirtueMart Team. All rights reserved.
 * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
 * VirtueMart is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
-* @version $Id: list.php 8982 2015-09-14 09:45:02Z Milbo $
+* @version $Id: list.php 9601 2017-07-11 14:26:05Z Milbo $
 */
 
 // Check to ensure this file is included in Joomla!
 defined('_JEXEC') or die('Restricted access');
+
+$ajaxUpdate = '';
+if(VmConfig::get ('ajax_order', TRUE)){
+	$ajaxUpdate = 'data-dynamic-update="1"';
+}
+
 ?>
 <div class="vm-wrap">
 	<div class="vm-orders-list">
@@ -28,12 +34,7 @@ defined('_JEXEC') or die('Restricted access');
 if (count($this->orderlist) == 0) {
 	//echo vmText::_('COM_VIRTUEMART_ACC_NO_ORDER');
 	 echo shopFunctionsF::getLoginForm(false,true);
-	?>
-		</div>
-	</div>
-	<?php
-} else {
- ?>
+} else { ?>
 <div id="editcell">
 	<table class="adminlist" width="80%">
 	<thead>
@@ -62,7 +63,7 @@ if (count($this->orderlist) == 0) {
 			?>
 			<tr class="<?php echo "row$k"; ?>">
 				<td align="left">
-					<a href="<?php echo $editlink; ?>" rel="nofollow"><?php echo $row->order_number; ?></a>
+					<a href="<?php echo $editlink; ?>" rel="nofollow" <?php echo $ajaxUpdate?> ><?php echo $row->order_number; ?></a>
 					<?php echo shopFunctionsF::getInvoiceDownloadButton($row) ?>
 				</td>
 				<td align="left">
@@ -85,5 +86,15 @@ if (count($this->orderlist) == 0) {
 	</table>
 </div>
 <?php } ?>
+	</div>
+	<div class="vm-orders-information"></div>
+</div>
+<?php
+if(VmConfig::get ('ajax_order', TRUE)){
+$j = "Virtuemart.containerSelector = '.vm-orders-information';
+Virtuemart.container = jQuery(Virtuemart.containerSelector);";
 
-
+vmJsApi::addJScript('ajax_order',$j);
+vmJsApi::jDynUpdate();
+}
+?>

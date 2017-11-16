@@ -7,7 +7,7 @@ defined('_JEXEC') or die('');
  * @subpackage User
  * @author Max Milbers
  * @author Valérie Isaksen
- * @link http://www.virtuemart.net
+ * @link https://virtuemart.net
  * @copyright Copyright (c) 2004 - 2010 VirtueMart Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
@@ -67,7 +67,7 @@ $li = '<br />';
 				    echo vmText::_('COM_VIRTUEMART_ENTERED_ADDRESS') . $li;
 
 				    foreach ($this->userFields['fields'] as $userField) {
-					if (!empty($userField['value']) && $userField['type'] != 'delimiter' && $userField['type'] != 'BT') {
+					if (!empty($userField['value']) && $userField['type'] != 'delimiter' && $userField['type'] != 'hidden') {
 					    echo $userField['title'] . ': ' . $userField['value'] . $li;
 					}
 				    }

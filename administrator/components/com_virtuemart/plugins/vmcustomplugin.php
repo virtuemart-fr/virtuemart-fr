@@ -8,7 +8,7 @@ defined ('_JEXEC') or die('Direct Access to ' . basename (__FILE__) . ' is not a
  * @subpackage Plugins
  * @author Oscar van Eijk
  * @author Valérie Isaksen
- * @link http://www.virtuemart.net
+ * @link https://virtuemart.net
  * @copyright Copyright (c) 2004 - 2011 VirtueMart Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
@@ -139,7 +139,7 @@ abstract class vmCustomPlugin extends vmPlugin {
 		//$field->custom_params = $custom_params;
 		//vmdebug('$this->_varsToPushParam '.$this->_name,$this->_varsToPushParam );
 		foreach ($this->_varsToPushParam as $k => $v) {
-			if (!isset($this->params->$k)) {
+			if (!isset($this->params->$k) and isset($field->$k)) {
 				$this->params->$k = $field->$k;
 			}
 		}

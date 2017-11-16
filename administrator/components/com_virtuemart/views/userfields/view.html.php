@@ -6,14 +6,14 @@
 * @package	VirtueMart
 * @subpackage Userfields
 * @author Oscar van Eijk
-* @link http://www.virtuemart.net
+* @link https://virtuemart.net
 * @copyright Copyright (c) 2004 - 2010 VirtueMart Team. All rights reserved.
 * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
 * VirtueMart is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
-* @version $Id: view.html.php 9041 2015-11-05 11:59:38Z Milbo $
+* @version $Id: view.html.php 9463 2017-03-06 10:45:33Z Milbo $
 */
 
 // Check to ensure this file is included in Joomla!
@@ -33,7 +33,7 @@ class VirtuemartViewUserfields extends VmViewAdmin {
 
 	function display($tpl = null) {
 
-		VmConfig::loadJLang('com_virtuemart_shoppers',TRUE);
+		vmLanguage::loadJLang('com_virtuemart_shoppers',TRUE);
 		$option = vRequest::getCmd( 'option');
 		$mainframe = JFactory::getApplication() ;
 
@@ -229,7 +229,7 @@ class VirtuemartViewUserfields extends VmViewAdmin {
 
 		if(!class_exists('vmUserfieldPlugin')) require(VMPATH_PLUGINLIBS.DS.'vmuserfieldtypeplugin.php');
 
-		VmConfig::loadJLang('plg_vmpsplugin', false);
+		vmLanguage::loadJLang('plg_vmpsplugin', false);
 		JForm::addFieldPath(VMPATH_ADMIN . DS . 'fields');
 		//$selected = $this->userField->userfield_jplugin_id;
 		//vmdebug('renderUserfieldPlugin $this->userField->element',$this->userField->type,$this->userField->element);
@@ -268,7 +268,7 @@ class VirtuemartViewUserfields extends VmViewAdmin {
 		$enable = 'enabled';
 
 		$db = JFactory::getDBO();
- 		$q = 'SELECT * FROM `'.$table.'` WHERE `folder` = "vmuserfield" ';
+ 		$q = 'SELECT * FROM `'.$table.'` WHERE `folder` = "vmuserfield" and state="0"';
 		$db->setQuery($q);
 		$userfieldplugins = $db->loadAssocList($ext_id);
 		if(empty($userfieldplugins)){

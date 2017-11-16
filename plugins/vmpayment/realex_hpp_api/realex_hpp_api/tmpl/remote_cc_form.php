@@ -4,10 +4,10 @@
  * Realex payment plugin
  *
  * @author Valerie Isaksen
- * @version $Id: remote_cc_form.php 8479 2014-10-17 11:53:25Z alatak $
+ * @version $Id: remote_cc_form.php 9420 2017-01-12 09:35:36Z Milbo $
  * @package VirtueMart
  * @subpackage payment
- * Copyright (C) 2004-2016 Virtuemart Team. All rights reserved.
+ * Copyright (C) 2004 - 2017 Virtuemart Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
@@ -23,7 +23,7 @@ $ccData = $viewData['ccData'];
 
 JHTML::_('behavior.tooltip');
 JHTML::script('vmcreditcard.js', 'components/com_virtuemart/assets/js/', false);
-VmConfig::loadJLang('com_virtuemart', true);
+vmLanguage::loadJLang('com_virtuemart', true);
 vmJsApi::jCreditCard();
 vmJsApi::jQuery();
 vmJsApi::chosenDropDowns();

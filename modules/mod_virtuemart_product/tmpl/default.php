@@ -22,11 +22,11 @@ if ($products_per_row > 1) {
 		?>
 		<div class="vmproduct<?php echo $params->get ('moduleclass_sfx'); ?> productdetails">
 			<?php foreach ($products as $product) { ?>
-			<div class="<?php echo $pwidth ?> <?php echo $float ?>">
+			<div class="product-container <?php echo $pwidth ?> <?php echo $float ?>">
 				<div class="spacer">
 					<?php
 					if (!empty($product->images[0])) {
-						$image = $product->images[0]->displayMediaThumb ('class="featuredProductImage" border="0"', FALSE);
+						$image = $product->images[0]->displayMediaThumb ('class="featuredProductImage"', FALSE);
 					} else {
 						$image = '';
 					}
@@ -75,10 +75,10 @@ if ($products_per_row > 1) {
 
 		<ul class="vmproduct<?php echo $params->get ('moduleclass_sfx'); ?> productdetails">
 			<?php foreach ($products as $product) : ?>
-			<li class="<?php echo $pwidth ?> <?php echo $float ?>">
+			<li class="product-container <?php echo $pwidth ?> <?php echo $float ?> ">
 				<?php
 				if (!empty($product->images[0])) {
-					$image = $product->images[0]->displayMediaThumb ('class="featuredProductImage" border="0"', FALSE);
+					$image = $product->images[0]->displayMediaThumb ('class="featuredProductImage"', FALSE);
 				} else {
 					$image = '';
 				}
@@ -98,7 +98,7 @@ if ($products_per_row > 1) {
 
 				}
 				if ($show_addtocart) {
-					echo shopFunctionsF::renderVmSubLayout('addtocart',array('product'=>$product));
+					echo shopFunctionsF::renderVmSubLayout('addtocart',array('product'=>$product,'position' => array('ontop', 'addtocart')));
 				}
 				echo '</div>';
 				?>

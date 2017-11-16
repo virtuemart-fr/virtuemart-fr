@@ -6,7 +6,7 @@
  * @package	VirtueMart
  * @subpackage UpdatesMigration
  * @author Max Milbers
- * @link http://www.virtuemart.net
+ * @link https://virtuemart.net
  * @copyright Copyright (c) 2014 VirtueMart Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
@@ -19,11 +19,12 @@
 // Check to ensure this file is included in Joomla!
 defined('_JEXEC') or die('Restricted access');
 
-if (!class_exists( 'VmConfig' )) require(JPATH_ROOT.DS.'administrator'.DS.'components'.DS.'com_virtuemart'.DS.'helpers'.DS.'config.php');
+if (!class_exists( 'VmConfig' )) require(JPATH_ROOT .'/administrator/components/com_virtuemart/helpers/config.php');
 VmConfig::loadConfig();
 
-VmConfig::loadJLang('com_virtuemart.sys');
-VmConfig::loadJLang('com_virtuemart');
+if(!class_exists('vmLanguage')) require(JPATH_ROOT .'/administrator/components/com_virtuemart/helpers/vmlanguage.php');
+vmLanguage::loadJLang('com_virtuemart.sys');
+vmLanguage::loadJLang('com_virtuemart');
 
 $update = vRequest::getInt('update',0);
 $option = vRequest::getString('option');
@@ -41,12 +42,12 @@ if($option=='com_virtuemart'){
 ?>
 
 	<table
-		width="100%"
+		width="50%"
 		border="0">
 		<tr>
-			<td
+			<td colspan="2"
 				valign="top"><a
-					href="http://virtuemart.net"
+					href="https://virtuemart.net"
 					target="_blank"> <img
 						border="0"
 						align="left" style="margin-right: 20px"
@@ -70,8 +71,11 @@ if($option=='com_virtuemart'){
 				</strong>
 
 			</td>
+			<td>
+				<?php echo vmText::sprintf('COM_VM_INSTALLATION_SOURCE',htmlspecialchars(VMPATH_ROOT)); ?>
+            </td>
 		</tr>
-		<?php  if (vRequest::get('view','')=='install') {
+		<?php  if (vRequest::getCmd('view','')=='install') {
 			if (JVM_VERSION < 3) {
 			$tag="strong";$style='style="color: #C00"';
 			} else {
@@ -95,7 +99,7 @@ if($option=='com_virtuemart'){
 		<?php
 		}
 		$class="";
-		if (vRequest::get('view','')=='install') {
+		if (vRequest::getCmd('view','')=='install') {
 			if (JVM_VERSION < 3) {
 				$class = "button";
 			} else {
@@ -105,19 +109,19 @@ if($option=='com_virtuemart'){
 		?>
 		<tr>
 			<td><span class="<?php echo $class ?>">
-				<?php echo vmText::sprintf('COM_VIRTUEMART_MORE_LANGUAGES','http://virtuemart.net/community/translations'); ?>
+				<?php echo vmText::sprintf('COM_VIRTUEMART_MORE_LANGUAGES','https://virtuemart.net/community/translations'); ?>
 				</span>
 			</td>
 		</tr>
 		<tr>
 			<td><span class="<?php echo $class ?>">
-				<a href="http://docs.virtuemart.net"><?php echo vmText::_('COM_VIRTUEMART_DOCUMENTATION'); ?></a>
+				<a href="https://docs.virtuemart.net"><?php echo vmText::_('COM_VIRTUEMART_DOCUMENTATION'); ?></a>
 				</span>
 			</td>
 		</tr>
 		<tr>
 			<td><span class="<?php echo $class ?>">
-				<a href="http://extensions.virtuemart.net"><?php echo  vmText::_('COM_VIRTUEMART_EXTENSIONS_MORE'); ?></a>
+				<a href="https://extensions.virtuemart.net"><?php echo  vmText::_('COM_VIRTUEMART_EXTENSIONS_MORE'); ?></a>
 				</span>
 			</td>
 		</tr>

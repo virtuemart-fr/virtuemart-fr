@@ -6,7 +6,19 @@ Virtuemart.stopSendtocart = false;
 Virtuemart.setproducttype = function(form, id) {
 	form.view = null;
 	var datas = form.serialize();
-	var prices = form.parents(".productdetails").find(".product-price");
+
+	var runs= 0, maxruns = 20;
+	var container = form;
+	while(!container.hasClass('product-container') && !container.hasClass('productdetails') && !container.hasClass('vm-product-details-container')  && runs<=maxruns){
+		container = container.parent();
+		runs++;
+	}
+	if(runs>maxruns){
+		console.log('setproducttype: Could not find parent container product-container nor product-field-display');
+		return false;
+	}
+
+	var prices = container.find(".product-price");
 	if (0 == prices.length) {
 		prices = jQuery("#productPrice" + id);
 	}
@@ -81,6 +93,7 @@ Virtuemart.cartEffect = function(form) {
         type: "POST",
         cache: false,
         dataType: "json",
+        timeout: "20000",
         url: Virtuemart.vmSiteurl + "index.php?option=com_virtuemart&nosef=1&view=cart&task=addJS&format=json"+Virtuemart.vmLang+window.Itemid,
         data: dat
     }).done(
@@ -90,7 +103,7 @@ Virtuemart.cartEffect = function(form) {
 		if(datas.stat ==1){
 			var txt = datas.msg;
 		} else if(datas.stat ==2){
-			var txt = datas.msg +"<H4>"+form.find(".pname").val()+"</H4>";
+			var txt = datas.msg;
 		} else {
 			var txt = "<H4>"+vmCartError+"</H4>"+datas.msg;
 		}
@@ -111,8 +124,7 @@ Virtuemart.cartEffect = function(form) {
 			jQuery.facebox( txt , 'my-groovy-style');
 		}
 
-
-		Virtuemart.productUpdate();
+        jQuery('body').trigger('updateVirtueMartCartModule');
 	});
 
 }
@@ -171,10 +183,10 @@ Virtuemart.addtocart = function (e){
     if (targ.nodeType == 3) // defeat Safari bug
         targ = targ.parentNode;
 
-    if (jQuery(targ).prop("type") == "submit" ||  jQuery(targ).prop("type") == "image" ) {
+    //if (jQuery(targ).prop("type") == "submit" ||  jQuery(targ).prop("type") == "image" ) {
         Virtuemart.sendtocart(e.data.cart);
         return false;
-    }
+    //}
 };
 
 Virtuemart.quantityErrorAlert = function(e) {

@@ -6,14 +6,14 @@
 * @package	VirtueMart
 * @subpackage Orders
 * @author RolandD
-* @link http://www.virtuemart.net
+* @link https://virtuemart.net
 * @copyright Copyright (c) 2004 - 2010 VirtueMart Team. All rights reserved.
 * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
 * VirtueMart is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
-* @version $Id: orders.php 8971 2015-09-07 09:35:42Z Milbo $
+* @version $Id: orders.php 9545 2017-05-16 13:07:19Z kkmediaproduction $
 */
 
 // Check to ensure this file is included in Joomla!
@@ -80,6 +80,13 @@ class TableOrders extends VmTableData {
 	var $user_currency_id = NULL;
 	/** @var char User currency rate */
 	var $user_currency_rate = NULL;
+	/** @var char User shoppergroups */
+	var $user_shoppergroups = NULL;
+	/** @var char User currency rate */
+	var $payment_currency_id = NULL;
+	/** @var char User currency rate */
+	var $payment_currency_rate = NULL;
+
 	/** @var int Payment method ID */
 	var $virtuemart_paymentmethod_id = NULL;
 	/** @var int Shipment method ID */

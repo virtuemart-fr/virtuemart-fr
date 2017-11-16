@@ -6,7 +6,7 @@
 * @package	VirtueMart
 * @subpackage UpdatesMigration
 * @author Max Milbers
-* @link http://www.virtuemart.net
+* @link https://virtuemart.net
 * @copyright Copyright (c) 2014 VirtueMart Team. All rights reserved.
 * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
 * VirtueMart is free software. This version may have been modified pursuant
@@ -20,6 +20,8 @@
 defined('_JEXEC') or die('Restricted access');
 
 AdminUIHelper::startAdminArea($this);
+
+vmInfo('COM_VM_INSTALLATION_INFO');
 if(!VmConfig::get('dangeroustools', false)){
 	$uri = JFactory::getURI();
 	$link = $uri->root() . 'administrator/index.php?option=com_virtuemart&view=config';
@@ -35,21 +37,23 @@ if(!VmConfig::get('dangeroustools', false)){
 $link=JROUTE::_('index.php?option=com_virtuemart&view=updatesmigration&task=installComplete&'.JSession::getFormToken().'=1&token='.JSession::getFormToken().'&install=1' ); ?>
 
 <div id="cpanel">
-	<table  >
+
+    <div style="text-align: left;padding: 20px;width: 30%;float: left;"><?php echo vmText::_('COM_VM_INSTALLATION_EXPLAIN')?></div>
+
 
 <div class="icon"><a onclick="javascript:confirmation('<?php echo $link; ?>');">
 		<span class="vmicon48"></span>
-		<br /><?php echo vmText::_('COM_VIRTUEMART_DELETES_ALL_VM_TABLES_AND_FRESH'); ?>
+		<br /><?php echo vmText::_('COM_VM_INSTALLATION_FRESH'); ?>
 
 	</a></div>
 
 <?php	$link=JROUTE::_('index.php?option=com_virtuemart&view=updatesmigration&task=installCompleteSamples&'.JSession::getFormToken().'=1&token='.JSession::getFormToken().'&install=1'); ?>
 	<div class="icon"><a onclick="javascript:confirmation('<?php echo $link; ?>');">
 			<span class="vmicon48"></span>
-			<br /><?php echo vmText::_('COM_VIRTUEMART_DELETES_ALL_VM_TABLES_AND_SAMPLE'); ?>
+			<br /><?php echo vmText::_('COM_VM_INSTALLATION_FRESH_AND_SAMPLE'); ?>
 
 		</a></div>
-	</table>
+
 <?php
 AdminUIHelper::endAdminArea();
 ?>

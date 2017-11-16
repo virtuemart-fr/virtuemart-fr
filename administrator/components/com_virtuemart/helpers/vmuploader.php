@@ -303,9 +303,9 @@ class vmUploader {
 				}
 
 				if($obj->file_is_forSale==0){
-					JFile::upload($media['tmp_name'],VMPATH_ROOT.DS.$path_folder.$media['name']);
+					JFile::upload($media['tmp_name'],VMPATH_ROOT.DS.$path_folder.$media['name'], false, vmAccess::manager('media.trusteduploader'));
 				} else {
-					JFile::upload($media['tmp_name'],$path_folder.$media['name']);
+					JFile::upload($media['tmp_name'],$path_folder.$media['name'], false, vmAccess::manager('media.trusteduploader'));
 				}
 
 				$obj->file_mimetype = $media['type'];

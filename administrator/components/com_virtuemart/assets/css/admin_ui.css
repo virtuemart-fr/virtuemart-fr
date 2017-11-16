@@ -33,6 +33,7 @@
 .bartext { display: block;font-size: 12px;font-weight: bold;line-height: 32px;vertical-align: inherit;white-space: nowrap;width: auto !important;}
 /* Pagination Override Bluestork */
 .pagination div.limit {display: inline-flex;}
+.list-footer.pagination.pagination-toolbar div.limit {float: right;}
 div#limit_chzn {margin: 0 0 0 6px;}
 div#limit_chzn .chzn-search {display: none;}
 
@@ -72,12 +73,17 @@ input.readonly{  border: 0 none;}
 
 dl#system-message dd .vmdebug  { font-size:10px; }
 /* Fieldset */
-.virtuemart-admin-area fieldset {border-radius: 6px;-moz-border-radius: 6px;-webkit-border-radius: 6px;
+.virtuemart-admin-area fieldset {
+border-radius: 6px;
+-moz-border-radius: 6px;
+-webkit-border-radius: 6px;
 margin-bottom: 10px;
-    border: 1px #CCC solid;
-    padding: 5px;
-    text-align: left;
+border: 1px #CCC solid;
+padding: 5px;
+text-align: left;
 }
+
+.virtuemart-admin-area .key {min-width: 160px;}
 .virtuemart-admin-area fieldset legend {padding: 0px 10px;width: inherit;border-bottom:0px}
 
 /* Inputs */
@@ -120,13 +126,7 @@ textarea {width: 100%;}
 
 /* Table */
 table.adminlist .right{text-align: right;}
-table.adminlist td.vm-order span {
-    background-repeat: no-repeat;
-    float: left;
-    height: 13px;
-    text-align: center;
-    width: 20px;
-}
+table.adminlist td.vm-order > span {background-repeat: no-repeat;height: 13px;text-align: center;width: 20px;}
 
 /* Admin Menu */
 #admin-ui-menu {border-bottom:1px solid #94B1CF;}
@@ -194,6 +194,7 @@ font-weight: normal;
 .ui-widget-header h2{margin:0;padding:0}
 .ui-autocomplete{width:600px;height:300px}
 .ui-autocomplete li{background:none repeat scroll 0 0 #FFF;display:inline;float:left;list-style:none outside none;position:relative;margin:0;padding:0}
+.ui-autocomplete li a{border:none !important}
 .vmpayment_description,.vmshipment_description{margin-left:2px}
 /* #plugin-Container{display:table} */
 .vm2-modallink{height:16px;margin-left:3px;width:16px;display:inline-block;background:url(../images/admin_ui/icon_external_link.gif) no-repeat scroll left top transparent}
@@ -202,9 +203,7 @@ ul.newsfeed{list-style:none!important;text-align:left;padding:0}
 ul.newsfeed li{font-size:120%;line-height:150%;margin:0;padding:0 0 0 25px}
 .cpanel{padding-left:25px;text-align:left}
 .element-box{background:#fff}
-.virtuemart-admin-area input.ordering {
-    max-width: 30px;
-}
+.virtuemart-admin-area input.ordering {max-width: 20px;float: right;}
 a.signin-button-link {margin: 5px  10px 5px 0;background: #F0F0F0;border: 1px solid #BDBDBD;padding:10px}
 a:hover.signin-button-link {text-decoration:none;background: #D7D7D7;}
 
@@ -230,7 +229,13 @@ a:hover.signin-button-link {text-decoration:none;background: #D7D7D7;}
 .menu-collapsed a:hover .menu-subtitle{ opacity: 1; border: 1px solid #ccc;}
 .menu-collapsed #admin-ui-menu h3.menu-title:hover, .menu-collapsed #admin-ui-menu .menu-list ul li a:hover { width: auto;}
 .menu-collapsed .vm-installed-version { opacity: 0;}
-
+.menu-collapsed > div > div > p {overflow: hidden;}
 .vm-lang-list-container{ z-index:20;}
 .vm-lang-list-container img{float:right;}
+.vm-drop{min-width:100px;width:100%;max-width:207px;}
 
+.pr-price-derivated {color:#808080}
+
+#show_hide_prices.admintable tr:nth-child(2n) {background-color: #f8f8f8;}
+#show_hide_prices.admintable th, #show_hide_prices.admintable td {min-width: 72px;padding: 0 4px;text-align: center;border-left: 1px solid #ccc;}
+#show_hide_prices.admintable th:first-child, #show_hide_prices.admintable td:first-child {border-left: 0;text-align: left;}

@@ -1,6 +1,6 @@
 <?php
 /**
- * @version $Id: getamazon.php 8706 2015-02-16 10:06:06Z alatak $
+ * @version $Id: getamazon.php 9292 2016-09-19 08:07:15Z Milbo $
  *
  * @author Valérie Isaksen
  * @package VirtueMart
@@ -44,7 +44,7 @@ class JFormFieldGetAmazon extends JFormField {
 		$html = '<p><a target="_blank" href="' . $url . '"  >' . $logo . '</a>';
 		$html .= '<a target="_blank" href="' . $url . '"  class="signin-button-link">' . vmText::_('VMPAYMENT_AMAZON_GETAMAZON') . '</a>';
 		$html .= '<a target="_blank" href="http://docs.virtuemart.net/manual/shop-menu/payment-methods/pay-with-amazon.html"  class="signin-button-link">' . vmText::_('VMPAYMENT_AMAZON_DOCUMENTATION') . '</a></p></div>';
-		$html .="<p>This plugin is in beta version. <br /> If you want to be a beta tester, please click ";
+		$html .="<p>";
 		$html .= '<a target="_blank" href="' . $url . '">' . vmText::_('VMPAYMENT_AMAZON_GETAMAZON') . '</a></p>';
 		$html.='<p>Please report errors on the <a href="http://forum.virtuemart.net/index.php?board=131.0">forum</a>; We will help you.</p>';
 		return $html;	}

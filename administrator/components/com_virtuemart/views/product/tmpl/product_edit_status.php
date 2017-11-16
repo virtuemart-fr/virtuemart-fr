@@ -6,14 +6,14 @@
 * @package	VirtueMart
 * @subpackage Product
 * @author RolandD
-* @link http://www.virtuemart.net
+* @link https://virtuemart.net
 * @copyright Copyright (c) 2004 - 2010 VirtueMart Team. All rights reserved.
 * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
 * VirtueMart is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
-* @version $Id: product_edit_status.php 8508 2014-10-22 18:57:14Z Milbo $
+* @version $Id: product_edit_status.php 9413 2017-01-04 17:20:58Z Milbo $
 */
 
 // Check to ensure this file is included in Joomla!
@@ -78,18 +78,36 @@ defined('_JEXEC') or die('Restricted access'); ?>
 			<input type="text" class="inputbox"  name="max_order_level" value="<?php echo $this->product->max_order_level; ?>" size="10" />
 		</td>
 	</tr>
-	<tr class="row1">
+	<?php if(VmConfig::get('stockhandle_products',false)){ ?>
+		<tr class="row1">
+			<th style="text-align:right;">
+				<?php echo vmText::_('COM_VIRTUEMART_CFG_POOS_ENABLE') ?>
+			</th>
+			<td colspan="3">
+				<?php
+				$options = array(
+				'0' => vmText::_('COM_VIRTUEMART_ADMIN_CFG_POOS_GLOBAL'),
+				'none' => vmText::_('COM_VIRTUEMART_ADMIN_CFG_POOS_NONE'),
+				'disableit' => vmText::_('COM_VIRTUEMART_ADMIN_CFG_POOS_DISABLE_IT'),
+				'disableit_children' => vmText::_('COM_VIRTUEMART_ADMIN_CFG_POOS_DISABLE_IT_CHILDREN'),
+				'disableadd' => vmText::_('COM_VIRTUEMART_ADMIN_CFG_POOS_DISABLE_ADD'),
+				'risetime' => vmText::_('COM_VIRTUEMART_ADMIN_CFG_POOS_RISE_AVATIME')
+				);
+				echo VmHTML::selectList('product_stockhandle', $this->product->product_stockhandle, $options);
+				?>
+			</td>
+		</tr>
+	<?php } ?>
+
+	<tr class="row0">
 		<th style="text-align:right;">
-
-				<?php echo vmText::_('COM_VIRTUEMART_PRODUCT_FORM_AVAILABLE_DATE') ?>
+			<?php echo vmText::_('COM_VIRTUEMART_PRODUCT_FORM_AVAILABLE_DATE') ?>
 		</th>
-		<td colspan="3">
-			<?php
-
-			echo vmJsApi::jDate($this->product->product_available_date, 'product_available_date'); ?>
+		<td>
+			<?php echo vmJsApi::jDate($this->product->product_available_date, 'product_available_date'); ?>
 		</td>
 	</tr>
-	<tr class="row0">
+	<tr class="row1">
 		<th style="text-align:right;">
 
 				<?php echo vmText::_('COM_VIRTUEMART_AVAILABILITY') ?>
@@ -112,26 +130,5 @@ defined('_JEXEC') or die('Restricted access'); ?>
 		<?php echo $this->loadTemplate('customer'); ?>
 </fieldset>
 
-
-
-
-<script type="text/javascript">
-	jQuery('#image').change( function() {
-		var $newimage = jQuery(this).val();
-		jQuery('#product_availability').val($newimage);
-		jQuery('#imagelib').attr({ src:'<?php echo JURI::root(true).$this->imagePath ?>'+$newimage, alt:$newimage });
-		});
-	jQuery('.js-change-stock').change( function() {
-
-		var in_stock = jQuery('.js-change-stock[name="product_in_stock"]');
-		var ordered = jQuery('.js-change-stock[name="product_ordered"]');
-		var product_in_stock= parseInt(in_stock.val());
-		if ( oldstock == "undefined") var oldstock = product_in_stock ;
-		var product_ordered=parseInt(ordered.val());
-		if (product_in_stock>product_ordered && product_in_stock!=oldstock )
-			jQuery('#notify_users').attr('checked','checked');
-		else jQuery('#notify_users').attr('checked',false);
-	});
-</script>
 
 

@@ -1,9 +1,10 @@
 /** @author Max Milbers, copyright by the author and VirtueMart team , license MIT */
-var vmKeepAlive = function($) {
-    jQuery(function(){
+var vmKeepAlive = function() {
+    jQuery(function($){
         var lastUpd = 0,kAlive = 0,minlps = 1,stopped = true;
         var sessMSec = 60 * 1000 * parseFloat(sessMin);
-        //console.log('keepAlive each '+sessMin+' minutes and maxlps '+maxlps);
+        var interval = (sessMSec - 40000) * 0.99;
+        console.log('keepAlive each '+interval/60000+' minutes and maxlps '+maxlps);
         var tKeepAlive = function($) {
             if(stopped){
                 kAlive = 1;
@@ -15,29 +16,29 @@ var vmKeepAlive = function($) {
                         stopped = true;
                         clearInterval(loop);
                     }else{
-                        //console.log('keep alive '+kAlive+' newTime '+((newTime-lastUpd)/60000)+' < '+(sessMin*(parseFloat(maxlps) + 0.99)));
+                        console.log('keep alive '+kAlive+' newTime '+((newTime-lastUpd)/60000)+' < '+(sessMin*(parseFloat(maxlps) + 0.99)));
                         kAlive++;
-                        jQuery.ajax({
+                        $.ajax({
                             url: vmAliveUrl,
                             cache: false
                         });
                     }
-                }, sessMSec * 0.99); //mins * 60 * 1000
+                }, interval); //mins * 60 * 1000
                 stopped = false;
             }
         };
         lastUpd = new Date().getTime();
-        tKeepAlive();
+        tKeepAlive($);
         //Editors like tinyMCE unbind any event. Using binds like focusin/click, update keep alive using the tool bar
-        jQuery(document).on('keyup click','body', function(e){
+        $(document).on('keyup click','body', function(e){
             lastUpd = new Date().getTime();
             //console.log('keepAlive body ', e.type);
             if(stopped){
-                jQuery.ajax({
+                $.ajax({
                     url: vmAliveUrl,
                     cache: false
                 });
-                tKeepAlive();
+                tKeepAlive($);
             }
         });
     });

@@ -6,17 +6,20 @@
  * @package    VirtueMart
  * @subpackage Product
  * @author Seyi, Valérie Isaksen
- * @link http://www.virtuemart.net
+ * @link https://virtuemart.net
  * @copyright Copyright (c) 2004 - 2012 VirtueMart Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
- * @version $Id: product_edit_customer.php 9141 2016-02-04 15:56:50Z Milbo $
+ * @version $Id: product_edit_customer.php 9572 2017-06-07 15:03:30Z kkmediaproduction $
  */
 // Check to ensure this file is included in Joomla!
 defined ('_JEXEC') or die('Restricted access');
+
+$stockhandle = $this->product->product_stockhandle ? $this->product->product_stockhandle : VmConfig::get ('stockhandle', 0);
+
 $i = 0;
 ?>
 <table class="adminform">
@@ -25,14 +28,14 @@ $i = 0;
 		<td width="21%" valign="top">
 			<?php
 			$mail_options = array(
-				'customer'=> vmText::_ ('COM_VIRTUEMART_PRODUCT_SHOPPERS'),
-				'notify'  => vmText::_ ('COM_VIRTUEMART_PRODUCT_WAITING_LIST_USERLIST'),
+				'customer'=> vmText::_ ('COM_VIRTUEMART_PRODUCT_SHOPPERS')
 			);
-			$mail_default = 'notify';
-			if (VmConfig::get ('stockhandle', 0) != 'disableadd' or empty($this->waitinglist)) {
-				echo '<input type="hidden" name="customer_email_type" value="customer" id="customer_email_type0">';
+			if ($stockhandle != 'disableadd' or empty($this->waitinglist)) {
+				echo VmHtml::radioList ('customer_email_type', 'customer', $mail_options, 'style="display:none;"');
 			}
 			else {
+				$mail_default = 'notify';
+				$mail_options['notify'] = vmText::_ ('COM_VIRTUEMART_PRODUCT_WAITING_LIST_USERLIST');
 				echo VmHtml::radioList ('customer_email_type', $mail_default, $mail_options);
 			}
 			?>
@@ -84,15 +87,16 @@ $i = 0;
 				<?php echo $this->lists['OrderStatus'];?>
 				<br/> <br/>
 				<div style="font-weight:bold;"><?php echo vmText::sprintf ('COM_VIRTUEMART_PRODUCT_SHOPPERS_LIST', ($this->product->product_name)); ?></div>
-				<table class="adminlist table" cellspacing="0" cellpadding="0">
+				<table class="adminlist table ui-sortable" cellspacing="0" cellpadding="0">
 					<thead>
 					<tr>
-						<th class="title"><?php echo vmText::_ ('COM_VIRTUEMART_NAME');?></th>
-						<th class="title"><?php echo vmText::_ ('COM_VIRTUEMART_EMAIL');?></th>
+						<th class="title"><?php echo $this->sort ('ou.first_name', 'COM_VIRTUEMART_NAME');?></th>
+						<th class="title"><?php echo $this->sort ('ou.email', 'COM_VIRTUEMART_EMAIL');?></th>
 						<th class="title"><?php echo vmText::_ ('COM_VIRTUEMART_SHOPPER_FORM_PHONE');?></th>
 						<th class="title"><?php echo vmText::_ ('COM_VIRTUEMART_ORDER_PRINT_QUANTITY');?></th>
 						<th class="title"><?php echo vmText::_ ('COM_VIRTUEMART_ORDER_PRINT_ITEM_STATUS');?></th>
-						<th class="title"><?php echo vmText::_ ('COM_VIRTUEMART_ORDER_NUMBER');?></th>
+						<th class="title"><?php echo $this->sort ('o.order_number', 'COM_VIRTUEMART_ORDER_NUMBER');?></th>
+						<th class="title"><?php echo $this->sort ('order_date', 'COM_VIRTUEMART_ORDER_CDATE');?></th>
 					</tr>
 					</thead>
 					<tbody id="customers-list">
@@ -106,7 +110,7 @@ $i = 0;
 
 			<div id="customer-mail-notify-list">
 
-				<?php if (VmConfig::get ('stockhandle', 0) == 'disableadd' && !empty($this->waitinglist)) { ?>
+				<?php if ($stockhandle == 'disableadd' && !empty($this->waitinglist)) { ?>
 				<div style="font-weight:bold;"><?php echo vmText::_ ('COM_VIRTUEMART_PRODUCT_WAITING_LIST_USERLIST'); ?></div>
 				<table class="adminlist table" cellspacing="0" cellpadding="0">
 					<thead>
@@ -153,120 +157,10 @@ $i = 0;
 	<tr>
 		<td>
 			<?php
-			$aflink = '<a target="_blank" href="https://www.acyba.com/?partner_id=19513"><img title="AcyMailing2" src="http://www.acyba.com/images/banners/affiliate2.png"/></a>';
+			$aflink = '<a target="_blank" href="https://www.acyba.com/?partner_id=19513"><img title="AcyMailing2" src="https://www.acyba.com/images/banners/affiliate2.png"/></a>';
 			echo vmText::sprintf('COM_VIRTUEMART_AD_ACY',$aflink);
 			?>
 		</td>
 	</tr>
 	</tbody>
 </table>
-<script type="text/javascript">
-
-	var $customerMailLink = '<?php echo JURI::root () . '/index.php?option=com_virtuemart&view=productdetails&task=sentproductemailtoshoppers&virtuemart_product_id=' . $this->product->virtuemart_product_id ?>';
-	var $customerMailNotifyLink = '<?php echo 'index.php?option=com_virtuemart&view=product&task=ajax_notifyUsers&virtuemart_product_id=' . $this->product->virtuemart_product_id ?>';
-	var $customerListLink = '<?php echo 'index.php?option=com_virtuemart&view=product&format=json&type=userlist&virtuemart_product_id=' . $this->product->virtuemart_product_id ?>';
-	var $customerListNotifyLink = '<?php echo 'index.php?option=com_virtuemart&view=product&task=ajax_waitinglist&virtuemart_product_id=' . $this->product->virtuemart_product_id ?>';
-	var $customerListtype = 'reserved';
-
-	jQuery(document).ready(function () {
-
-		populate_customer_list(jQuery('select#order_status').val());
-		customer_initiliaze_boxes();
-		jQuery("input:radio[name=customer_email_type],input:checkbox[name=notification_template]").click(function () {
-			customer_initiliaze_boxes();
-		});
-		jQuery('select#order_status').chosen({enable_select_all:true, select_some_options_text:vm2string.select_some_options_text}).change(function () {
-			populate_customer_list(jQuery(this).val());
-		})
-		jQuery('.mailing .button2-left').click(function () {
-
-			email_type = jQuery("input:radio[name=customer_email_type]:checked").val();
-			if (email_type == 'notify') {
-
-				var $body = '';
-				var $subject = '';
-				if (jQuery('input:checkbox[name=notification_template]').is(':checked')); else {
-					 $subject = jQuery('#mail-subject').val();
-					 $body = jQuery('#mail-body').val();
-				}
-				var $max_number = jQuery('input[name=notify_number]').val();
-
-				jQuery.post($customerMailNotifyLink, { subject:$subject, mailbody:$body, max_number:$max_number, token:'<?php echo JSession::getFormToken() ?>' },
-					function (data) {
-						alert('<?php echo addslashes (vmText::_ ('COM_VIRTUEMART_PRODUCT_NOTIFY_MESSAGE_SENT')); ?>');
-						jQuery.getJSON($customerListNotifyLink, {tmpl:'component', no_html:1},
-							function (data) {
-								//			jQuery("#customers-list").html(data.value);
-								$html = '';
-								jQuery.each(data, function (key, val) {
-									if (val.virtuemart_user_id == 0) {
-										$html += '<tr><td></td><td></td><td><a href="mailto:' + val.notify_email + '">' + val.notify_email + '</a></td></tr>';
-									}
-									else {
-										$html += '<tr><td>' + val.name + '</td><td>' + val.username + '</td><td><a href="mailto:' + val.notify_email + '">' + val.notify_email + '</a></td></tr>';
-									}
-								});
-								jQuery("#customers-notify-list").html($html);
-							}
-						);
-					}
-				);
-
-			}
-			else if (email_type = 'customer') {
-				var $subject = jQuery('#mail-subject').val();
-				var $body = jQuery('#mail-body').val();
-				if ($subject == '') {
-					alert("<?php echo vmText::_ ('COM_VIRTUEMART_PRODUCT_EMAIL_ENTER_SUBJECT')?>");
-				}
-				else if ($body == '') {
-					alert("<?php echo vmText::_ ('COM_VIRTUEMART_PRODUCT_EMAIL_ENTER_BODY')?>");
-				}
-				else {
-					var $statut = jQuery('select#order_status').val();
-					jQuery.post($customerMailLink, { subject:$subject, mailbody:$body, statut:$statut, token:'<?php echo JSession::getFormToken() ?>' },
-						function (data) {
-							alert('<?php echo addslashes (vmText::_ ('COM_VIRTUEMART_PRODUCT_NOTIFY_MESSAGE_SENT')); ?>');
-							//jQuery("#customers-list-msg").html('<strong><?php echo vmText::_ ('COM_VIRTUEMART_PRODUCT_NOTIFY_MESSAGE_SENT')?></strong>');
-							//jQuery("#mail-subject").html('');
-							jQuery("#mail-body").html('');
-						}
-					);
-				}
-
-			}
-
-		});
-
-	});
-
-	/* JS for list changes */
-	function populate_customer_list($status) {
-		if ($status == "undefined" || $status == null) $status = '';
-		if($status !=''){
-            jQuery.getJSON($customerListLink, { status:$status  },
-                    function (data) {
-                        jQuery("#customers-list").html(data.value);
-                    });
-		}
-	}
-
-	function customer_initiliaze_boxes() {
-		email_type = jQuery("input:radio[name=customer_email_type]:checked").val();
-		if (email_type == 'notify') {
-			jQuery('#notify_particulars').show();
-			jQuery('#customer-mail-list').hide();
-			jQuery('#customer-mail-notify-list').show();
-			jQuery("input:radio[name=customer_email_type]").val()
-			if (jQuery('input:checkbox[name=notification_template]').is(':checked')) jQuery('#customer-mail-content').hide();
-			else  jQuery('#customer-mail-content').show();
-
-		}
-		else if (email_type = 'customer') {
-			jQuery('#notify_particulars').hide();
-			jQuery('#customer-mail-content').show();
-			jQuery('#customer-mail-list').show();
-			jQuery('#customer-mail-notify-list').hide();
-		}
-	}
-</script>

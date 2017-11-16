@@ -8,14 +8,14 @@
  * @subpackage User
  * @author Oscar van Eijk
  * @author Max Milbers
- * @link http://www.virtuemart.net
+ * @link https://virtuemart.net
  * @copyright Copyright (c) 2004 - 2010 VirtueMart Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
- * @version $Id: view.html.php 9078 2015-12-07 15:47:29Z Milbo $
+ * @version $Id: view.html.php 9523 2017-05-04 10:23:55Z Milbo $
  */
 // Check to ensure this file is included in Joomla!
 defined('_JEXEC') or die('Restricted access');
@@ -51,10 +51,10 @@ class VirtuemartViewUser extends VmView {
      */
     function display($tpl = null) {
 
-		$this->useSSL = VmConfig::get('useSSL', 0);
+		$this->useSSL = vmURI::useSSL();
 		$this->useXHTML = false;
 
-		VmConfig::loadJLang('com_virtuemart_shoppers',TRUE);
+		vmLanguage::loadJLang('com_virtuemart_shoppers',TRUE);
 
 		$mainframe = JFactory::getApplication();
 		$pathway = $mainframe->getPathway();
@@ -238,6 +238,8 @@ class VirtuemartViewUser extends VmView {
 
 		shopFunctionsF::setVmTemplate($this, 0, 0, $layoutName);
 
+		$this->captcha = shopFunctionsF::renderCaptcha();
+
 		parent::display($tpl);
     }
 
@@ -265,7 +267,7 @@ class VirtuemartViewUser extends VmView {
 	    }
 	}
 		if($this->_orderList){
-			VmConfig::loadJLang('com_virtuemart_orders',TRUE);
+			vmLanguage::loadJLang('com_virtuemart_orders',TRUE);
 		}
 	$this->assignRef('orderlist', $this->_orderList);
     }
@@ -313,7 +315,7 @@ class VirtuemartViewUser extends VmView {
 		// Load the required styresheets
 		if (count($userFields['links']) > 0) {
 			foreach ($userFields['links'] as $_link => $_path) {
-			JHtml::stylesheet($_link, $_path);
+				vmJsApi::css($_link, $_path);
 			}
 		}
     }
@@ -362,9 +364,10 @@ class VirtuemartViewUser extends VmView {
 		}
     }
 
+
 	public function vmValidator (){
 		$prefiks = '';
-		if($this->address_type['ST']){
+		if($this->address_type=='ST'){
 			$prefiks = 'shipto_';
 		}
 		vmJsApi::vmValidator($this->userDetails->JUser->guest,$this->userFields['fields'],$prefiks);
@@ -379,7 +382,7 @@ class VirtuemartViewUser extends VmView {
 
     public function renderMailLayout($doVendor, $recipient) {
 
-		$this->useSSL = VmConfig::get('useSSL', 0);
+		$this->useSSL = vmURI::useSSL();
 		$this->useXHTML = true;
 
 		$userFieldsModel = VmModel::getModel('UserFields');
@@ -418,6 +421,7 @@ class VirtuemartViewUser extends VmView {
 
 		parent::display();
     }
+
 
 }
 

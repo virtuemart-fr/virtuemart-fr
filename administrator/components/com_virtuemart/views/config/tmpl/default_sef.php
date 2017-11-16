@@ -6,7 +6,7 @@
  * @package    VirtueMart
  * @subpackage Config
  * @author Max Milbers
- * @link http://www.virtuemart.net
+ * @link https://virtuemart.net
  * @copyright Copyright (c) 2004 - 2010 VirtueMart Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
@@ -27,6 +27,8 @@ defined('_JEXEC') or die('Restricted access'); ?>
 		echo VmHTML::row('checkbox','COM_VIRTUEMART_ADMIN_CFG_SEO_TRANSLATE','seo_translate', VmConfig::get('seo_translate', 1));
 		echo VmHTML::row('checkbox','COM_VIRTUEMART_ADMIN_CFG_SEO_USE_ID','seo_use_id', VmConfig::get('seo_use_id',0));
 		echo VmHTML::row('checkbox','COM_VIRTUEMART_CFG_SEO_FULL','seo_full', VmConfig::get('seo_full',1));
+		echo VmHTML::row('checkbox','COM_VM_CFG_SEO_STRICT','router_by_menu', VmConfig::get('router_by_menu',0));
+		echo VmHTML::row('checkbox','COM_VM_CFG_SEF_FOR_CART_LINKS','sef_for_cart_links',VmConfig::get('sef_for_cart_links',1));
 		?>
 	</table>
 </fieldset>

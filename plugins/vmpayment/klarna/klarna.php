@@ -3,11 +3,11 @@
 defined ('_JEXEC') or die();
 
 /**
- * @version $Id: klarna.php 9048 2015-11-06 14:43:58Z alatak $
+ * @version $Id: klarna.php 9560 2017-05-30 14:13:21Z Milbo $
  *
  * @author Valérie Isaksen
  * @package VirtueMart
- * @link http://www.virtuemart.net
+ * @link https://virtuemart.net
  * @copyright Copyright (c) 2004 - 2010 VirtueMart Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
@@ -22,7 +22,7 @@ if (!class_exists('VmConfig')) {
 }
 
 if (!class_exists ('vmPSPlugin')) {
-	require(JPATH_VM_PLUGINS . DS . 'vmpsplugin.php');
+	require(VMPATH_PLUGINLIBS . DS . 'vmpsplugin.php');
 }
 
 	require (VMPATH_ROOT . DS . 'plugins' . DS . 'vmpayment' . DS . 'klarna' . DS . 'klarna' . DS . 'helpers' . DS . 'define.php');
@@ -1298,7 +1298,7 @@ class plgVmPaymentKlarna extends vmPSPlugin {
 		} else {
 			VmInfo (vmText::_ ('VMPAYMENT_KLARNA_REQUIRED_USERFIELDS_OK'));
 		}
-		VmConfig::loadJLang('com_virtuemart_shoppers', true);
+		vmLanguage::loadJLang('com_virtuemart_shoppers', true);
 
 		$klarna_required_not_found = array();
 		// TEST that all required Klarna shopper fields are there, if not create them
@@ -1323,7 +1323,7 @@ class plgVmPaymentKlarna extends vmPSPlugin {
 			$data['shipment'] = 0;
 			$data['vNames'] = array();
 			$data['vValues'] = array();
-			VmConfig::loadJLang('com_virtuemart_shoppers', true);
+			vmLanguage::loadJLang('com_virtuemart_shoppers', true);
 
 			foreach ($klarna_required_not_found as $requiredfield) {
 				$data['name'] = $requiredfield;
@@ -1557,7 +1557,7 @@ class plgVmPaymentKlarna extends vmPSPlugin {
 	 * @param string             $from_cart
 	 * @return bool|null
 	 */
-	function plgVmDisplayLogin (VirtuemartViewUser $user, &$html, $from_cart = FALSE) {
+	function plgVmDisplayLogin (VmView $view, &$html, $from_cart = FALSE) {
 
 		// only to display it in the cart, not in list orders view
 		if (!$from_cart) {
@@ -1899,17 +1899,13 @@ class plgVmPaymentKlarna extends vmPSPlugin {
 		if ($loaded) {
 			return;
 		}
-		$assetsPath = VMKLARNAPLUGINWEBROOT . '/klarna/assets/';
-		JHTML::stylesheet ('style.css', $assetsPath . 'css/', FALSE);
-		JHTML::stylesheet ('klarna.css', $assetsPath . 'css/', FALSE);
-		JHTML::script ('klarna_general.js', $assetsPath . 'js/', FALSE);
-		JHTML::script ('klarnaConsentNew.js', 'http://static.klarna.com/external/js/', FALSE);
-		$document = JFactory::getDocument ();
-		/*
-		$document->addScriptDeclaration ('
-		 klarna.ajaxPath = "' . juri::root () . '/index.php?option=com_virtuemart&view=plugin&vmtype=vmpayment&name=klarna";
-	');
-		*/
+		$assetsPath = VMKLARNAPLUGINWEBROOT . '/klarna/assets';
+		vmJsApi::css ('style', $assetsPath . '/css');
+		vmJsApi::css ('klarna', $assetsPath . '/css');
+
+		vmJsApi::addJScript('klarna_general', '/'.$assetsPath . '/js/klarna_general.js');
+		vmJsApi::addJScript ('klarnaConsentNew', 'https://static.klarna.com/external/js/klarnaConsentNew.js',false);
+
 		$loaded=true;
 	}
 

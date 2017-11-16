@@ -106,11 +106,26 @@ class VmImage extends VmMediaHandler {
 	public function createThumbName($width=0,$height=0){
 
 		if(empty($this->file_name)) return false;
-		if(empty($width)) $width = VmConfig::get('img_width', 90);
-		if(empty($height)) $height = VmConfig::get('img_height', 90);
 
-		$this->file_name_thumb = $this->file_name.'_'.$width.'x'.$height;
+		$dim = self::determineWH($width, $height);
+
+		$this->file_name_thumb = $this->file_name.'_'.$dim['width'].'x'.$dim['height'];
 		return $this->file_name_thumb;
+	}
+
+	public function determineWH($width,$height){
+
+		$dim = array();
+		$dim['width'] = $width;
+		$dim['height'] = $height;
+		if(!$width and !$height){
+			$dim['width'] = VmConfig::get('img_width',90);
+			$dim['height'] = VmConfig::get('img_height',90);
+		}
+		$dim['width'] = (int)$dim['width'];
+		$dim['height'] = (int)$dim['height'];;
+
+		return $dim;
 	}
 
 	/**
@@ -138,9 +153,11 @@ class VmImage extends VmMediaHandler {
 		$synchronise = vRequest::getString('synchronise',false);
 
 		if(!VmConfig::get('img_resize_enable') || $synchronise) return;
+
 		//now lets create the thumbnail, saving is done in this function
-		if(empty($width)) $width = VmConfig::get('img_width', 90);
-		if(empty($height)) $height = VmConfig::get('img_height', 90);
+		$dim = self::determineWH($width, $height);
+		$width = $dim['width'];
+		$height = $dim['height'];
 
 		// Don't allow sizes beyond 2000 pixels //I dont think that this is good, should be config
 //		$width = min($width, 2000);

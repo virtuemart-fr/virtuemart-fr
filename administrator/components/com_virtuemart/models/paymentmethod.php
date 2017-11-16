@@ -6,14 +6,14 @@
 * @package	VirtueMart
 * @subpackage  Payment
 * @author Max Milbers
-* @link http://www.virtuemart.net
+* @link https://virtuemart.net
 * @copyright Copyright (c) 2004 - 2014 VirtueMart Team. All rights reserved.
 * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
 * VirtueMart is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
-* @version $Id: paymentmethod.php 9193 2016-03-11 10:17:04Z Milbo $
+* @version $Id: paymentmethod.php 9559 2017-05-29 16:15:32Z Milbo $
 */
 
 // Check to ensure this file is included in Joomla!
@@ -26,7 +26,11 @@ class VirtueMartModelPaymentmethod extends VmModel{
 	function __construct() {
 		parent::__construct();
 		$this->setMainTable('paymentmethods');
-		$this->_selectedOrdering = 'ordering';
+		$this->_validOrderingFieldName = array();
+		$this->_validOrderingFieldName = array('i.virtuemart_paymentmethod_id','i.virtuemart_vendor_id',
+		'l.payment_name','l.payment_desc','i.currency_id','i.ordering','i.shared', 'i.published');
+
+		$this->_selectedOrdering = 'i.ordering';
 		$this->setToggleName('shared');
 	}
 
@@ -57,8 +61,8 @@ class VirtueMartModelPaymentmethod extends VmModel{
 			$this->_cache[$this->_id]->load((int)$this->_id);
 
 			if(empty($this->_cache->virtuemart_vendor_id)){
-				if(!class_exists('VirtueMartModelVendor')) require(VMPATH_ADMIN.DS.'models'.DS.'vendor.php');
-				$this->_cache[$this->_id]->virtuemart_vendor_id = VirtueMartModelVendor::getLoggedVendor();
+				//if(!class_exists('VirtueMartModelVendor')) require(VMPATH_ADMIN.DS.'models'.DS.'vendor.php');
+				$this->_cache[$this->_id]->virtuemart_vendor_id = vmAccess::getVendorId('paymentmethod.edit');
 			}
 
 			if($this->_cache[$this->_id]->payment_jplugin_id){
@@ -105,46 +109,27 @@ class VirtueMartModelPaymentmethod extends VmModel{
 	 * Retireve a list of calculation rules from the database.
 	 *
      * @author Max Milbers
-     * @param string $onlyPuiblished True to only retreive the publish Calculation rules, false otherwise
+     * @param string $onlyPublished True to only retreive the publish Calculation rules, false otherwise
      * @param string $noLimit True if no record count limit is used, false otherwise
 	 * @return object List of calculation rule objects
 	 */
 	public function getPayments($onlyPublished=false, $noLimit=false) {
 
 		$where = array();
+
+		$langFields = array('payment_name','payment_desc');
+
+		$select = 'i.*, '.implode(', ',self::joinLangSelectFields($langFields));
+
+		$joins = ' FROM `#__virtuemart_paymentmethods` as i ';
+		$joins .= implode(' ',self::joinLangTables($this->_maintable,'i','virtuemart_paymentmethod_id'));
+
 		if ($onlyPublished) {
 			$where[] = ' `published` = 1';
 		}
 
 		$whereString = '';
 		if (count($where) > 0) $whereString = ' WHERE '.implode(' AND ', $where) ;
-
-
-		$joins = ' FROM `#__virtuemart_paymentmethods` as i ';
-
-		if(VmConfig::$defaultLang!=VmConfig::$vmlang and Vmconfig::$langCount>1){
-			$langFields = array('payment_name','payment_desc');
-
-			$useJLback = false;
-			if(VmConfig::$defaultLang!=VmConfig::$jDefLang){
-				$joins .= ' LEFT JOIN `#__virtuemart_paymentmethods_'.VmConfig::$jDefLang.'` as ljd';
-				$useJLback = true;
-			}
-
-			$select = ' i.*';
-			foreach($langFields as $langField){
-				$expr2 = 'ld.'.$langField;
-				if($useJLback){
-					$expr2 = 'IFNULL(ld.'.$langField.',ljd.'.$langField.')';
-				}
-				$select .= ', IFNULL(l.'.$langField.','.$expr2.') as '.$langField.'';
-			}
-			$joins .= ' LEFT JOIN `#__virtuemart_paymentmethods_'.VmConfig::$defaultLang.'` as ld using (`virtuemart_paymentmethod_id`)';
-			$joins .= ' LEFT JOIN `#__virtuemart_paymentmethods_'.VmConfig::$vmlang.'` as l using (`virtuemart_paymentmethod_id`)';
-		} else {
-			$select = ' * ';
-			$joins .= ' LEFT JOIN `#__virtuemart_paymentmethods_'.VmConfig::$vmlang.'` as l USING (`virtuemart_paymentmethod_id`) ';
-		}
 
 		$datas =$this->exeSortSearchListQuery(0,$select,$joins,$whereString,' ',$this->_getOrdering() );
 

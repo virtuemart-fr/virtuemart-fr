@@ -6,14 +6,14 @@
  * @package    VirtueMart
  * @subpackage Media
  * @author Max Milbers
- * @link http://www.virtuemart.net
+ * @link https://virtuemart.net
  * @copyright Copyright (c) 2004 - 2014 VirtueMart Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
- * @version $Id: medias.php 8656 2015-01-16 16:37:05Z kkmediaproduction $
+ * @version $Id: medias.php 9513 2017-04-29 10:40:51Z Milbo $
  */
 
 // Check to ensure this file is included in Joomla!
@@ -97,7 +97,7 @@ class TableMedias extends VmTable {
 				$length = strlen ($this->file_url);
 			}
 			if($length>254){
-				vmError (JText::sprintf ('COM_VIRTUEMART_URL_TOO_LONG', $length));
+				vmError (vmText::sprintf ('COM_VIRTUEMART_URL_TOO_LONG', $length));
 			}
 
 			if (strpos ($this->file_url, '..') !== FALSE) {
@@ -168,6 +168,7 @@ class TableMedias extends VmTable {
 			}
 		}
 		else {
+			vmdebug('Media table check, media has no file_title',$this);
 			vmError (vmText::_ ('COM_VIRTUEMART_MEDIA_MUST_HAVE_TITLE'));
 			$ok = FALSE;
 		}

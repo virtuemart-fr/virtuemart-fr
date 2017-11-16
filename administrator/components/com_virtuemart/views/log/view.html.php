@@ -6,7 +6,7 @@
  * @package    VirtueMart
  * @subpackage Log
  * @author Valérie Isaksen
- * @link http://www.virtuemart.net
+ * @link https://virtuemart.net
  * @copyright Copyright (c) 2004 - 2010 VirtueMart Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
@@ -42,7 +42,7 @@ class VirtuemartViewLog extends VmViewAdmin {
 		$config = JFactory::getConfig();
 		$log_path = $config->get('log_path', VMPATH_ROOT . "/log");
 		$layoutName = vRequest::getCmd('layout', 'default');
-		VmConfig::loadJLang('com_virtuemart_log');
+		vmLanguage::loadJLang('com_virtuemart_log');
 
 		if ($layoutName == 'edit') {
 			$logFile = basename(vRequest::filterPath(vRequest::getString('logfile', '')));

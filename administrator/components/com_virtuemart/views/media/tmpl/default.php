@@ -6,14 +6,14 @@
 * @package	VirtueMart
 * @subpackage
 * @author Max Milbers
-* @link http://www.virtuemart.net
+* @link https://virtuemart.net
 * @copyright Copyright (c) 2004 - 2010 VirtueMart Team. All rights reserved.
 * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
 * VirtueMart is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
-* @version $Id: default.php 8629 2014-12-17 23:24:25Z Milbo $
+* @version $Id: default.php 9591 2017-06-27 13:24:53Z Milbo $
 */
 
 AdminUIHelper::startAdminArea($this);
@@ -24,17 +24,20 @@ jimport('joomla.filesystem.file');
 $option = vRequest::getCmd('option');
 
 ?>
-<form action="index.php" method="post" name="adminForm" id="adminForm">
+<form action="index.php?option=com_virtuemart&view=media" method="post" name="adminForm" id="adminForm">
 	<div id="header">
 		<div id="filterbox">
 		<table>
 		  <tr>
-			 <td align="left" width="100%">
+			 <td align="left" width="60%">
 				<?php echo $this->displayDefaultViewSearch('COM_VIRTUEMART_NAME','searchMedia') .' '. $this->lists['search_type'].' '. $this->lists['search_role']; ?>
 			 </td>
-			  <td>
-				  <?php echo VmHtml::checkbox('missing','missing'); ?>
+			  <td align="left" style="width:20%;min-width:60px">
+				  <?php echo VmHtml::checkbox('missing','missing',1,0); echo '<span class="hasTip" title="'.vmText::_('COM_VM_MEDIA_MISSING_TIP').'" style="vertical-align:middle;padding:4px 0 0;">'.vmText::_('COM_VM_MEDIA_MISSING').'</span>'?>
 			  </td>
+              <td>
+				  <?php echo $this->lists['vendors'] ?>
+              </td>
 		  </tr>
 		</table>
 		</div>
@@ -67,8 +70,13 @@ $productfileslist = $this->files;
 		$onlyMissing = vRequest::getCmd('missing',false);
 		foreach ($productfileslist as $key => $productfile) {
 
-			$rel_path = str_replace('/',DS,$productfile->file_url_folder);
-			$fullSizeFilenamePath = VMPATH_ROOT.DS.$rel_path.$productfile->file_name.'.'.$productfile->file_extension;
+			if($productfile->file_is_forSale){
+				$fullSizeFilenamePath = $productfile->file_url_folder.$productfile->file_name.'.'.$productfile->file_extension;
+			} else {
+				$rel_path = str_replace('/',DS,$productfile->file_url_folder);
+				$fullSizeFilenamePath = VMPATH_ROOT.DS.$rel_path.$productfile->file_name.'.'.$productfile->file_extension;
+			}
+
 			if($onlyMissing){
 				if(file_exists($fullSizeFilenamePath)){
 					continue;
@@ -110,7 +118,7 @@ $productfileslist = $this->files;
 					} else {
 						$file_url = $productfile->theme_url.'assets/images/vmgeneral/'.VmConfig::get('no_image_found');
 						$file_alt = vmText::_('COM_VIRTUEMART_NO_IMAGE_SET').' '.$productfile->file_description;
-						vmdebug('check path $file_url',$file_url);
+						vmdebug('check path $file_url',$file_url,$fullSizeFilenamePath);
 						echo $productfile->displayIt($file_url, $file_alt,'',false);
 					}
 

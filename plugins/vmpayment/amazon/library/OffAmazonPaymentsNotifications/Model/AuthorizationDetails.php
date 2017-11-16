@@ -30,6 +30,7 @@ require_once 'OffAmazonPayments/Model.php';
  * <li>IdList: OffAmazonPaymentsNotifications_Model_IdList</li>
  * <li>CreationTimestamp: string</li>
  * <li>ExpirationTimestamp: string</li>
+ * <li>AddressVerificationCode: string</li>
  * <li>AuthorizationStatus: OffAmazonPaymentsNotifications_Model_Status</li>
  * <li>OrderItemCategories: 
  *     OffAmazonPaymentsNotifications_Model_OrderItemCategories</li>
@@ -57,6 +58,7 @@ class OffAmazonPaymentsNotifications_Model_AuthorizationDetails extends OffAmazo
      * <li>IdList: OffAmazonPaymentsNotifications_Model_IdList</li>
      * <li>CreationTimestamp: string</li>
      * <li>ExpirationTimestamp: string</li>
+     * <li>AddressVerificationCode: string</li>
      * <li>AuthorizationStatus: OffAmazonPaymentsNotifications_Model_Status</li>
      * <li>OrderItemCategories: 
      *     OffAmazonPaymentsNotifications_Model_OrderItemCategories</li>
@@ -99,6 +101,10 @@ class OffAmazonPaymentsNotifications_Model_AuthorizationDetails extends OffAmazo
          'ExpirationTimestamp' => array(
              'FieldValue' => null, 
              'FieldType' => 'string'
+         ),
+         'AddressVerificationCode' => array(
+         	 'FieldValue' => null,
+         	 'FieldType' => 'string'
          ),
          'AuthorizationStatus' => array(
              'FieldValue' => null, 
@@ -502,6 +508,51 @@ class OffAmazonPaymentsNotifications_Model_AuthorizationDetails extends OffAmazo
     }
 
     /**
+     * Gets the value of the AddrerificationCode property.
+     *
+     * @param string AddressVerificationCode
+     * @return this instance
+     */
+    public function getAddressVerificationCode()
+    {
+    	return $this->fields['AddressVerificationCode']['FieldValue'];
+    }
+    
+    /**
+     * Sets the value of the AddressVerificationCode property.
+     *
+     * @param string AddressVerificationCode
+     * @return this instance
+     */
+    public function setAddressVerificationCode($value)
+    {
+    	$this->fields['AddressVerificationCode']['FieldValue'] = $value;
+    	return $this;
+    }
+    
+    /**
+     * Sets the value of the AddressVerificationCode and return this instance
+     *
+     * @param string $value AddressVerificationCode
+     * @return OffAmazonPaymentsService_Model_AuthorizationDetails instance
+     */
+    public function withAddressVerificationCode($value)
+    {
+    	$this->setAddressVerificationCode($value);
+    	return $this;
+    }
+    
+    /**
+     * Checks if AddressVerificationCode is set
+     *
+     * @return bool true if AddressVerificationCode is set
+     */
+    public function isSetAddressVerificationCode()
+    {
+    	return !is_null($this->fields['AddressVerificationCode']['FieldValue']);
+    }
+    
+    /**
      * Gets the value of the AuthorizationStatus.
      * 
      * @return Status AuthorizationStatus
@@ -691,4 +742,3 @@ class OffAmazonPaymentsNotifications_Model_AuthorizationDetails extends OffAmazo
         return !is_null($this->fields['SoftDescriptor']['FieldValue']);
     }
 }
-?>

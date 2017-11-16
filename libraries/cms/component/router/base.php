@@ -3,8 +3,8 @@
  * @package     Joomla.Libraries
  * @subpackage  Component
  *
- * @copyright   Copyright (C) 2005 - 2015 Open Source Matters, Inc. All rights reserved.
- * @license     GNU General Public License version 2 or later; see LICENSE
+ * @copyright   Copyright (C) 2005 - 2017 Open Source Matters, Inc. All rights reserved.
+ * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
 defined('JPATH_PLATFORM') or die;
@@ -48,7 +48,7 @@ abstract class JComponentRouterBase implements JComponentRouterInterface
 		}
 		else
 		{
-			$this->app = JFactory::getApplication();
+			$this->app = JFactory::getApplication('site');
 		}
 
 		if ($menu)

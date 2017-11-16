@@ -5,14 +5,14 @@
  * @package	VirtueMart
  * @subpackage Orders
  * @author Oscar van Eijk
- * @link http://www.virtuemart.net
+ * @link https://virtuemart.net
  * @copyright Copyright (c) 2004 - 2010 VirtueMart Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
- * @version $Id: order_editstatus.php 8682 2015-02-04 23:21:06Z Milbo $
+ * @version $Id: order_editstatus.php 9413 2017-01-04 17:20:58Z Milbo $
  */
  
 // Check to ensure this file is included in Joomla!
@@ -74,7 +74,7 @@ vmJsApi::addJScript( 'orderstatus', "
 		<a href="#" class="orderStatFormSubmit" >
 			<span class="icon-nofloat vmicon vmicon-16-save"></span>&nbsp;<?php echo vmText::_('COM_VIRTUEMART_SAVE'); ?></a>&nbsp;&nbsp;&nbsp;
 		<a href="#" title="<?php echo vmText::_('COM_VIRTUEMART_CANCEL'); ?>" onClick="javascript:cancelOrderStatFormEdit(event);" class="show_element[updateOrderStatus]">
-			<span class="icon-nofloat vmicon vmicon-16-remove"></span>&nbsp;<?php echo vmText::_('COM_VIRTUEMART_CANCEL'); ?></a>
+			<span class="icon-nofloat vmicon vmicon-16-remove 4remove"></span>&nbsp;<?php echo vmText::_('COM_VIRTUEMART_CANCEL'); ?></a>
 		</td>
 <!--
 		<input type="submit" value="<?php echo vmText::_('COM_VIRTUEMART_SAVE');?>" style="font-size: 10px" />

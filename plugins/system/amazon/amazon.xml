@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension type="plugin" version="1.5" method="upgrade" group="system">
     <name>AMAZON</name>
-    <creationDate>March 11 2016</creationDate>
+    <creationDate>August 23 2017</creationDate>
     <author>The VirtueMart Development Team</author>
-    <authorUrl>http://www.virtuemart.net</authorUrl>
-    <copyright>Copyright (C) 2004-2016 Virtuemart Team. All rights reserved.</copyright>
+    <authorUrl>https://virtuemart.net</authorUrl>
+    <copyright>Copyright (C) 2004 - 2017 Virtuemart Team. All rights reserved.</copyright>
     <license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
-    <version>3.0.14</version>
+    <version>3.2.4</version>
     <description>AMAZON payment SYSTEM plugin</description>
     <files>
     <filename plugin="amazon">amazon.php</filename>

@@ -6,7 +6,7 @@
 * @package	VirtueMart
 * @subpackage Coupon
 * @author Max Milbers
-* @link http://www.virtuemart.net
+* @link https://virtuemart.net
 * @copyright Copyright (c) 2004 - 2014 VirtueMart Team. All rights reserved.
 * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
 * VirtueMart is free software. This version may have been modified pursuant
@@ -82,13 +82,24 @@ class VirtueMartModelCoupon extends VmModel {
 	 *
 	 * @return object List of coupon objects
 	 */
-	function getCoupons() {
+	function getCoupons($filterCoupon = false) {
 
 		$virtuemart_vendor_id = vmAccess::getVendorId();
-		$whereString = '';
+		$where = array();
+
 		if(!empty($virtuemart_vendor_id)){
-			$whereString = 'WHERE virtuemart_vendor_id="'.$virtuemart_vendor_id.'"';
+			$where[] = '`virtuemart_vendor_id`="'.$virtuemart_vendor_id.'"';
 		}
+		if($filterCoupon) {
+
+			$filterCouponS = '"%' . $this->_db->escape( $filterCoupon, true ) . '%"' ;
+			$where[] = '`coupon_code` LIKE '.$filterCouponS;
+
+		}
+
+		$whereString = '';
+		if (count($where) > 0) $whereString = ' WHERE '.implode(' AND ', $where) ;
+
 		return $this->_data = $this->exeSortSearchListQuery(0,'*',' FROM `#__virtuemart_coupons`',$whereString,'',$this->_getOrdering());
 	}
 

@@ -7,7 +7,7 @@
  * @version $Id: paypal.php 7217 2013-09-18 13:42:54Z alatak $
  * @package VirtueMart
  * @subpackage payment
- * Copyright (C) 2004-2016 Virtuemart Team. All rights reserved.
+ * Copyright (C) 2004 - 2017 Virtuemart Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
@@ -47,25 +47,29 @@ class PaypalHelperPayPalHosted extends PaypalHelperPaypal {
 			$this->api_login_id = trim($this->_method->sandbox_api_login_id);
 			$this->api_signature = trim($this->_method->sandbox_api_signature);
 			$this->api_password = trim($this->_method->sandbox_api_password);
-			$this->payflow_partner = trim($this->_method->sandbox_payflow_partner);
+			if (empty($this->_method->sandbox_payflow_partner)) {
+				$text = vmText::sprintf('VMPAYMENT_PAYPAL_PARAMETER_REQUIRED', vmText::_('VMPAYMENT_PAYPAL_SANDBOX_PAYFLOW_PARTNER'), $this->_method->payment_name, $this->_method->virtuemart_paymentmethod_id);
+				vmError($text);
+			} else {
+				$this->payflow_partner = trim($this->_method->sandbox_payflow_partner);
+			}
 			$this->payflow_vendor = trim($this->_method->sandbox_payflow_vendor);
 		} else {
 			$this->api_login_id = trim($this->_method->api_login_id);
 			$this->api_signature = trim($this->_method->api_signature);
 			$this->api_password = trim($this->_method->api_password);
+			if (empty($this->_method->payflow_partner)) {
+				$text = vmText::sprintf('VMPAYMENT_PAYPAL_PARAMETER_REQUIRED', vmText::_('VMPAYMENT_PAYPAL_PAYFLOW_PARTNER'), $this->_method->payment_name, $this->_method->virtuemart_paymentmethod_id);
+				vmError($text);
+			} else {
+				$this->payflow_partner = trim($this->_method->payflow_partner);
+			}
+			$this->payflow_vendor = trim($this->_method->payflow_vendor);
 		}
 
 		if (empty($this->api_login_id) || empty($this->api_signature) || empty($this->api_password)) {
 			$text = vmText::sprintf('VMPAYMENT_PAYPAL_CREDENTIALS_NOT_SET', $this->_method->payment_name, $this->_method->virtuemart_paymentmethod_id);
 			vmError($text, $text);
-		}
-		if ((empty ($this->_method->payflow_partner) OR empty($this->_method->sandbox_payflow_partner))) {
-			$sandbox = "";
-			if ($this->_method->sandbox  ) {
-				$sandbox = 'SANDBOX_';
-			}
-			$text = vmText::sprintf('VMPAYMENT_PAYPAL_PARAMETER_REQUIRED', vmText::_('VMPAYMENT_PAYPAL_' . $sandbox . 'PAYFLOW_PARTNER'), $this->_method->payment_name, $this->_method->virtuemart_paymentmethod_id);
-			vmError($text);
 		}
 	}
 
@@ -139,8 +143,8 @@ class PaypalHelperPayPalHosted extends PaypalHelperPaypal {
 		$post_variables['L_BUTTONVAR']['logoFont'] = $this->_method->logoFont;
 		$post_variables['L_BUTTONVAR']['logoFontSize'] = $this->_method->logoFontSize;
 		$post_variables['L_BUTTONVAR']['logoFontColor'] = $this->_method->logoFontColor;
-		if ($this->_method->bodyBgImg[0]) {
-			$post_variables['L_BUTTONVAR']['bodyBgImg'] = JURI::base() . 'images/stories/virtuemart/payment/' . $this->_method->bodyBgImg[0];
+		if (!empty($this->_method->bodyBgImg[0])) {
+			$post_variables['L_BUTTONVAR']['bodyBgImg'] = $this->getLogoImage($this->_method->bodyBgImg[0]);
 
 		}
 		$post_variables['L_BUTTONVAR']['logoImage'] = $this->getLogoImage();
@@ -150,8 +154,8 @@ class PaypalHelperPayPalHosted extends PaypalHelperPaypal {
 		$post_variables['L_BUTTONVAR']['PageCollapseBgColor'] = $this->_method->PageCollapseBgColor;
 		//$post_variables['L_BUTTONVAR']['PageCollapseTextColor'] =    $this->_method->PageCollapseTextColor;
 		$post_variables['L_BUTTONVAR']['orderSummaryBgColor'] = $this->_method->orderSummaryBgColor;
-		if ($this->_method->orderSummaryBgImage[0]) {
-			$post_variables['L_BUTTONVAR']['orderSummaryBgImage'] = JURI::base() . 'images/stories/virtuemart/payment/' . $this->_method->orderSummaryBgImage[0];
+		if (!empty($this->_method->orderSummaryBgImage[0])) {
+			$post_variables['L_BUTTONVAR']['orderSummaryBgImage'] = $this->getLogoImage($this->_method->orderSummaryBgImage[0]);
 		}
 		$post_variables['L_BUTTONVAR']['footerTextColor'] = $this->_method->footerTextColor;
 		$post_variables['L_BUTTONVAR']['footerTextlinkColor'] = $this->_method->footerTextlinkColor;

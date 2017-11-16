@@ -1,7 +1,7 @@
 <?php
 $product = $viewData['product'];
 // Availability
-$stockhandle = VmConfig::get('stockhandle', 'none');
+$stockhandle = VmConfig::get('stockhandle_products', false) && $product->product_stockhandle ? $product->product_stockhandle : VmConfig::get('stockhandle','none');
 $product_available_date = substr($product->product_available_date,0,10);
 $current_date = date("Y-m-d");
 if (($product->product_in_stock - $product->product_ordered) < 1) {

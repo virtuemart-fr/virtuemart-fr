@@ -7,8 +7,8 @@
  * @subpackage Cart
  * @author Valerie Isaksen
  *
- * @link http://www.virtuemart.net
- * @copyright Copyright (c) 2004 - 2010 VirtueMart Team. All rights reserved.
+ * @link https://virtuemart.net
+ * @copyright Copyright (c) 2004 - 2016 VirtueMart Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
@@ -19,42 +19,26 @@
 // Check to ensure this file is included in Joomla!
 defined('_JEXEC') or die('Restricted access');
 
-
 JHtml::_('behavior.formvalidation');
 
-$js = "
-	jQuery(document).ready(function($) {
-	jQuery(this).vm2front('stopVmLoading');
-	jQuery('#checkoutFormSubmit').bind('click dblclick', function(e){
-	jQuery(this).vm2front('startVmLoading');
-	e.preventDefault();
-    jQuery(this).attr('disabled', 'true');
-    jQuery(this).removeClass( 'vm-button-correct' );
-    jQuery(this).addClass( 'vm-button' );
-    jQuery('#checkoutForm').submit();
-
-});
-	});
-";
-vmJsApi::addJScript('vm.checkoutFormSubmit', $js);
-
-$this->addCheckRequiredJs();
 ?>
 	<div id="amazonShipmentNotFoundDiv">
-		<?php if (isset($this->found_shipment_method) and !$this->found_shipment_method) { ?>
+
 			<div id="system-message-container">
 				<dl id="system-message">
+					<?php if (isset($this->found_shipment_method) and !$this->found_shipment_method) { ?>
 					<dt class="info">info</dt>
 					<dd class="info message">
 						<ul>
 							<li><?php echo JText::_('VMPAYMENT_AMAZON_UPDATECART_SHIPMENT_NOT_FOUND'); ?></li>
 						</ul>
 					</dd>
+						<?php
+					}
+					?>
 				</dl>
 			</div>
-		<?php
-		}
-		?>
+
 	</div>
 	<div id="amazonErrorDiv">
 	</div>
@@ -124,7 +108,7 @@ $this->addCheckRequiredJs();
 				// This displays the pricelist MUST be done with tables, because it is also used for the emails
 				echo $this->loadTemplate('pricelist');
 
-				if (!empty($this->checkoutAdvertise)) {
+				/*if (!empty($this->checkoutAdvertise)) {
 					?>
 					<div id="checkout-advertise-box"> <?php
 					foreach ($this->checkoutAdvertise as $checkoutAdvertise) {
@@ -135,7 +119,7 @@ $this->addCheckRequiredJs();
 					<?php
 					}
 					?></div><?php
-				}
+				}*/
 
 				echo $this->loadTemplate('cartfields');
 
@@ -147,18 +131,54 @@ $this->addCheckRequiredJs();
 						?>
 					</div>
 
-				<?php // Continue and Checkout Button END
-				if ($this->checkout_task == 'confirm' ) $task=$this->checkout_task;
-				else  $task='updatecart';
-
-				?>
-				<input type='hidden' name='task' value='<?php echo $task ?>'/>
 				<input type='hidden' id='STsameAsBT' name='STsameAsBT' value='<?php echo $this->cart->STsameAsBT; ?>'/>
 				<input type='hidden' name='virtuemart_paymentmethod_id' value='<?php echo $this->cart->virtuemart_paymentmethod_id; ?>'/>
-				<input type='hidden' name='doRedirect' value='false'/>
+				<input type='hidden' name='order_language' value='<?php echo $this->order_language; ?>'/>
+				<input type='hidden' name='task' value='updatecart'/>
 				<input type='hidden' name='option' value='com_virtuemart'/>
 				<input type='hidden' name='view' value='cart'/>
 			</form>
+		</div>
+
+		<?php
+		vmJsApi::addJScript('updDynamicListeners',"
+if (typeof Virtuemart.containerSelector === 'undefined') Virtuemart.containerSelector = '#cart-view';
+if (typeof Virtuemart.container === 'undefined') Virtuemart.container = jQuery(Virtuemart.containerSelector);
+
+jQuery(document).ready(function() {
+	if (Virtuemart.container)
+		Virtuemart.updDynFormListeners();
+}); ");
+
+		vmJsApi::addJScript('vm.checkoutFormSubmit',"
+Virtuemart.bCheckoutButton = function(e) {
+	e.preventDefault();
+	jQuery(this).vm2front('startVmLoading');
+	jQuery(this).attr('disabled', 'true');
+	jQuery(this).removeClass( 'vm-button-correct' );
+	jQuery(this).addClass( 'vm-button' );
+	jQuery(this).fadeIn( 400 );
+	var name = jQuery(this).attr('name');
+	var div = '<input name=\"'+name+'\" value=\"1\" type=\"hidden\">';
+
+	jQuery('#checkoutForm').append(div);
+	//Virtuemart.updForm();
+	jQuery('#checkoutForm').submit();
+}
+
+jQuery(document).ready(function($) {
+	jQuery(this).vm2front('stopVmLoading');
+	var el = jQuery('#checkoutFormSubmit');
+	el.unbind('click dblclick');
+	el.on('click dblclick',Virtuemart.bCheckoutButton);
+});
+	");
+
+
+		$this->addCheckRequiredJs();
+		?>
+		<div style="display:none;" id="cart-js">
+			<?php echo vmJsApi::writeJS(); ?>
 		</div>
 	</div>
 

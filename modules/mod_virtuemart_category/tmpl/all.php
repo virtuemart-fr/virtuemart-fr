@@ -17,10 +17,7 @@ defined('_JEXEC') or die('Restricted access');
 	<div>
 		<?php echo JHTML::link($caturl, $cattext); ?>
 	</div>
-<?php if ($category->childs ) {
-
-
-?>
+<?php if (!empty($category->childs)) { ?>
 <ul class="menu<?php echo $class_sfx; ?>">
 <?php
 	foreach ($category->childs as $child) {

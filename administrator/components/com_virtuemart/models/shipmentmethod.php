@@ -6,14 +6,14 @@
  * @package	VirtueMart
  * @subpackage Shipment
  * @author RickG
- * @link http://www.virtuemart.net
+ * @link https://virtuemart.net
  * @copyright Copyright (c) 2004 - 2010 VirtueMart Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
- * @version $Id: shipmentmethod.php 9029 2015-10-28 12:51:49Z Milbo $
+ * @version $Id: shipmentmethod.php 9559 2017-05-29 16:15:32Z Milbo $
  */
 
 // Check to ensure this file is included in Joomla!
@@ -45,7 +45,12 @@ class VirtueMartModelShipmentmethod extends VmModel {
 	function __construct() {
 		parent::__construct();
 		$this->setMainTable('shipmentmethods');
-		$this->_selectedOrdering = 'ordering';
+
+		$this->_validOrderingFieldName = array();
+		$this->_validOrderingFieldName = array('i.virtuemart_shipmentmethod_id','i.virtuemart_vendor_id',
+		'l.shipment_name','l.shipment_desc','i.currency_id','i.ordering','i.shared', 'i.published');
+
+		$this->_selectedOrdering = 'i.ordering';
 		$this->setToggleName('shared');
 	}
 
@@ -64,8 +69,8 @@ class VirtueMartModelShipmentmethod extends VmModel {
 
 
 			if(empty($this->_cache[$this->_id]->virtuemart_vendor_id)){
-				if(!class_exists('VirtueMartModelVendor')) require(VMPATH_ADMIN.DS.'models'.DS.'vendor.php');
-				$this->_cache[$this->_id]->virtuemart_vendor_id = VirtueMartModelVendor::getLoggedVendor();;
+				//if(!class_exists('VirtueMartModelVendor')) require(VMPATH_ADMIN.DS.'models'.DS.'vendor.php');
+				$this->_cache[$this->_id]->virtuemart_vendor_id = vmAccess::getVendorId('vm.shipmentmethod.edit');;
 			}
 
 			if ($this->_cache[$this->_id]->shipment_jplugin_id) {
@@ -113,39 +118,26 @@ class VirtueMartModelShipmentmethod extends VmModel {
 	/**
 	 * Retireve a list of shipment from the database.
 	 *
-	 * @author RickG
+	 * @author Max Milbers
 	 * @return object List of shipment  objects
 	 */
-	public function getShipments() {
+	public function getShipments($onlyPublished=false) {
 
-		$whereString = '';
+		$where = array();
+
+		$langFields = array('shipment_name','shipment_desc');
+
+		$select = 'i.*, '.implode(', ',self::joinLangSelectFields($langFields));
 
 		$joins = ' FROM `#__virtuemart_shipmentmethods` as i ';
+		$joins .= implode(' ',self::joinLangTables($this->_maintable,'i','virtuemart_shipmentmethod_id'));
 
-		if(VmConfig::$defaultLang!=VmConfig::$vmlang and Vmconfig::$langCount>1){
-			$langFields = array('shipment_name','shipment_desc');
-
-			$useJLback = false;
-			if(VmConfig::$defaultLang!=VmConfig::$jDefLang){
-				$joins .= ' LEFT JOIN `#__virtuemart_shipmentmethods_'.VmConfig::$jDefLang.'` as ljd';
-				$useJLback = true;
-			}
-
-			$select = ' i.*';
-			foreach($langFields as $langField){
-				$expr2 = 'ld.'.$langField;
-				if($useJLback){
-					$expr2 = 'IFNULL(ld.'.$langField.',ljd.'.$langField.')';
-				}
-				$select .= ', IFNULL(l.'.$langField.','.$expr2.') as '.$langField.'';
-			}
-			$joins .= ' LEFT JOIN `#__virtuemart_shipmentmethods_'.VmConfig::$defaultLang.'` as ld using (`virtuemart_shipmentmethod_id`)';
-			$joins .= ' LEFT JOIN `#__virtuemart_shipmentmethods_'.VmConfig::$vmlang.'` as l using (`virtuemart_shipmentmethod_id`)';
-		} else {
-			$select = ' * ';
-			$joins .= ' LEFT JOIN `#__virtuemart_shipmentmethods_'.VmConfig::$vmlang.'` as l USING (`virtuemart_shipmentmethod_id`) ';
+		if ($onlyPublished) {
+			$where[] = ' `published` = 1';
 		}
 
+		$whereString = '';
+		if (count($where) > 0) $whereString = ' WHERE '.implode(' AND ', $where) ;
 
 		$datas =$this->exeSortSearchListQuery(0,$select,$joins,$whereString,' ',$this->_getOrdering() );
 

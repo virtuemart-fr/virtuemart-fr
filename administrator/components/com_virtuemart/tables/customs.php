@@ -6,7 +6,7 @@
 * @package	VirtueMart
 * @subpackage Media
 * @author  Patrick Kohl
-* @link http://www.virtuemart.net
+* @link https://virtuemart.net
 * @copyright Copyright (c) 2004 - 2010 VirtueMart Team. All rights reserved.
 * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
 * VirtueMart is free software. This version may have been modified pursuant
@@ -67,7 +67,7 @@ class TableCustoms extends VmTable {
 
 	/** @var int(1)  1= cart attributes and price added to cart */
 	var $is_cart_attribute		= 0;
-
+	var $searchable = 0;
 	var $layout_pos = '';
 
 	/** @var int custom published or not */

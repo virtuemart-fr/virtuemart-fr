@@ -6,14 +6,14 @@
 * @package	VirtueMart
 * @subpackage OrderStatus
 * @author Oscar van Eijk
-* @link http://www.virtuemart.net
+* @link https://virtuemart.net
 * @copyright Copyright (c) 2004 - 2010 VirtueMart Team. All rights reserved.
 * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
 * VirtueMart is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
-* @version $Id: default.php 8702 2015-02-14 15:28:56Z Milbo $
+* @version $Id: default.php 9413 2017-01-04 17:20:58Z Milbo $
 */
 
 // Check to ensure this file is included in Joomla!
@@ -39,6 +39,9 @@ AdminUIHelper::startAdminArea($this);
 			</th>
 			<th>
 				<?php echo vmText::_('COM_VIRTUEMART_ORDER_STATUS_STOCK_HANDLE'); ?>
+			</th>
+			<th>
+				<?php echo vmText::_('COM_VIRTUEMART_ORDER_STATUS_COLOR'); ?>
 			</th>
 			<th>
 				<?php echo vmText::_('COM_VIRTUEMART_DESCRIPTION'); ?>
@@ -92,6 +95,15 @@ AdminUIHelper::startAdminArea($this);
 				</td>
 				<td align="left">
 					<?php echo  vmText::_($this->stockHandelList[$row->order_stock_handle]); ?>
+				</td>
+				<?php
+				$colorStyle = '';
+				if ($row->order_status_color) {
+					$colorStyle = 'style="background-color:' . $row->order_status_color.'"';
+				}
+				?>
+				<td align="left" <?php echo $colorStyle ?>>
+					<?php echo vmText::_($row->order_status_color); ?>
 				</td>
 				<td align="left">
 					<?php echo vmText::_($row->order_status_description); ?>

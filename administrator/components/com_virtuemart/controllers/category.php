@@ -6,14 +6,14 @@
 * @package	VirtueMart
 * @subpackage Category
 * @author RickG, jseros
-* @link http://www.virtuemart.net
+* @link https://virtuemart.net
 * @copyright Copyright (c) 2004 - 2010 VirtueMart Team. All rights reserved.
 * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
 * VirtueMart is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
-* @version $Id: category.php 8970 2015-09-06 23:19:17Z Milbo $
+* @version $Id: category.php 9478 2017-03-16 09:33:17Z Milbo $
 */
 
 // Check to ensure this file is included in Joomla!
@@ -68,7 +68,6 @@ class VirtuemartControllerCategory extends VmController {
 		vRequest::vmCheckToken();
 
 		//capturing virtuemart_category_id
-		$id = 0;
 		$cid	= vRequest::getInt( 'cid', array() );
 
 		if (isset($cid[0]) && $cid[0]) {
@@ -106,7 +105,6 @@ class VirtuemartControllerCategory extends VmController {
 		vRequest::vmCheckToken();
 
 		//capturing virtuemart_category_id
-		$id = 0;
 		$cid	= vRequest::getInt( 'cid', array() );
 
 		if (isset($cid[0]) && $cid[0]) {

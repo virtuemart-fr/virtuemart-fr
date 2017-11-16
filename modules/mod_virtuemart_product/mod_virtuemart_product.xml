@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension type="module" version="2.5.0">
   <name>mod_virtuemart_product</name>
-  <creationDate>March 11 2016</creationDate>
+  <creationDate>August 23 2017</creationDate>
   <author>The VirtueMart Development Team</author>
-  <authorUrl>http://www.virtuemart.net</authorUrl>
-  <copyright>Copyright (C) 2004-2016 Virtuemart Team. All rights reserved.</copyright>
+  <authorUrl>https://virtuemart.net</authorUrl>
+  <copyright>Copyright (C) 2004 - 2017 Virtuemart Team. All rights reserved.</copyright>
   <license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
-  <version>3.0.14</version>
+  <version>3.2.4</version>
   <description>MOD_VIRTUEMART_PRODUCT_DESC</description>
   <files>
     <filename module="mod_virtuemart_product">mod_virtuemart_product.php</filename>
@@ -35,6 +35,7 @@
           description="MOD_VIRTUEMART_PRODUCT_DISPLAY_DESC"
           >
           <option value="featured">MOD_VIRTUEMART_PRODUCT_FEATURED_PRODUCTS</option>
+          <option value="discontinued">MOD_VIRTUEMART_PRODUCT_DISCONTINUED_PRODUCTS</option>
           <option value="latest">MOD_VIRTUEMART_PRODUCT_LATEST_PRODUCTS</option>
           <option value="random">MOD_VIRTUEMART_PRODUCT_RANDOM_PRODUCTS</option>
           <option value="topten">MOD_VIRTUEMART_PRODUCT_BEST_SALES</option>
@@ -47,6 +48,17 @@
           label="MOD_VIRTUEMART_PRODUCT_MAX_ITEMS"
           description="MOD_VIRTUEMART_PRODUCT_MAX_ITEMS_DESC"
         />
+        <field
+                name="omitLoaded"
+                type="list"
+                default=""
+                label="COM_VM_ADMIN_CFG_OMIT"
+                description="COM_VM_ADMIN_CFG_OMIT_TIP"
+                >
+          <option value="">JGLOBAL_USE_GLOBAL</option>
+          <option value="1">JYES</option>
+          <option value="0">JNO</option>
+        </field>
         <field
           name="products_per_row"
           type="text"
@@ -123,6 +135,23 @@
           description="MOD_VIRTUEMART_PRODUCT_CATEGORY_ID_DESC"
         />
         <field
+          name="filter_manufacturer"
+          type="list"
+          default="0"
+          label="MOD_VIRTUEMART_PRODUCT_FILTER_MANUFACTURER"
+          description="MOD_VIRTUEMART_PRODUCT_FILTER_MANUFACTURER_DESC"
+          >
+          <option value="0">JNO</option>
+          <option value="1">JYES</option>
+        </field>
+        <field
+          name="virtuemart_manufacturer_id"
+          type="manufacturer"
+          value_field="manufacturer_name"
+          label="MOD_VIRTUEMART_PRODUCT_MANUFACTURER_ID"
+          description="MOD_VIRTUEMART_PRODUCT_MANUFACTURER_ID_DESC"
+        />
+        <field
           name="vmcache"
           type="list"
           default="1"
@@ -144,7 +173,7 @@
         <field
           name="cache"
           type="list"
-          default="1"
+          default="0"
           label="COM_MODULES_FIELD_CACHING_LABEL"
           description="COM_MODULES_FIELD_CACHING_DESC"
           >

@@ -3,30 +3,26 @@
 /**
  * Heidelpay response page for Heidelpay plugin
  * @author Heidelberger Paymenrt GmbH <Jens Richter> 
- * @version 13.07
+ * @version 15.09.14
  * @package VirtueMart
  * @subpackage payment
  * @copyright Copyright (C) Heidelberger Payment GmbH
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  */
-
  
 include('../../../../configuration.php');
 $config = new JConfig();
-
 //echo $config->password ;
 
 foreach ($_POST as $key => $value) {
 	$key = preg_replace('/_x$/', '', trim($key));
 	$_POST[$key] = $value;
-	
 }
+
 foreach ($_GET as $key => $value) {
 	$key = preg_replace('/_x$/', '', trim($key));
 	$_GET[$key] = $value;
 }
-
-
 
 if ( $_SERVER['SERVER_PORT'] == "443" ) {
 	$Protocol = "https://";
@@ -37,21 +33,18 @@ if ( $_SERVER['SERVER_PORT'] == "443" ) {
 $PATH = preg_replace('@plugins\/vmpayment\/heidelpay\/heidelpay\/heidelpay_response\.php@','', $_SERVER['SCRIPT_NAME']);
 $URL = $_SERVER['HTTP_HOST'] . $PATH ; 
 
-if(ctype_alnum($_GET['on'])){ $on = $_GET['on']; }else{ $on = ''; }
-$pm			= (int) $_GET['pm'];
-$Itemid	= (int) $_GET['Itemid'];
+if(preg_match('/^[A-Za-z0-9 _-]+$/',($_GET['on']))){ $on = $_GET['on']; }else{ $on = ''; }
+$pm			= (int)$_GET['pm'];
 
-$redirectURL	 = $Protocol.$URL.'index.php?option=com_virtuemart&view=pluginresponse&task=pluginresponsereceived&on='.$on.'&pm='.$pm.'&Itemid='.$Itemid;
-$cancelURL	 = $Protocol.$URL.'index.php?option=com_virtuemart&view=pluginresponse&task=pluginUserPaymentCancel&on='.$on.'&pm='.$pm.'&Itemid='.$Itemid;
-
+$redirectURL	 = $Protocol.$URL.'index.php?option=com_virtuemart&view=pluginresponse&task=pluginresponsereceived&on='.$on.'&pm='.$pm;
+$cancelURL	 = $Protocol.$URL.'index.php?option=com_virtuemart&view=pluginresponse&task=pluginUserPaymentCancel&on='.$on.'&pm='.$pm;
 
 function updateHeidelpay($orderID, $connect, $on, $pm) {
 	$comment="";
 	if ( preg_match('/^[A-Za-z0-9 -]+$/', $orderID , $str)) {
-		$link = mysql_connect($connect->host, $connect->user , $connect->password);
-		mysql_select_db($connect->db);	
-		$result = mysql_query("SELECT virtuemart_order_id FROM ".$connect->dbprefix."virtuemart_orders"." WHERE  order_number = '".mysql_real_escape_string($orderID)."';");
-		$row = mysql_fetch_object($result);
+		$link = mysqli_connect($connect->host, $connect->user , $connect->password, $connect->db);
+		$result = mysqli_query($link,"SELECT virtuemart_order_id FROM ".$connect->dbprefix."virtuemart_orders"." WHERE  order_number = '".mysqli_real_escape_string($link,$orderID)."';");
+		$row = mysqli_fetch_object($result);
 		$paymentCode = explode('.' , $_POST['PAYMENT_CODE']);
 		if ($_POST['PROCESSING_RESULT'] == "NOK") {
 				$comment = $_POST['PROCESSING_RETURN'];
@@ -155,23 +148,36 @@ function updateHeidelpay($orderID, $connect, $on, $pm) {
 			}
 		}
 		
+		
+		
 		if (!empty($row->virtuemart_order_id)) {
-			$sql = "INSERT ".$connect->dbprefix."virtuemart_payment_plg_heidelpay SET " .
-					"virtuemart_order_id	= \"".mysql_real_escape_string($row->virtuemart_order_id). "\"," .
-					"order_number			= \"".mysql_real_escape_string($on). "\"," .
-					"virtuemart_paymentmethod_id = \"".mysql_real_escape_string($pm). "\"," .
-					"unique_id					= \"".mysql_real_escape_string($_POST['IDENTIFICATION_UNIQUEID']). "\"," .
-					"short_id						= \"".mysql_real_escape_string($_POST['IDENTIFICATION_SHORTID']). "\"," .
-					"payment_code			= \"".mysql_real_escape_string($_POST['PROCESSING_REASON_CODE']). "\"," .
-					"comment					= \"".mysql_real_escape_string($comment). "\"," .
-					"payment_methode	= \"".mysql_real_escape_string($paymentCode[0]). "\"," .
-					"payment_type			= \"".mysql_real_escape_string($paymentCode[1]). "\"," .
-					"transaction_mode		= \"".mysql_real_escape_string($_POST['TRANSACTION_MODE']). "\"," .
-					"payment_name			= \"".mysql_real_escape_string($_POST['CRITERION_PAYMENT_NAME']). "\"," .
-					"processing_result		= \"".mysql_real_escape_string($_POST['PROCESSING_RESULT']). "\"," .
-					"secret_hash				= \"".mysql_real_escape_string($_POST['CRITERION_SECRET']). "\"," .
-					"response_ip				= \"".mysql_real_escape_string($_SERVER['REMOTE_ADDR']). "\";" ;
-			$dbEerror = mysql_query($sql);
+	
+					$timestamp = time();
+					$datum = date("Y-m-d",$timestamp);
+					$uhrzeit = date("H:i:s",$timestamp);
+					$created_on = $datum." ".$uhrzeit;
+					
+			$sql = 'INSERT INTO `'.$connect->dbprefix.'virtuemart_payment_plg_heidelpay` SET ' .
+					'`virtuemart_order_id` = '.mysqli_real_escape_string($link,$row->virtuemart_order_id). ',' .
+					'`order_number` = "'.mysqli_real_escape_string($link,$on). '",' .
+					'`virtuemart_paymentmethod_id` = "'.mysqli_real_escape_string($link,$pm). '",' .
+					'`unique_id` = "'.mysqli_real_escape_string($link,$_POST['IDENTIFICATION_UNIQUEID']). '",' .
+					'`short_id` = "'.mysqli_real_escape_string($link,$_POST['IDENTIFICATION_SHORTID']).'",' .
+					'`payment_code` = "'.mysqli_real_escape_string($link,$_POST['PROCESSING_REASON_CODE']). '",' .
+					'`comment` = "'.mysqli_real_escape_string($link,$comment). '",' .
+					'`payment_methode` = "'.mysqli_real_escape_string($link,$paymentCode[0]). '",' .
+					'`payment_type` = "'.mysqli_real_escape_string($link,$paymentCode[1]). '",' .
+					'`transaction_mode` = "'.mysqli_real_escape_string($link,$_POST['TRANSACTION_MODE']). '",' .
+					'`payment_name` = "'.mysqli_real_escape_string($link,$_POST['CRITERION_PAYMENT_NAME']). '",' .
+					'`processing_result` = "'.mysqli_real_escape_string($link,$_POST['PROCESSING_RESULT']). '",' .
+					'`secret_hash` = "'.mysqli_real_escape_string($link,trim($_POST['CRITERION_SECRET'])). '",' .
+					'`response_ip` = "'.mysqli_real_escape_string($link,$_SERVER['REMOTE_ADDR']). '",'.
+					'`created_on` = "'.$created_on. '",'.
+					'`modified_on` = "'.$created_on. '",'.
+					'`locked_on` = "'.$created_on. '"'.
+					';';
+					
+			$dbEerror = mysqli_query($link,$sql);
 		}
 	}
 }

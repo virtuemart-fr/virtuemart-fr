@@ -11,37 +11,35 @@ defined ('_JEXEC') or die('Restricted access');
  * @package VirtueMart
  */
 
-defined ('DS') or define('DS', DIRECTORY_SEPARATOR);
-//Update Tables
-if (!class_exists ('VmConfig')) {
-	if(file_exists(JPATH_ADMINISTRATOR . DS . 'components' . DS . 'com_virtuemart' . DS . 'helpers' . DS . 'config.php')){
-		require(JPATH_ADMINISTRATOR . DS . 'components' . DS . 'com_virtuemart' . DS . 'helpers' . DS . 'config.php');
-	} else {
-		jExit('Install the virtuemart Core first ');
-	}
-}
-
-if(!method_exists('vRequest','vmSpecialChars')) jExit('Install the virtuemart Core first ');
-
-
-$max_execution_time = ini_get ('max_execution_time');
-if ((int)$max_execution_time < 120) {
-	@ini_set ('max_execution_time', '120');
-}
-$memory_limit = (int)substr (ini_get ('memory_limit'), 0, -1);
-if ($memory_limit < 128) {
-	@ini_set ('memory_limit', '128M');
-}
 
 // hack to prevent defining these twice in 1.6 installation
 if (!defined ('_VM_AIO_SCRIPT_INCLUDED')) {
+
+	defined ('DS') or define('DS', DIRECTORY_SEPARATOR);
+
 
 	define('_VM_AIO_SCRIPT_INCLUDED', TRUE);
 
 	class com_virtuemart_allinoneInstallerScript {
 
 		public function preflight () {
-			//$this->vmInstall();
+			//Update Tables
+			if (!class_exists ('VmConfig')) {
+				if(file_exists(JPATH_ADMINISTRATOR . DS . 'components' . DS . 'com_virtuemart' . DS . 'helpers' . DS . 'config.php')){
+					require(JPATH_ADMINISTRATOR . DS . 'components' . DS . 'com_virtuemart' . DS . 'helpers' . DS . 'config.php');
+				} else {
+
+					JFactory::getApplication()->enqueueMessage('Install the VirtueMart Core first ');
+					return false;
+				}
+			}
+			VmConfig::loadConfig();
+			if(!method_exists('vRequest','vmSpecialChars')){
+				JFactory::getApplication()->enqueueMessage('Update the VirtueMart Core first ');
+				return false;
+			}
+			VmConfig::ensureMemoryLimit(128);
+			VmConfig::ensureExecutionTime(120);
 		}
 
 		public function install () {
@@ -59,11 +57,12 @@ if (!defined ('_VM_AIO_SCRIPT_INCLUDED')) {
 
 		public function vmInstall ($dontMove=0) {
 
-
-			jimport ('joomla.filesystem.file');
 			jimport ('joomla.installer.installer');
 
-			VmConfig::loadJLang('com_virtuemart');
+			if(!class_exists('JFile')) require(VMPATH_LIBS .'/joomla/filesystem/file.php');
+			if(!class_exists('JFolder')) require(VMPATH_LIBS .'/joomla/filesystem/folder.php');
+
+			vmLanguage::loadJLang('com_virtuemart');
 			$this->createIndexFolder (JPATH_ROOT . DS . 'plugins' . DS . 'vmcalculation');
 			$this->createIndexFolder (JPATH_ROOT . DS . 'plugins' . DS . 'vmcustom');
 			$this->createIndexFolder (JPATH_ROOT . DS . 'plugins' . DS . 'vmpayment');
@@ -173,6 +172,7 @@ if (!defined ('_VM_AIO_SCRIPT_INCLUDED')) {
 			$this->installPlugin ('VirtueMart Product', 'plugin', 'virtuemart', 'search');
 			$this->updateMoneyBookersToSkrill();
 
+			$this->installPlugin ('VM Framework Loader during Plugin Updates', 'plugin', 'vmLoaderPluginUpdate', 'system', 1);
 
 			$task = vRequest::getCmd ('task');
 			if ($task != 'updateDatabase') {
@@ -503,7 +503,7 @@ if (!defined ('_VM_AIO_SCRIPT_INCLUDED')) {
 			$umimodel->updateJoomlaUpdateServer( $type, $element, $dst , $group  );
 			$installTask= $count==0 ? 'installed':'updated';
 			echo '<tr><td>' . $name . '</td><td> '.$installTask.'</td></tr>';
-
+			unset($data);
 		}
 
 
@@ -548,7 +548,7 @@ if (!defined ('_VM_AIO_SCRIPT_INCLUDED')) {
 					$loggablefields = $plugin->getTableSQLLoggablefields ();
 					$tablesFields = array_merge ($SQLfields, $loggablefields);
 					$update[$tablename] = array($tablesFields, array(), array());
-					vmdebug ('install plugin', $update);
+					//vmdebug ('install plugin', $update);
 					$app->enqueueMessage (get_class ($this) . ':: VirtueMart2 update ' . $tablename);
 
 					if (!class_exists ('GenericTableUpdater')) {

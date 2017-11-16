@@ -6,7 +6,7 @@ defined('_JEXEC') or die();
  * @version $Id: signin.php 8431 2014-10-14 14:11:46Z alatak $
  * @package VirtueMart
  * @subpackage vmpayment
- * @copyright Copyright (C) 2004-Copyright (C) 2004-2016 Virtuemart Team. All rights reserved.   - All rights reserved.
+ * @copyright Copyright (C) 2004-Copyright (C) 2004 - 2017 Virtuemart Team. All rights reserved.   - All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
@@ -18,15 +18,19 @@ defined('_JEXEC') or die();
  */
 ?>
 <?php
+
 JHtml::_('behavior.tooltip');
 vmJsApi::jPrice();
 static $jsSILoaded = false;
 if (!$jsSILoaded) {
 	$doc = JFactory::getDocument();
 
-	$signInButton = '<div id=\"amazonSignInButton\"><div id=\"payWithAmazonDiv\" ><img src=\"' . $viewData['buttonWidgetImageURL'] . '\" style=\"cursor: pointer;\"/></div><div id=\"amazonSignInErrorMsg\"></div></div>';
+	$signInButton = '<div class=\"amazonSignInButton\"><div id=\"payWithAmazonDiv\" >'
+// <img src=\"' . $viewData['buttonWidgetImageURL'] . '\" style=\"cursor: pointer;\"/></div>
 
-	vmJsApi::addJScript(  '/plugins/vmpayment/amazon/assets/js/amazon.js');
+.'<div id=\"amazonSignInErrorMsg\"></div></div>';
+
+	vmJsApi::addJScript('/plugins/vmpayment/amazon/assets/js/amazon.js');
 	if ($viewData['include_amazon_css']) {
 		$doc->addStyleSheet(JURI::root(true) . '/plugins/vmpayment/amazon/assets/css/amazon.css');
 	}
@@ -34,16 +38,14 @@ if (!$jsSILoaded) {
 
 	$js = "
 jQuery(document).ready(function($) {
-	jQuery(this).off('initializeAmazonPayment');
-	jQuery(this).on('initializeAmazonPayment', function() {
+
 		jQuery( '.amazonSignIn' ).remove();
 		jQuery( '" . $viewData['sign_in_css'] . "' ).append('<div class=\"amazonSignIn\" ></div>');
 		jQuery( '.amazonSignIn' ).append('<div class=\"amazonSignTip\">" . vmText::_('VMPAYMENT_AMAZON_SIGNIN_TIP', true) . "</div>');
-		amazonPayment.showAmazonButton('" . $viewData['sellerId'] . "', '" . $viewData['redirect_page'] . "', " . $renderAmazonAddressBook . ");
 		jQuery( '.amazonSignIn' ).append('" . $signInButton . "');
 		jQuery( '.amazonSignIn' ).append('<div class=\"amazonSignTip\" id=\"amazonSignOr\"><span>" . vmText::_('VMPAYMENT_AMAZON_SIGNIN_OR', true) . "</span></div>');
-	});
-	jQuery(this).trigger('initializeAmazonPayment');
+		amazonPayment.showAmazonButton('" . $viewData['sellerId'] . "', '" . $viewData['redirect_page'] . "', " . $renderAmazonAddressBook . ");
+
 });
 ";
 

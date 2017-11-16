@@ -59,7 +59,6 @@ class vmCrypt {
 					return $string;
 				} else {
 					$mcrypt_decrypt = mcrypt_decrypt (MCRYPT_RIJNDAEL_256, $key, $ciphertext_dec, MCRYPT_MODE_CBC, $iv_dec);
-					//vmdebug('vmCrypt mcrypt_decrypt available '.$mcrypt_decrypt,$ciphertext_dec);
 					return rtrim ($mcrypt_decrypt, "\0");
 				}
 
@@ -85,7 +84,7 @@ class vmCrypt {
 	private static function _checkCreateKeyFile($date){
 		jimport('joomla.filesystem.file');
 
-		vmSetStartTime('check');
+		vmSetStartTime('_checkCreateKeyFile');
 		static $existingKeys = false;
 
 		$keyPath = self::_getEncryptSafepath ();
@@ -101,9 +100,9 @@ class vmCrypt {
 							if($ext=='ini' and file_exists($keyPath .DS. $file)){
 								$content = parse_ini_file($keyPath .DS. $file);
 								if($content and is_array($content) and isset($content['unixtime'])){
-									$key = $content['unixtime'];
+									$k = $content['unixtime'];
 									unset($content['unixtime']);
-									$existingKeys[$key] = $content;
+									$existingKeys[$k] = $content;
 									//vmdebug('Reading '.$keyPath .DS. $file,$content);
 								}
 
@@ -126,42 +125,53 @@ class vmCrypt {
 
 		if($existingKeys and is_array($existingKeys) and count($existingKeys)>0){
 			ksort($existingKeys);
-
+			$key = '';
+			$usedKey = '';
+			$uDate = 0;
 			if(!empty($date)){
-				$key = '';
+
 				foreach($existingKeys as $unixDate=>$values){
 					if(($unixDate-30) >= $date ){
 						vmdebug('$unixDate '.$unixDate.' >= $date '.$date);
 						continue;
 					}
-					vmdebug('$unixDate < $date '.$date);
-					$key = $values['key'];
+					vmdebug('$unixDate < $date '.$unixDate);
 					$usedKey = $values;
+					$uDate = $unixDate;
 				}
-				if(!isset($usedKey['b64']) or $usedKey['b64']){
-					vmdebug('Doing base64_decode ',$usedKey);
-					$key = base64_decode($key);
-				}
+			}
 
-			} else {
+			if(empty($usedKey)){
 				$usedKey = end($existingKeys);
-				$key = $usedKey['key'];
-				//No key means, we wanna encrypt something, when it has not the new attribute,
+				$uDate = key($existingKeys);
+				//No key means, we wanna encrypt something, when it has not the new size,
 				//it is an old key and must be replaced
 				$ksize = VmConfig::get('keysize',24);
-				if(empty($key) or !isset($usedKey['b64']) or !isset($usedKey['size']) or $usedKey['size']!=$ksize){
+				if(empty($usedKey['key']) or !isset($usedKey['b64']) or !isset($usedKey['size']) or $usedKey['size']!=$ksize){
 					$key = self::_createKeyFile($keyPath,$ksize);
-					$existingKeys[$key['unixtime']] = $key;
+					$k = $key['unixtime'];
+					unset($key['unixtime']);
+					$existingKeys[$k] = $key;
 					return $key['key'];
 				}
 			}
 
-			//vmdebug('Length of key',strlen($key));
-			//vmTime('my time','check');
+			if(!empty($usedKey['key']) and (!isset($usedKey['b64']) or $usedKey['b64']=='1')){
+
+				$key = base64_decode($usedKey['key']);
+				$existingKeys[$uDate]['key'] = $key;
+				$existingKeys[$uDate]['b64'] = 0;
+				//vmdebug('Doing base64_decode '.$usedKey['key']. ' '.$key);
+			} else {
+				$key = $usedKey['key'];
+			}
+
 			return $key;
 		} else {
 			$key = self::_createKeyFile($keyPath,VmConfig::get('keysize',24));
-			$existingKeys[$key['unixtime']] = $key;
+			$k = $key['unixtime'];
+			unset($key['unixtime']);
+			$existingKeys[$k] = $key;
 			return $key['key'];
 		}
 	}
@@ -175,20 +185,21 @@ class vmCrypt {
 
 			$key = self::crypto_rand_secure($size);
 
-			vmdebug('create key file ',$size);
+			vmdebug('create key file '.$size.' '.$key);
 			$date = JFactory::getDate();
 			$today = $date->toUnix();
 			$dat = date("Y-m-d H:i:s");
+			$encb64 = 1;
 			$content = ';<?php die(); */
 						[keys]
-						key = "'.$key.'"
+						key = "'.base64_encode($key).'"
 						unixtime = "'.$today.'"
 						date = "'.$dat.'"
-						b64 = "0"
+						b64 = "'.$encb64.'"
 						size = "'.$size.'"
 						; */ ?>';
 			$result = JFile::write($filename, $content);
-
+			//b64 must be 0, else it will be b64 decoded again
 			return array('key'=>$key,'unixtime'=>$today,'date'=>$dat,'b64'=>0,'size'=>$size);
 		} else {
 			return false;
@@ -204,10 +215,8 @@ class vmCrypt {
 			return NULL;
 		}
 		$encryptSafePath = $safePath . self::ENCRYPT_SAFEPATH;
-		//echo 'my $encryptSafePath '.$encryptSafePath;
-		//if(!JFolder::exists($encryptSafePath)){
-			self::createEncryptFolder($encryptSafePath);
-		//}
+		self::createEncryptFolder($encryptSafePath);
+
 		return $encryptSafePath;
 	}
 

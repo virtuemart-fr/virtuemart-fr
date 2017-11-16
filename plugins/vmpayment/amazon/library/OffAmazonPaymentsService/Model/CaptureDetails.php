@@ -19,9 +19,9 @@
 /**
  *  @see OffAmazonPaymentsService_Model
  */
-require_once 'OffAmazonPaymentsService/Model.php';  
+require_once 'OffAmazonPaymentsService/Model.php';
 
-    
+
 
 /**
  * OffAmazonPaymentsService_Model_CaptureDetails
@@ -41,10 +41,10 @@ require_once 'OffAmazonPaymentsService/Model.php';
  * <li>SoftDescriptor: string</li>
  *
  * </ul>
- */ 
+ */
 class OffAmazonPaymentsService_Model_CaptureDetails extends OffAmazonPaymentsService_Model
 {
-
+    
     /**
      * Construct new OffAmazonPaymentsService_Model_CaptureDetails
      * 
@@ -68,53 +68,87 @@ class OffAmazonPaymentsService_Model_CaptureDetails extends OffAmazonPaymentsSer
      */
     public function __construct($data = null)
     {
-        $this->_fields = array (
-        'AmazonCaptureId' => array('FieldValue' => null, 'FieldType' => 'string'),
-        'CaptureReferenceId' => array('FieldValue' => null, 'FieldType' => 'string'),
-        'SellerCaptureNote' => array('FieldValue' => null, 'FieldType' => 'string'),
-
-        'CaptureAmount' => array('FieldValue' => null, 'FieldType' => 'OffAmazonPaymentsService_Model_Price'),
-
-
-        'RefundedAmount' => array('FieldValue' => null, 'FieldType' => 'OffAmazonPaymentsService_Model_Price'),
-
-
-        'CaptureFee' => array('FieldValue' => null, 'FieldType' => 'OffAmazonPaymentsService_Model_Price'),
-
-
-        'IdList' => array('FieldValue' => null, 'FieldType' => 'OffAmazonPaymentsService_Model_IdList'),
-
-        'CreationTimestamp' => array('FieldValue' => null, 'FieldType' => 'string'),
-
-        'CaptureStatus' => array('FieldValue' => null, 'FieldType' => 'OffAmazonPaymentsService_Model_Status'),
-
-        'SoftDescriptor' => array('FieldValue' => null, 'FieldType' => 'string'),
+        $this->_fields = array(
+            'AmazonCaptureId' => array(
+                'FieldValue' => null,
+                'FieldType' => 'string'
+            ),
+            
+            'CaptureReferenceId' => array(
+                'FieldValue' => null,
+                'FieldType' => 'string'
+            ),
+            
+            'SellerCaptureNote' => array(
+                'FieldValue' => null,
+                'FieldType' => 'string'
+            ),
+            
+            'CaptureAmount' => array(
+                'FieldValue' => null,
+                'FieldType' => 'OffAmazonPaymentsService_Model_Price'
+            ),
+            
+            'RefundedAmount' => array(
+                'FieldValue' => null,
+                'FieldType' => 'OffAmazonPaymentsService_Model_Price'
+            ),
+            
+            'CaptureFee' => array(
+                'FieldValue' => null,
+                'FieldType' => 'OffAmazonPaymentsService_Model_Price'
+            ),
+            
+            'IdList' => array(
+                'FieldValue' => null,
+                'FieldType' => 'OffAmazonPaymentsService_Model_IdList'
+            ),
+            
+            'CreationTimestamp' => array(
+                'FieldValue' => null,
+                'FieldType' => 'string'
+            ),
+            
+            'CaptureStatus' => array(
+                'FieldValue' => null,
+                'FieldType' => 'OffAmazonPaymentsService_Model_Status'
+            ),
+            
+            'SoftDescriptor' => array(
+                'FieldValue' => null,
+                'FieldType' => 'string'
+            ),
+            
+            'ProviderCreditSummaryList' => array(
+                'FieldValue' => null,
+                'FieldType' => 'OffAmazonPaymentsService_Model_ProviderCreditSummaryList'
+            )
         );
         parent::__construct($data);
     }
-
-        /**
+    
+    /**
      * Gets the value of the AmazonCaptureId property.
      * 
      * @return string AmazonCaptureId
      */
-    public function getAmazonCaptureId() 
+    public function getAmazonCaptureId()
     {
         return $this->_fields['AmazonCaptureId']['FieldValue'];
     }
-
+    
     /**
      * Sets the value of the AmazonCaptureId property.
      * 
      * @param string AmazonCaptureId
      * @return this instance
      */
-    public function setAmazonCaptureId($value) 
+    public function setAmazonCaptureId($value)
     {
         $this->_fields['AmazonCaptureId']['FieldValue'] = $value;
         return $this;
     }
-
+    
     /**
      * Sets the value of the AmazonCaptureId and returns this instance
      * 
@@ -126,8 +160,7 @@ class OffAmazonPaymentsService_Model_CaptureDetails extends OffAmazonPaymentsSer
         $this->setAmazonCaptureId($value);
         return $this;
     }
-
-
+    
     /**
      * Checks if AmazonCaptureId is set
      * 
@@ -137,29 +170,29 @@ class OffAmazonPaymentsService_Model_CaptureDetails extends OffAmazonPaymentsSer
     {
         return !is_null($this->_fields['AmazonCaptureId']['FieldValue']);
     }
-
+    
     /**
      * Gets the value of the CaptureReferenceId property.
      * 
      * @return string CaptureReferenceId
      */
-    public function getCaptureReferenceId() 
+    public function getCaptureReferenceId()
     {
         return $this->_fields['CaptureReferenceId']['FieldValue'];
     }
-
+    
     /**
      * Sets the value of the CaptureReferenceId property.
      * 
      * @param string CaptureReferenceId
      * @return this instance
      */
-    public function setCaptureReferenceId($value) 
+    public function setCaptureReferenceId($value)
     {
         $this->_fields['CaptureReferenceId']['FieldValue'] = $value;
         return $this;
     }
-
+    
     /**
      * Sets the value of the CaptureReferenceId and returns this instance
      * 
@@ -171,8 +204,7 @@ class OffAmazonPaymentsService_Model_CaptureDetails extends OffAmazonPaymentsSer
         $this->setCaptureReferenceId($value);
         return $this;
     }
-
-
+    
     /**
      * Checks if CaptureReferenceId is set
      * 
@@ -182,29 +214,29 @@ class OffAmazonPaymentsService_Model_CaptureDetails extends OffAmazonPaymentsSer
     {
         return !is_null($this->_fields['CaptureReferenceId']['FieldValue']);
     }
-
+    
     /**
      * Gets the value of the SellerCaptureNote property.
      * 
      * @return string SellerCaptureNote
      */
-    public function getSellerCaptureNote() 
+    public function getSellerCaptureNote()
     {
         return $this->_fields['SellerCaptureNote']['FieldValue'];
     }
-
+    
     /**
      * Sets the value of the SellerCaptureNote property.
      * 
      * @param string SellerCaptureNote
      * @return this instance
      */
-    public function setSellerCaptureNote($value) 
+    public function setSellerCaptureNote($value)
     {
         $this->_fields['SellerCaptureNote']['FieldValue'] = $value;
         return $this;
     }
-
+    
     /**
      * Sets the value of the SellerCaptureNote and returns this instance
      * 
@@ -216,8 +248,7 @@ class OffAmazonPaymentsService_Model_CaptureDetails extends OffAmazonPaymentsSer
         $this->setSellerCaptureNote($value);
         return $this;
     }
-
-
+    
     /**
      * Checks if SellerCaptureNote is set
      * 
@@ -227,29 +258,29 @@ class OffAmazonPaymentsService_Model_CaptureDetails extends OffAmazonPaymentsSer
     {
         return !is_null($this->_fields['SellerCaptureNote']['FieldValue']);
     }
-
+    
     /**
      * Gets the value of the CaptureAmount.
      * 
      * @return Price CaptureAmount
      */
-    public function getCaptureAmount() 
+    public function getCaptureAmount()
     {
         return $this->_fields['CaptureAmount']['FieldValue'];
     }
-
+    
     /**
      * Sets the value of the CaptureAmount.
      * 
      * @param Price CaptureAmount
      * @return void
      */
-    public function setCaptureAmount($value) 
+    public function setCaptureAmount($value)
     {
         $this->_fields['CaptureAmount']['FieldValue'] = $value;
         return;
     }
-
+    
     /**
      * Sets the value of the CaptureAmount  and returns this instance
      * 
@@ -261,8 +292,8 @@ class OffAmazonPaymentsService_Model_CaptureDetails extends OffAmazonPaymentsSer
         $this->setCaptureAmount($value);
         return $this;
     }
-
-
+    
+    
     /**
      * Checks if CaptureAmount  is set
      * 
@@ -271,31 +302,31 @@ class OffAmazonPaymentsService_Model_CaptureDetails extends OffAmazonPaymentsSer
     public function isSetCaptureAmount()
     {
         return !is_null($this->_fields['CaptureAmount']['FieldValue']);
-
+        
     }
-
+    
     /**
      * Gets the value of the RefundedAmount.
      * 
      * @return Price RefundedAmount
      */
-    public function getRefundedAmount() 
+    public function getRefundedAmount()
     {
         return $this->_fields['RefundedAmount']['FieldValue'];
     }
-
+    
     /**
      * Sets the value of the RefundedAmount.
      * 
      * @param Price RefundedAmount
      * @return void
      */
-    public function setRefundedAmount($value) 
+    public function setRefundedAmount($value)
     {
         $this->_fields['RefundedAmount']['FieldValue'] = $value;
         return;
     }
-
+    
     /**
      * Sets the value of the RefundedAmount  and returns this instance
      * 
@@ -307,8 +338,8 @@ class OffAmazonPaymentsService_Model_CaptureDetails extends OffAmazonPaymentsSer
         $this->setRefundedAmount($value);
         return $this;
     }
-
-
+    
+    
     /**
      * Checks if RefundedAmount  is set
      * 
@@ -317,31 +348,31 @@ class OffAmazonPaymentsService_Model_CaptureDetails extends OffAmazonPaymentsSer
     public function isSetRefundedAmount()
     {
         return !is_null($this->_fields['RefundedAmount']['FieldValue']);
-
+        
     }
-
+    
     /**
      * Gets the value of the CaptureFee.
      * 
      * @return Price CaptureFee
      */
-    public function getCaptureFee() 
+    public function getCaptureFee()
     {
         return $this->_fields['CaptureFee']['FieldValue'];
     }
-
+    
     /**
      * Sets the value of the CaptureFee.
      * 
      * @param Price CaptureFee
      * @return void
      */
-    public function setCaptureFee($value) 
+    public function setCaptureFee($value)
     {
         $this->_fields['CaptureFee']['FieldValue'] = $value;
         return;
     }
-
+    
     /**
      * Sets the value of the CaptureFee  and returns this instance
      * 
@@ -353,8 +384,7 @@ class OffAmazonPaymentsService_Model_CaptureDetails extends OffAmazonPaymentsSer
         $this->setCaptureFee($value);
         return $this;
     }
-
-
+    
     /**
      * Checks if CaptureFee  is set
      * 
@@ -363,31 +393,31 @@ class OffAmazonPaymentsService_Model_CaptureDetails extends OffAmazonPaymentsSer
     public function isSetCaptureFee()
     {
         return !is_null($this->_fields['CaptureFee']['FieldValue']);
-
+        
     }
-
+    
     /**
      * Gets the value of the IdList.
      * 
      * @return IdList IdList
      */
-    public function getIdList() 
+    public function getIdList()
     {
         return $this->_fields['IdList']['FieldValue'];
     }
-
+    
     /**
      * Sets the value of the IdList.
      * 
      * @param IdList IdList
      * @return void
      */
-    public function setIdList($value) 
+    public function setIdList($value)
     {
         $this->_fields['IdList']['FieldValue'] = $value;
         return;
     }
-
+    
     /**
      * Sets the value of the IdList  and returns this instance
      * 
@@ -399,8 +429,8 @@ class OffAmazonPaymentsService_Model_CaptureDetails extends OffAmazonPaymentsSer
         $this->setIdList($value);
         return $this;
     }
-
-
+    
+    
     /**
      * Checks if IdList  is set
      * 
@@ -409,31 +439,31 @@ class OffAmazonPaymentsService_Model_CaptureDetails extends OffAmazonPaymentsSer
     public function isSetIdList()
     {
         return !is_null($this->_fields['IdList']['FieldValue']);
-
+        
     }
-
+    
     /**
      * Gets the value of the CreationTimestamp property.
      * 
      * @return string CreationTimestamp
      */
-    public function getCreationTimestamp() 
+    public function getCreationTimestamp()
     {
         return $this->_fields['CreationTimestamp']['FieldValue'];
     }
-
+    
     /**
      * Sets the value of the CreationTimestamp property.
      * 
      * @param string CreationTimestamp
      * @return this instance
      */
-    public function setCreationTimestamp($value) 
+    public function setCreationTimestamp($value)
     {
         $this->_fields['CreationTimestamp']['FieldValue'] = $value;
         return $this;
     }
-
+    
     /**
      * Sets the value of the CreationTimestamp and returns this instance
      * 
@@ -445,8 +475,8 @@ class OffAmazonPaymentsService_Model_CaptureDetails extends OffAmazonPaymentsSer
         $this->setCreationTimestamp($value);
         return $this;
     }
-
-
+    
+    
     /**
      * Checks if CreationTimestamp is set
      * 
@@ -456,29 +486,29 @@ class OffAmazonPaymentsService_Model_CaptureDetails extends OffAmazonPaymentsSer
     {
         return !is_null($this->_fields['CreationTimestamp']['FieldValue']);
     }
-
+    
     /**
      * Gets the value of the CaptureStatus.
      * 
      * @return Status CaptureStatus
      */
-    public function getCaptureStatus() 
+    public function getCaptureStatus()
     {
         return $this->_fields['CaptureStatus']['FieldValue'];
     }
-
+    
     /**
      * Sets the value of the CaptureStatus.
      * 
      * @param Status CaptureStatus
      * @return void
      */
-    public function setCaptureStatus($value) 
+    public function setCaptureStatus($value)
     {
         $this->_fields['CaptureStatus']['FieldValue'] = $value;
         return;
     }
-
+    
     /**
      * Sets the value of the CaptureStatus  and returns this instance
      * 
@@ -490,8 +520,8 @@ class OffAmazonPaymentsService_Model_CaptureDetails extends OffAmazonPaymentsSer
         $this->setCaptureStatus($value);
         return $this;
     }
-
-
+    
+    
     /**
      * Checks if CaptureStatus  is set
      * 
@@ -500,31 +530,31 @@ class OffAmazonPaymentsService_Model_CaptureDetails extends OffAmazonPaymentsSer
     public function isSetCaptureStatus()
     {
         return !is_null($this->_fields['CaptureStatus']['FieldValue']);
-
+        
     }
-
+    
     /**
      * Gets the value of the SoftDescriptor property.
      * 
      * @return string SoftDescriptor
      */
-    public function getSoftDescriptor() 
+    public function getSoftDescriptor()
     {
         return $this->_fields['SoftDescriptor']['FieldValue'];
     }
-
+    
     /**
      * Sets the value of the SoftDescriptor property.
      * 
      * @param string SoftDescriptor
      * @return this instance
      */
-    public function setSoftDescriptor($value) 
+    public function setSoftDescriptor($value)
     {
         $this->_fields['SoftDescriptor']['FieldValue'] = $value;
         return $this;
     }
-
+    
     /**
      * Sets the value of the SoftDescriptor and returns this instance
      * 
@@ -536,8 +566,8 @@ class OffAmazonPaymentsService_Model_CaptureDetails extends OffAmazonPaymentsSer
         $this->setSoftDescriptor($value);
         return $this;
     }
-
-
+    
+    
     /**
      * Checks if SoftDescriptor is set
      * 
@@ -547,6 +577,49 @@ class OffAmazonPaymentsService_Model_CaptureDetails extends OffAmazonPaymentsSer
     {
         return !is_null($this->_fields['SoftDescriptor']['FieldValue']);
     }
-
+    
+    /**
+     * Gets the value of the ProviderCreditSummaryList.
+     *
+     * @return ProviderCreditSummaryList ProviderCreditSummaryList
+     */
+    public function getProviderCreditSummaryList()
+    {
+        return $this->_fields['ProviderCreditSummaryList']['FieldValue'];
+    }
+    
+    /**
+     * Sets the value of the ProviderCreditSummaryList.
+     *
+     * @param ProviderCreditSummaryList ProviderCreditSummaryList
+     * @return void
+     */
+    public function setProviderCreditSummaryList($value)
+    {
+        $this->_fields['ProviderCreditSummaryList']['FieldValue'] = $value;
+        return;
+    }
+    
+    /**
+     * Sets the value of the ProviderCreditSummaryList  and returns this instance
+     *
+     * @param ProviderCreditSummaryList $value ProviderCreditSummaryList
+     * @return OffAmazonPaymentsService_Model_CaptureDetails instance
+     */
+    public function withProviderCreditSummaryList($value)
+    {
+        $this->setProviderCreditSummaryList($value);
+        return $this;
+    }
+    
+    /**
+     * Checks if ProviderCreditSummaryList  is set
+     *
+     * @return bool true if ProviderCreditSummaryList property is set
+     */
+    public function isSetProviderCreditSummaryList()
+    {
+        return !is_null($this->_fields['ProviderCreditSummaryList']['FieldValue']);
+        
+    }
 }
-?>

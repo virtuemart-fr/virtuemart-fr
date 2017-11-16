@@ -6,14 +6,14 @@
 * @package	VirtueMart
 * @subpackage ShopperGroup
 * @author Markus �hler
-* @link http://www.virtuemart.net
+* @link https://virtuemart.net
 * @copyright Copyright (c) 2004 - 2010 VirtueMart Team. All rights reserved.
 * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
 * VirtueMart is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
-* @version $Id: default.php 8534 2014-10-28 10:23:03Z Milbo $
+* @version $Id: default.php 9413 2017-01-04 17:20:58Z Milbo $
 */
 
 // Check to ensure this file is included in Joomla!
@@ -23,7 +23,30 @@ AdminUIHelper::startAdminArea($this);
 
 ?>
 
-<form action="index.php" method="post" name="adminForm" id="adminForm">
+<form action="index.php?option=com_virtuemart&view=shoppergroup" method="post" name="adminForm" id="adminForm">
+<?php if ($this->task=='massxref_sgrps' or $this->task=='massxref_sgrps_exe') : ?>
+<div id="header">
+<div id="massxref_task">
+	<table class="">
+		<tr>
+			<td align="left">
+				<?php echo vmText::_('COM_VIRTUEMART_PRODUCT_XREF_TASK') ?>
+			</td>
+			<td>
+				<?php
+				$options = array(
+				'replace' => vmText::_('COM_VIRTUEMART_PRODUCT_XREF_TASK_REPLACE'),
+				'add' => vmText::_('COM_VIRTUEMART_PRODUCT_XREF_TASK_ADD'),
+				'remove' => vmText::_('COM_VIRTUEMART_PRODUCT_XREF_TASK_REMOVE')
+				);
+				echo VmHTML::selectList('massxref_task', 'replace', $options);
+				?>
+			</td>
+		</tr>
+	</table>
+</div>
+</div>
+<?php endif; ?>
   <div id="editcell">
 	  <table class="adminlist table table-striped" cellspacing="0" cellpadding="0">
 		<thead>

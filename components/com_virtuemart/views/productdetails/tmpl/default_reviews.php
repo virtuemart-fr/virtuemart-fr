@@ -6,14 +6,14 @@
  * @package    VirtueMart
  * @subpackage
  * @author Max Milbers, Valerie Isaksen
- * @link http://www.virtuemart.net
+ * @link https://virtuemart.net
  * @copyright Copyright (c) 2004 - 2010 VirtueMart Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
- * @version $Id: default_reviews.php 8508 2014-10-22 18:57:14Z Milbo $
+ * @version $Id: default_reviews.php 9413 2017-01-04 17:20:58Z Milbo $
  */
 
 // Check to ensure this file is included in Joomla!
@@ -26,7 +26,7 @@ if ($this->allowRating || $this->allowReview || $this->showRating || $this->show
 	$maxrating = VmConfig::get( 'vm_maximum_rating_scale', 5 );
 	$ratingsShow = VmConfig::get( 'vm_num_ratings_show', 3 ); // TODO add  vm_num_ratings_show in vmConfig
 	$stars = array();
-	$showall = vRequest::getBool( 'showall', FALSE );
+	//$showall = vRequest::getBool( 'showall', FALSE );
 	$ratingWidth = $maxrating*24;
 	for( $num = 0; $num<=$maxrating; $num++ ) {
 		$stars[] = '
@@ -168,7 +168,7 @@ function refresh_counter() {
 		</form>
 	<?php
 	} else if(!$review_editable) {
-		echo '<strong>'.vmText::_( 'COM_VIRTUEMART_DEAR' ).$this->user->name.',</strong><br />';
+		echo '<strong>'.vmText::_( 'COM_VIRTUEMART_DEAR' ).$this->user->name.',</strong><br>';
 		echo vmText::_( 'COM_VIRTUEMART_REVIEW_ALREADYDONE' );
 	}
 }
@@ -208,7 +208,7 @@ if ($this->showReview) {
 					<?php
 				}
 				$i++;
-				if ($i == $ratingsShow && !$showall) {
+				if ($i == $ratingsShow && !$this->showall) {
 					/* Show all reviews ? */
 					if ($reviews_published >= $ratingsShow) {
 						$attribute = array('class'=> 'details', 'title'=> vmText::_ ('COM_VIRTUEMART_MORE_REVIEWS'));

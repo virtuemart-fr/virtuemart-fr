@@ -7,8 +7,8 @@
  * @subpackage Cart
  * @author Max Milbers
  *
- * @link http://www.virtuemart.net
- * @copyright Copyright (c) 2004 - 2010 VirtueMart Team. All rights reserved.
+ * @link https://virtuemart.net
+ * @copyright Copyright (c) 2004 - 2016 VirtueMart Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
@@ -20,35 +20,41 @@
 // Check to ensure this file is included in Joomla!
 defined ('_JEXEC') or die('Restricted access');
 
-JHtml::_ ('behavior.formvalidation');
+vmJsApi::vmValidator();
 
 ?>
 
-<div id="cart-view" class="cart-view">
-	<div class="vm-cart-header-container">
-		<div class="width50 floatleft vm-cart-header">
-			<h1><?php echo vmText::_ ('COM_VIRTUEMART_CART_TITLE'); ?></h1>
-			<div class="payments-signin-button" ></div>
-		</div>
-		<?php if (VmConfig::get ('oncheckout_show_steps', 1) && $this->checkout_task === 'confirm') {
-			echo '<div class="checkoutStep" id="checkoutStep4">' . vmText::_ ('COM_VIRTUEMART_USER_FORM_CART_STEP4') . '</div>';
-		} ?>
-		<div class="width50 floatleft right vm-continue-shopping">
-			<?php // Continue Shopping Button
-			if (!empty($this->continue_link_html)) {
-				echo $this->continue_link_html;
-			} ?>
-		</div>
-		<div class="clear"></div>
+<div class="vm-cart-header-container">
+	<div class="width50 floatleft vm-cart-header">
+		<h1><?php echo vmText::_ ('COM_VIRTUEMART_CART_TITLE'); ?></h1>
+		<div class="payments-signin-button" ></div>
 	</div>
+	<?php if (VmConfig::get ('oncheckout_show_steps', 1) ){
+		if($this->checkout_task == 'checkout') {
+			echo '<div class="checkoutStep" id="checkoutStep1">' . vmText::_ ('COM_VIRTUEMART_USER_FORM_CART_STEP1') . '</div>';
+		} else { //if($this->checkout_task == 'confirm') {
+			echo '<div class="checkoutStep" id="checkoutStep4">' . vmText::_ ('COM_VIRTUEMART_USER_FORM_CART_STEP4') . '</div>';
+		}
+	}  ?>
+	<div class="width50 floatleft right vm-continue-shopping">
+		<?php // Continue Shopping Button
+		if (!empty($this->continue_link_html)) {
+			echo $this->continue_link_html;
+		} ?>
+	</div>
+	<div class="clear"></div>
+</div>
+
+<div id="cart-view" class="cart-view">
+
 
 	<?php
-	$uri = vmURI::getCleanUrl();
-	$uri = str_replace('&tmpl=component','',$uri);
+	$uri = vmUri::getCurrentUrlBy('get');
+	$uri = str_replace(array('?tmpl=component','&tmpl=component'),'',$uri);
 	echo shopFunctionsF::getLoginForm ($this->cart, FALSE,$uri);
 
 	// This displays the form to change the current shopper
-	if ($this->allowChangeShopper){
+	if ($this->allowChangeShopper and !$this->isPdf){
 		echo $this->loadTemplate ('shopperform');
 	}
 
@@ -56,7 +62,7 @@ JHtml::_ ('behavior.formvalidation');
 	$taskRoute = '';
 	?><form method="post" id="checkoutForm" name="checkoutForm" action="<?php echo JRoute::_ ('index.php?option=com_virtuemart&view=cart' . $taskRoute, $this->useXHTML, $this->useSSL); ?>">
 		<?php
-		if(VmConfig::get('multixcart')=='byselection'){
+		if(!$this->isPdf and VmConfig::get('multixcart')=='byselection'){
 			if (!class_exists('ShopFunctions')) require(VMPATH_ADMIN . DS . 'helpers' . DS . 'shopfunctions.php');
 			echo shopFunctions::renderVendorFullVendorList($this->cart->vendorId);
 			?><input type="submit" name="updatecart" title="<?php echo vmText::_('COM_VIRTUEMART_SAVE'); ?>" value="<?php echo vmText::_('COM_VIRTUEMART_SAVE'); ?>" class="button"  style="margin-left: 10px;"/><?php
@@ -153,7 +159,7 @@ if( !VmConfig::get('oncheckout_ajax',false)) {
 }
 
 $this->addCheckRequiredJs();
-echo vmJsApi::writeJS();
-
-?>
+?><div style="display:none;" id="cart-js">
+<?php echo vmJsApi::writeJS(); ?>
+</div>
 </div>

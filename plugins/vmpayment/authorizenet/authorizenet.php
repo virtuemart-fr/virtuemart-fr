@@ -22,7 +22,7 @@ if (!class_exists('Creditcard')) {
 	require_once(JPATH_VM_ADMINISTRATOR . DS . 'helpers' . DS . 'creditcard.php');
 }
 if (!class_exists('vmPSPlugin')) {
-	require(JPATH_VM_PLUGINS . DS . 'vmpsplugin.php');
+	require(VMPATH_PLUGINLIBS . DS . 'vmpsplugin.php');
 }
 
 class plgVmpaymentAuthorizenet extends vmPSPlugin {
@@ -131,13 +131,13 @@ class plgVmpaymentAuthorizenet extends vmPSPlugin {
 				return FALSE;
 			}
 		}
-		$html = array();
+
 		$method_name = $this->_psType . '_name';
 
-		VmConfig::loadJLang('com_virtuemart', true);
+		vmLanguage::loadJLang('com_virtuemart', true);
 		vmJsApi::jCreditCard();
-		$htmla = '';
-		$html = array();
+		$htmla = array();
+		$html = '';
 		foreach ($this->methods as $this->_currentMethod) {
 			if ($this->checkConditions($cart, $this->_currentMethod, $cart->cartPrices)) {
 				$cartPrices=$cart->cartPrices;
@@ -466,7 +466,7 @@ class plgVmpaymentAuthorizenet extends vmPSPlugin {
 		if (!($paymentTable = $this->getDataByOrderId($virtuemart_order_id))) {
 			return NULL;
 		}
-		VmConfig::loadJLang('com_virtuemart');
+		vmLanguage::loadJLang('com_virtuemart');
 
 		$html = '<table class="adminlist table">' . "\n";
 		$html .= $this->getHtmlHeaderBE();
@@ -600,7 +600,7 @@ class plgVmpaymentAuthorizenet extends vmPSPlugin {
 		//$modelOrder->remove(array('virtuemart_order_id' => $virtuemart_order_id));
 		// error while processing the payment
 		$mainframe = JFactory::getApplication();
-		$mainframe->enqueueMessage($html);
+		vmWarn($html);
 		$mainframe->redirect(JRoute::_('index.php?option=com_virtuemart&view=cart&task=editpayment', FALSE), vmText::_('COM_VIRTUEMART_CART_ORDERDONE_DATA_NOT_VALID'));
 	}
 
@@ -715,8 +715,7 @@ class plgVmpaymentAuthorizenet extends vmPSPlugin {
 			//$html.= "</ul>";
 		}
 		if (!$this->_cc_valid && $enqueueMessage && $force) {
-			$app = JFactory::getApplication();
-			$app->enqueueMessage($html);
+			vmWarn($html);
 			$force=false;
 		}
 

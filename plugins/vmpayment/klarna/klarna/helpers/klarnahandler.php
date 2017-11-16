@@ -3,7 +3,7 @@
 defined('_JEXEC') or die('Restricted access');
 
 /**
- * @version $Id: klarnahandler.php 8388 2014-10-07 21:06:30Z alatak $
+ * @version $Id: klarnahandler.php 9420 2017-01-12 09:35:36Z Milbo $
  *
  * @author Valérie Isaksen
  * @package VirtueMart
@@ -287,7 +287,7 @@ class KlarnaHandler {
 	 * @return array
 	 */
 	static function getDataFromEditPayment () {
-		VmConfig::loadJLang('com_virtuemart_shoppers', true);
+		vmLanguage::loadJLang('com_virtuemart_shoppers', true);
 
 		$kIndex = 'klarna_';
 		$klarna['klarna_paymentmethod'] = vRequest::getVar($kIndex . 'paymentmethod');

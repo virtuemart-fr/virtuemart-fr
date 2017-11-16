@@ -21,6 +21,10 @@ require_once 'OffAmazonPaymentsNotifications/Model/BillingAgreementNotification.
 require_once 'OffAmazonPaymentsNotifications/Model/RefundNotification.php';
 require_once 'OffAmazonPaymentsNotifications/Model/CaptureNotification.php';
 require_once 'OffAmazonPaymentsNotifications/Model/OrderReferenceNotification.php';
+require_once 'OffAmazonPaymentsNotifications/Model/ProviderCreditNotification.php';
+require_once 'OffAmazonPaymentsNotifications/Model/ProviderCreditReversalNotification.php';
+require_once 'OffAmazonPaymentsNotifications/Model/SolutionProviderMerchantNotification.php';
+
 
 /**
  * Wrapper around a decoded IPN notification message to create
@@ -41,7 +45,6 @@ class XmlNotificationParser
     public static function parseIpnMessage(Message $ipnMsg)
     {
         $xmlDocumentElement = self::_getXmlFromIpnMessage($ipnMsg);
-
         return self::_createNotificationForNotificationType(
             $ipnMsg,
             $xmlDocumentElement
@@ -129,6 +132,28 @@ class XmlNotificationParser
                     $xmlDocumentElement
                 );
             break;
+        case "ProviderCredit":
+            $notification
+                = new OffAmazonPaymentsNotifications_Model_ProviderCreditNotification(
+                    $ipnMsg->getNotificationMetadata(),
+                    $xmlDocumentElement
+                );
+            break;
+        case "ProviderCreditReversal":
+            $notification
+                = new OffAmazonPaymentsNotifications_Model_ProviderCreditReversalNotification(
+                    $ipnMsg->getNotificationMetadata(),
+                    $xmlDocumentElement
+                );
+            break;
+        case "SolutionProviderEvent":
+            $notification
+                = new OffAmazonPaymentsNotifications_Model_SolutionProviderMerchantNotification(
+                    $ipnMsg->getNotificationMetadata(),
+                    $xmlDocumentElement
+                );
+            break;
+
         default:
             throw new OffAmazonPaymentsNotifications_InvalidMessageException(
                 "Error with IPN notification - unknown notification " .

@@ -21,7 +21,7 @@ defined('_JEXEC') or die;
 
 defined('DS') or define('DS', DIRECTORY_SEPARATOR);
 if (!class_exists( 'VmConfig' )) {
-	$path = JPATH_ROOT.DS.'administrator'.DS.'components'.DS.'com_virtuemart'.DS.'helpers'.DS.'config.php';
+	$path = JPATH_ROOT .'/administrator/components/com_virtuemart/helpers/config.php';
 	if(file_exists($path)){
 		require($path);
 	} else {

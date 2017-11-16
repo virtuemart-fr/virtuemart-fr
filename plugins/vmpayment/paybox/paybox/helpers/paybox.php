@@ -7,7 +7,7 @@
  * @version $Id$
  * @package VirtueMart
  * @subpackage payment
- * @copyright Copyright (c) 2004 - March 11 2016 VirtueMart Team. All rights reserved.
+ * @copyright Copyright (c) 2004 - August 23 2017 VirtueMart Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
@@ -409,11 +409,7 @@ jQuery().ready(function($) {
 	 * @return bool
 	 */
 	function isPayboxResponseValid (  $paybox_data, $checkIps = false, $useQuery = false) {
-		if ($checkIps) {
-			if (! $this->checkIps() ) {
-				return FALSE;
-			}
-		}
+
 		$unsetNonPayboxData = true;
 		if ($this->checkSignature($paybox_data, $unsetNonPayboxData, $useQuery) != 1) {
 			$msg = 'Got a Paybox request with invalid signature';
@@ -796,26 +792,6 @@ jQuery().ready(function($) {
 		return $hmac;
 	}
 
-	private function checkIps () {
-		if (!class_exists('ShopFunctions'))
-			require(VMPATH_ADMIN . DS . 'helpers' . DS . 'shopfunctions.php');
-		$paybox_ips = array('194.2.122.158', '195.25.7.166', '195.101.99.76');
-		$clientIp= ShopFunctions::getClientIP();
-		if (!in_array($clientIp, $paybox_ips)) {
-
-			$text = "Error with REMOTE IP ADDRESS = " . $clientIp . ".
-                        The remote address of the script posting to this notify script does not match a valid Paybox IP address\n
-            These are the valid Paybox IP Addresses: " . implode(",", $paybox_ips) ;
-
-			$this->plugin->debugLog('FUNCTION checkIps' . $text, 'error');
-
-			return false;
-		}
-
-		return true;
-	}
-
-
 	function getLangue () {
 
 		$langPaybox = array(
@@ -871,6 +847,9 @@ jQuery().ready(function($) {
 			'tpeweb.paybox.com', //serveur primaire
 			'tpeweb1.paybox.com' //serveur secondaire
 		);
+		static $c = null;
+		if(isset($c)) return $c;
+
 		foreach ($servers as $server) {
 			$doc = new DOMDocument();
 			$doc->loadHTMLFile('https://' . $server . '/load.html');
@@ -881,10 +860,11 @@ jQuery().ready(function($) {
 				$server_status = $element->textContent;
 			}
 			if ($server_status == "OK") {
+				$c = $server;
 				return $server;
 			}
 		}
-
+		$c = FALSE;
 		$this->plugin->debugLog('getPayboxServerAvailable : no server are available' . var_export($servers, true), 'error');
 		return FALSE;
 	}

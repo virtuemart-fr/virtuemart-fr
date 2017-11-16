@@ -18,10 +18,7 @@ $max_execution_time = ini_get ('max_execution_time');
 if ((int)$max_execution_time < 120) {
 	@ini_set ('max_execution_time', '120');
 }
-$memory_limit = (int)substr (ini_get ('memory_limit'), 0, -1);
-if ($memory_limit < 128) {
-	@ini_set ('memory_limit', '128M');
-}
+
 
 // hack to prevent defining these twice in 1.6 installation
 if (!defined ('_VM_AIO_SCRIPT_INCLUDED')) {
@@ -31,7 +28,33 @@ if (!defined ('_VM_AIO_SCRIPT_INCLUDED')) {
 	class com_tcpdfInstallerScript {
 
 		public function preflight () {
-			//$this->vmInstall();
+			$mL = ini_get('memory_limit');
+			$mLimit = 0;
+			if(!empty($mL)){
+				$u = strtoupper(substr($mL,-1));
+				$mLimit = (int)substr($mL,0,-1);
+				if($mLimit>0){
+
+					if($u == 'M'){
+						//$mLimit = $mLimit * 1048576;
+					} else if($u == 'G'){
+						$mLimit = $mLimit * 1024;
+					} else if($u == 'K'){
+						$mLimit = $mLimit / 1024.0;
+					} else {
+						$mLimit = $mLimit / 1048576.0;
+					}
+					$mLimit = (int) $mLimit - 5; // 5 MB reserve
+					if($mLimit<=0){
+						$mLimit = 1;
+						$m = 'Increase your php memory limit, which is must too low to run VM, your current memory limit is set as '.$mL.' ='.$mLimit.'MB';
+						vmError($m,$m);
+					}
+				}
+			}
+			if ($mLimit < 128) {
+				@ini_set ('memory_limit', '128M');
+			}
 		}
 
 		public function install () {

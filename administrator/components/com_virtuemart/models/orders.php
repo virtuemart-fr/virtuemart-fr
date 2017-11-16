@@ -9,14 +9,14 @@
  * @author Max Milbers
  * @author Patrick Kohl
  * @author Valerie Isaksen
- * @link http://www.virtuemart.net
+ * @link https://virtuemart.net
  * @copyright Copyright (c) 2004 - 2010 VirtueMart Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
- * @version $Id: orders.php 9193 2016-03-11 10:17:04Z Milbo $
+ * @version $Id: orders.php 9622 2017-08-14 21:20:30Z kkmediaproduction $
  */
 
 // Check to ensure this file is included in Joomla!
@@ -39,13 +39,15 @@ class VirtueMartModelOrders extends VmModel {
 	function __construct() {
 		parent::__construct();
 		$this->setMainTable('orders');
-		$this->addvalidOrderingFieldName(array('order_name','order_email','payment_method','virtuemart_order_id' ) );
+		$this->addvalidOrderingFieldName(array('order_name','order_email','payment_method','shipment_method','virtuemart_order_id' ) );
 		$this->populateState();
 	}
 
 	function populateState () {
 		$type = 'search';
-		$k= 'com_virtuemart.orders.'.$type;
+		$task = vRequest::getCmd('task','');
+		$view = vRequest::getCmd('view','orders');
+		$k= 'com_virtuemart.'.$view.'.'.$task.$type;
 
 		$ts = vRequest::getString($type, false);
 		$app = JFactory::getApplication();
@@ -127,90 +129,74 @@ class VirtueMartModelOrders extends VmModel {
 		return 0 ;
 	}
 
-    /**
-     * This is a proxy function to return an order safely, we may set the getOrder function to private
-     * Maybe the right place would be the controller, cause there are JRequests in it. But for a fast solution,
-     * still better than to have it 3-4 times in the view.html.php of the views.
-     * @author Max Milbers
-     *
-     * @return array
-     */
+	/**
+	 * This is a proxy function to return an order safely, we may set the getOrder function to private
+	 * Maybe the right place would be the controller, cause there are JRequests in it. But for a fast solution,
+	 * still better than to have it 3-4 times in the view.html.php of the views.
+	 * @author Max Milbers
+	 *
+	 * @return array
+	 */
 	public function getMyOrderDetails($orderID = 0, $orderNumber = false, $orderPass = false, $userlang=false){
 
 		$_currentUser = JFactory::getUser();
 		$cuid = $_currentUser->get('id');
 
-		$orderDetails = false;
+		$virtuemart_order_id = vRequest::getInt('virtuemart_order_id',$orderID) ;
+		$orderNumber = vRequest::getString('order_number',$orderNumber);
 
-		// If the user is not logged in, we will check the order number and order pass
-		if(empty($cuid)){
-			$sess = JFactory::getSession();
-			$orderNumber = vRequest::getString('order_number',$orderNumber);
-			if(empty($orderNumber)) return false;
-
-			$tries = $sess->get('getOrderDetails.'.$orderNumber,0);
-
-			// If the user is not logged in, we will check the order number and order pass
-			if ($orderPass = vRequest::getString('order_pass',$orderPass)){
-				if($tries>5){
-					vmDebug ('Too many tries, Invalid order_number/password '.vmText::_('COM_VIRTUEMART_RESTRICTED_ACCESS'));
-					vmError ('Too many tries, Invalid order_number/password guest '.$orderNumber.' '.$orderPass , 'COM_VIRTUEMART_RESTRICTED_ACCESS');
-					return false;
-				}
-				$orderId = $this->getOrderIdByOrderPass($orderNumber,$orderPass);
-				if(empty($orderId)){
-					echo vmText::_('COM_VIRTUEMART_RESTRICTED_ACCESS');
-					vmdebug('getMyOrderDetails COM_VIRTUEMART_RESTRICTED_ACCESS',$orderNumber, $orderPass, $tries);
-					vmError(vmText::_('COM_VIRTUEMART_RESTRICTED_ACCESS').' by guest '.$orderNumber.' '.$orderPass, 'COM_VIRTUEMART_RESTRICTED_ACCESS');
-					$tries++;
-					$sess->set('getOrderDetails.'.$orderNumber,$tries);
-					return false;
-				}
-				$orderDetails = $this->getOrder($orderId,$userlang);
-			}
+		$sess = JFactory::getSession();
+		$tries = $sess->get('getOrderDetails.'.$orderNumber.$virtuemart_order_id,0);
+		if($tries>5){
+			vmDebug ('Too many tries, Invalid order_number/password '.vmText::_('COM_VIRTUEMART_RESTRICTED_ACCESS'));
+			vmError ('Too many tries, Invalid order_number/password guest '.$orderNumber.' '.$orderPass , 'COM_VIRTUEMART_RESTRICTED_ACCESS');
+			return false;
 		}
-		else {
-			// If the user is logged in, we will check if the order belongs to him
-			$virtuemart_order_id = vRequest::getInt('virtuemart_order_id',$orderID) ;
-			$orderNumber = vRequest::getString('order_number');
-			if (!$virtuemart_order_id) {
+
+		/*if($userlang){
+			shopFunctionsF::loadOrderLanguages($userlang);
+		}*/
+
+		//Extra check, when a user is logged in, else we use the guest method
+		if(!empty($cuid)){
+			if (!$virtuemart_order_id and $orderNumber) {
 				$virtuemart_order_id = VirtueMartModelOrders::getOrderIdByOrderNumber($orderNumber);
 			}
-			$orderDetails = $this->getOrder($virtuemart_order_id,$userlang);
-
-			if(!vmAccess::manager('orders')){
-				if(empty($orderDetails['details']['BT']->virtuemart_user_id)) {
-					$sess = JFactory::getSession();
-					$orderNumber = vRequest::getString('order_number',$orderNumber);
-					$tries = $sess->get('getOrderDetails.'.$orderNumber,0);
-					if ($orderPass = vRequest::getString('order_pass',$orderPass)){
-						if($tries>5){
-							vmError ('Too many tries, Invalid order_number/password userid '.$cuid.' '.$virtuemart_order_id, 'COM_VIRTUEMART_RESTRICTED_ACCESS');
-							return false;
-						}
-						if($orderDetails['details']['order_pass'] != $orderPass){
-							$tries++;
-							$sess->set('getOrderDetails.'.$orderNumber,$tries);
-							vmError(vmText::_('COM_VIRTUEMART_RESTRICTED_ACCESS').' by userid '.$cuid.' '.$virtuemart_order_id, 'COM_VIRTUEMART_RESTRICTED_ACCESS');
-							return false;
-						} else {
-							//We could update the invoice with the userid to connect guest orders to the user
-						}
-					}
-				} else if($orderDetails['details']['BT']->virtuemart_user_id != $cuid) {
-					vmError(vmText::_('COM_VIRTUEMART_RESTRICTED_ACCESS').' by userid '.$cuid.' '.$virtuemart_order_id, 'COM_VIRTUEMART_RESTRICTED_ACCESS');
-					return false;
+			if(!empty($virtuemart_order_id)){
+				$orderDetails = $this->getOrder($virtuemart_order_id);
+				if($orderDetails['details']['BT']->virtuemart_user_id == $cuid or vmAccess::manager('orders')) {
+					$sess->set('getOrderDetails.'.$orderNumber.$virtuemart_order_id,0);
+					return $orderDetails;
 				}
 			}
 		}
-		return $orderDetails;
+
+		$orderPass = vRequest::getString('order_pass',$orderPass);
+
+		if (!empty($orderNumber) and !empty($orderPass)){
+
+			$orderId = $this->getOrderIdByOrderPass($orderNumber,$orderPass);
+			if($orderId){
+				$sess->set('getOrderDetails.'.$orderNumber.$virtuemart_order_id,0);
+				return $this->getOrder($orderId);
+			}
+		}
+		$tries++;
+		$sess->set('getOrderDetails.'.$orderNumber.$virtuemart_order_id,$tries);
+
+		vmdebug('getMyOrderDetails COM_VIRTUEMART_RESTRICTED_ACCESS',$orderNumber, $orderPass, $tries);
+		vmError(vmText::_('COM_VIRTUEMART_RESTRICTED_ACCESS').' by guest '.$orderNumber.' '.$orderPass, 'COM_VIRTUEMART_RESTRICTED_ACCESS');
+
+		//echo vmText::_('COM_VIRTUEMART_RESTRICTED_ACCESS');
+		return false;
 	}
+
 
 	/**
 	 * Load a single order, Attention, this function is not protected! Do the right manangment before, to be certain
      * we suggest to use getMyOrderDetails
 	 */
-	public function getOrder($virtuemart_order_id, $userlang=false){
+	public function getOrder($virtuemart_order_id){
 
 		//sanitize id
 		$virtuemart_order_id = (int)$virtuemart_order_id;
@@ -218,8 +204,7 @@ class VirtueMartModelOrders extends VmModel {
 		$order = array();
 
 		// Get the order details
-		$q = "SELECT  o.*,u.*,
-				s.order_status_name
+		$q = "SELECT  o.*, o.created_on as order_created, u.*, s.order_status_name
 			FROM #__virtuemart_orders o
 			LEFT JOIN #__virtuemart_orderstates s
 			ON s.order_status_code = o.order_status
@@ -239,15 +224,12 @@ class VirtueMartModelOrders extends VmModel {
 				$order['details']['BT']->order_name .= trim($c).' ';
 			}
 			$order['details']['BT']->order_name = trim(htmlspecialchars(strip_tags(htmlspecialchars_decode($order['details']['BT']->order_name))));
-		}
 
-		if($userlang){
-			if(!empty($order['details']['BT']->order_language)) {
-				$olang = $order['details']['BT']->order_language;
-				//VmConfig::setdbLanguageTag();//Todo set language tag to get products in the correct language.
-				VmConfig::loadJLang('com_virtuemart',true, $olang);
-				VmConfig::loadJLang('com_virtuemart_shoppers',true, $olang);
-				VmConfig::loadJLang('com_virtuemart_orders',true, $olang);
+			if(isset($order['details']['ST'])){
+				$order['details']['has_ST'] = true;
+			} else {
+				$order['details']['has_ST'] = false;
+				$order['details']['ST'] =&$order['details']['BT'];
 			}
 		}
 
@@ -260,16 +242,14 @@ class VirtueMartModelOrders extends VmModel {
 		$order['history'] = $db->loadObjectList();
 
 		// Get the order items
-$q = 'SELECT virtuemart_order_item_id, product_quantity, order_item_name,
-    order_item_sku, i.virtuemart_product_id, product_item_price,
-    product_final_price, product_basePriceWithTax, product_discountedPriceWithoutTax, product_priceWithoutTax, product_subtotal_with_tax, product_subtotal_discount, product_tax, product_attribute, order_status, p.product_available_date, p.product_availability,
-    intnotes, virtuemart_category_id, p.product_mpn
-   FROM (#__virtuemart_order_items i
-   		LEFT JOIN #__virtuemart_products p
-   		ON p.virtuemart_product_id = i.virtuemart_product_id)
-   LEFT JOIN #__virtuemart_product_categories c
-   ON p.virtuemart_product_id = c.virtuemart_product_id
-   WHERE `virtuemart_order_id`="'.$virtuemart_order_id.'" group by `virtuemart_order_item_id`';
+	$q = 'SELECT virtuemart_order_item_id, product_quantity, order_item_name, order_item_sku, i.virtuemart_product_id, product_item_price, product_final_price, product_basePriceWithTax, product_discountedPriceWithoutTax, product_priceWithoutTax, product_subtotal_with_tax, product_subtotal_discount, product_tax, product_attribute, order_status,
+			intnotes, virtuemart_category_id
+			FROM #__virtuemart_order_items i
+				LEFT JOIN #__virtuemart_products p
+				ON p.virtuemart_product_id = i.virtuemart_product_id
+				LEFT JOIN #__virtuemart_product_categories c
+				ON p.virtuemart_product_id = c.virtuemart_product_id
+			WHERE `virtuemart_order_id`="'.$virtuemart_order_id.'" group by `virtuemart_order_item_id`';
 //group by `virtuemart_order_id`'; Why ever we added this, it makes trouble, only one order item is shown then.
 // without group by we get the product 3 times, when it is in 3 categories and similar, so we need a group by
 //lets try group by `virtuemart_order_item_id`
@@ -278,15 +258,18 @@ $q = 'SELECT virtuemart_order_item_id, product_quantity, order_item_name,
 
 		$customfieldModel = VmModel::getModel('customfields');
 		$pModel = VmModel::getModel('product');
-		foreach($order['items'] as &$item){
+		foreach($order['items'] as $p=>$item){
 
 			$ids = array();
 
 			$product = $pModel->getProduct($item->virtuemart_product_id);
-			$pvar = get_object_vars($product);
-			foreach ( $pvar as $k => $v) {
-				if (!isset($item->$k) and '_' != substr($k, 0, 1)) {
-					$item->$k = $v;
+			if($product){
+				$pvar = get_object_vars($product);
+
+				foreach ( $pvar as $k => $v) {
+					if (!isset($item->$k) and strpos ($k, '_') !== 0 and property_exists($product, $k)) {
+						$item->$k = $v;
+					}
 				}
 			}
 
@@ -318,6 +301,7 @@ $q = 'SELECT virtuemart_order_item_id, product_quantity, order_item_name,
 					}
 				}
 			}
+			$order['items'][$p] = $item;
 		}
 
 // Get the order items
@@ -334,8 +318,7 @@ $q = 'SELECT virtuemart_order_item_id, product_quantity, order_item_name,
 	 * @param $uid integer Optional user ID to get the orders of a single user
 	 * @param $_ignorePagination boolean If true, ignore the Joomla pagination (for embedded use, default false)
 	 */
-	public function getOrdersList($uid = 0, $noLimit = false)
-	{
+	public function getOrdersList($uid = 0, $noLimit = false) {
 // 		vmdebug('getOrdersList');
 		$tUserInfos = $this->getTable('userinfos');
 		$this->_noLimit = $noLimit;
@@ -355,6 +338,7 @@ $q = 'SELECT virtuemart_order_item_id, product_quantity, order_item_name,
 		$select = " o.*, ".$concatStr." AS order_name "
             .',u.email as order_email,
             pm.payment_name AS payment_method,
+            sm.shipment_name AS shipment_method,
             u.company AS company,
             u.city AS city,
             u.zip AS zip,
@@ -368,38 +352,30 @@ $q = 'SELECT virtuemart_order_item_id, product_quantity, order_item_name,
 
 		$where = array();
 
-
-		$virtuemart_vendor_id = vmAccess::isSuperVendor();
-		if(vmAccess::manager('managevendors')){
-			vmdebug('Vendor has managevendors and should see all');
-			$virtuemart_vendor_id = vRequest::get('virtuemart_vendor_id',false);
-			if($virtuemart_vendor_id){
-				$where[]= ' o.virtuemart_vendor_id = "'.$virtuemart_vendor_id.'" ';
+		if(empty($uid)){
+			if(VmConfig::get('multix','none')!='none'){
+				if(vmAccess::manager('managevendors')){
+					$virtuemart_vendor_id = vRequest::getInt('virtuemart_vendor_id',vmAccess::isSuperVendor());
+				} else if( vmAccess::manager('orders')){
+					$virtuemart_vendor_id = vmAccess::isSuperVendor();
+				} else {
+					$virtuemart_vendor_id = false;
+				}
+				if($virtuemart_vendor_id){
+					$where[]= ' o.virtuemart_vendor_id = ' . (int)$virtuemart_vendor_id.' ';
+				}
 			}
-			if(!empty($uid)){
-				$where[]= ' u.virtuemart_user_id = ' . (int)$uid.' ';
-			}
-		}
-		else if( vmAccess::manager('orders')){
-			
-			vmdebug('Vendor is manager and should only see its own orders venodorId '.$virtuemart_vendor_id);
-			if(!empty($virtuemart_vendor_id)){
-				$where[]= ' (o.virtuemart_vendor_id = '.$virtuemart_vendor_id.' OR u.virtuemart_user_id = ' . (int)$uid.') ';
-				$uid = 0;
-			} else {
-				//We map here as fallback to vendor 1.
-				$where[]= ' u.virtuemart_user_id = ' . (int)$uid;
+			if(!vmAccess::manager('orders')){
+				//A normal user is only allowed to see its own orders, we map $uid to the user id
+				$user = JFactory::getUser();
+				$uid = (int)$user->id;
+				if(!empty($uid)){
+					$where[]= ' u.virtuemart_user_id = ' . (int)$uid.' ';
+				}
 			}
 		} else {
-			//A normal user is only allowed to see its own orders, we map $uid to the user id
-			$user = JFactory::getUser();
-			$uid = (int)$user->id;
-			$where = array();
-		}
-		if(!empty($uid)){
 			$where[]= ' u.virtuemart_user_id = ' . (int)$uid.' ';
 		}
-
 
 		if ($this->search){
 			$db = JFactory::getDBO();
@@ -408,17 +384,18 @@ $q = 'SELECT virtuemart_order_item_id, product_quantity, order_item_name,
 
 			$searchFields = array();
 			$searchFields[] = 'u.first_name';
-			$searchFields[] = 'u.middle_name';
+			//$searchFields[] = 'u.middle_name';
 			$searchFields[] = 'u.last_name';
 			$searchFields[] = 'o.order_number';
 			$searchFields[] = 'u.company';
 			$searchFields[] = 'u.email';
 			$searchFields[] = 'u.phone_1';
 			$searchFields[] = 'u.address_1';
+			$searchFields[] = 'u.city';
 			$searchFields[] = 'u.zip';
 //quorvia addedd  ST data searches
-			$searchFields[] = 'st.company';
 			$searchFields[] = 'st.last_name';
+			$searchFields[] = 'st.company';
 			$searchFields[] = 'st.city';
 			$searchFields[] = 'st.zip';
 			$where[] = implode (' LIKE '.$this->search.' OR ', $searchFields) . ' LIKE '.$this->search.' ';
@@ -464,27 +441,31 @@ $q = 'SELECT virtuemart_order_item_id, product_quantity, order_item_name,
 				LEFT JOIN #__virtuemart_order_userinfos as st
 				ON st.virtuemart_order_id = o.virtuemart_order_id AND st.address_type="ST"
 				LEFT JOIN #__virtuemart_paymentmethods_'.VmConfig::$vmlang.' as pm
-				ON o.virtuemart_paymentmethod_id = pm.virtuemart_paymentmethod_id';
+				ON o.virtuemart_paymentmethod_id = pm.virtuemart_paymentmethod_id
+				LEFT JOIN #__virtuemart_shipmentmethods_'.VmConfig::$vmlang.' as sm
+				ON o.virtuemart_shipmentmethod_id = sm.virtuemart_shipmentmethod_id';
 	}
 
 
 	/**
 	 * Update an order item status
+	 * $vatTax was $orderUpdate boolean, keeps now the vattaxes
 	 * @author Max Milbers
 	 * @author Ondřej Spilka - used for item edit also
 	 * @author Maik Künnemann
 	 */
-	public function updateSingleItem($virtuemart_order_item_id, &$orderdata, $orderUpdate = false)
+	public function updateSingleItem($virtuemart_order_item_id, &$orderdata, $orderUpdate = false, &$vatTax = false, $itemTaxes = array())
 	{
 		$virtuemart_order_item_id = (int)$virtuemart_order_item_id;
 		//vmdebug('updateSingleItem',$virtuemart_order_item_id,$orderdata);
 		$table = $this->getTable('order_items');
+		$oldQuantity = 0;
 		if(!empty($virtuemart_order_item_id)){
 			$table->load($virtuemart_order_item_id);
 			$oldOrderStatus = $table->order_status;
+			$oldQuantity = $table->product_quantity;
 		}
 
-		//vmdebug('my order table ',$virtuemart_order_item_id,$table->virtuemart_order_id);
 		if(empty($oldOrderStatus)){
 			$oldOrderStatus = $orderdata->current_order_status;
 			if($orderUpdate and empty($oldOrderStatus)){
@@ -492,7 +473,7 @@ $q = 'SELECT virtuemart_order_item_id, product_quantity, order_item_name,
 			}
 		}
 
-		$dataT = get_object_vars($table);
+		$dataT = $table->getProperties();//get_object_vars($table);
 
 		$orderdatacopy = $orderdata;
 		$data = array_merge($dataT,(array)$orderdatacopy);
@@ -504,121 +485,309 @@ $q = 'SELECT virtuemart_order_item_id, product_quantity, order_item_name,
 		$this->_currencyDisplay = CurrencyDisplay::getInstance();
 		$rounding = $this->_currencyDisplay->_priceConfig['salesPrice'][1];
 
+		$date = JFactory::getDate();
+		$today = $date->toSQL();
+		//$vatTaxes = array();
 		if ( $orderUpdate and !empty($data['virtuemart_order_item_id'])) {
+			
+			$taxCalcValue = false;
+			$daTax = 'notset';
 
-			//get tax calc_value of product VatTax
-			$db = JFactory::getDBO();
-			$sql = "SELECT `calc_value` FROM `#__virtuemart_order_calc_rules` WHERE `virtuemart_order_id` = ".$data['virtuemart_order_id']." AND `virtuemart_order_item_id` = ".$data['virtuemart_order_item_id']." AND `calc_kind` = 'VatTax' ";
-			$db->setQuery($sql);
-			$taxCalcValue = $db->loadResult();
+			foreach($itemTaxes as $tax) {
+				if($tax->calc_kind=='VatTax'){
+					$vat = $tax;
+					$taxCalcValue = $vat->calc_value;
+				}
+				if($tax->calc_kind=='DATax'){
+					$daTax = true;
+				}
+				if($tax->calc_kind=='DBTax'){
+					$daTax = false;
+				}
+			}
+
+			//Fallbacks
+			if(!$taxCalcValue){
+				//Could be a new item, missing the tax rules, we try to get one of another product.
+				//get tax calc_value of product VatTax
+				$db = JFactory::getDbo();
+				$sql = 'SELECT * FROM `#__virtuemart_order_calc_rules` WHERE `virtuemart_order_id` = "'.$orderdata->virtuemart_order_id.'" AND `calc_kind` = "VatTax" ';
+				$db->setQuery($sql);
+				if ($vat = $db->loadObject()) {
+					$taxCalcValue = $vat->calc_value;
+				} else {
+					$vat = new stdClass();
+				}
+				$vat->virtuemart_order_calc_rule_id = 0; 	//We set this here, so that we know the tax is missing and must be inserted
+				vmdebug('updateSingleItem $taxCalcValue loaded by fallback '.$vat->virtuemart_calc_id);
+			}
+
+			//When the product has no discount
+			if($daTax == 'notset'){
+				$daTax = VmConfig::get('taxafterdiscount',$daTax);
+				if($daTax == 'notset'){
+					static $fallbackCached = null;
+					if(isset($fallback)){
+						$daTax = $fallbackCached;
+					} else {
+						$db = JFactory::getDbo();
+						$sql = $sql = 'SELECT COUNT(*) FROM `#__virtuemart_calcs` WHERE `calc_kind` = "DATax"  ';
+						$db->setQuery($sql);
+						$r = $db->loadResult();
+						if($r>0){
+							$daTax = true;
+						} else {
+							$daTax = false;
+						}
+						$fallbackCached = $daTax;
+					}
+				}
+			}
+
+			$withTax = false;
+			if(!empty($data['product_tax']) and $data['product_tax']!=='0.0' and $data['product_tax']!=='0.00000'){
+				$withTax = true;
+			} else if(empty($data['product_tax']) ){
+				$withTax = true;
+			}
+
+			$overwriteDiscount = false;
+			if(empty($data['product_subtotal_discount']) and $data['product_subtotal_discount'] === '' ){
+				$overwriteDiscount = true;
+				vmdebug('Set $overwriteDiscount '.$data['product_subtotal_discount']);
+			}
 
 			if($data['calculate_product_tax']) {
-				if(!$taxCalcValue){
-					//Could be a new item, missing the tax rules, we try to get one of another product.
-					//get tax calc_value of product VatTax
-					$db = JFactory::getDBO();
-					$sql = "SELECT `calc_value` FROM `#__virtuemart_order_calc_rules` WHERE `virtuemart_order_id` = ".$data['virtuemart_order_id']." AND `calc_kind` = 'VatTax' ";
+				$data = self::calculateRow($data, $taxCalcValue, $rounding, $daTax, $withTax, $overwriteDiscount);
+			}
+
+
+			if(!empty($vat)){
+				$t = $data['product_tax'] * $data['product_quantity'];
+
+				if(isset($vatTax[$vat->virtuemart_calc_id])) {
+					$vatTax[$vat->virtuemart_calc_id] += $t;
+				} else {
+					$vatTax[$vat->virtuemart_calc_id] = $t;
+				}
+
+				$sql = false;
+
+				if(!empty($vat->virtuemart_order_calc_rule_id)){
+					$sql = 'UPDATE `#__virtuemart_order_calc_rules` SET `calc_result`="'.$t.'",`calc_amount`="'.$data['product_tax'].'", `modified_on` = "'.$today.'" WHERE `virtuemart_order_calc_rule_id`="'.$vat->virtuemart_order_calc_rule_id.'"';
 					$db->setQuery($sql);
-					$taxCalcValue = $db->loadResult();
+					vmdebug('updateSingleItem $virtuemart_order_calc_rule_id',$sql);
+					if ($db->execute() === false) {
+						vmError($db->getError());
+					}
+				} else {
+					$orderCalcRules = $this->getTable('order_calc_rules');
+					$orderCalcRules->bind($vat);
+
+					$orderCalcRules->virtuemart_order_calc_rule_id = 0;
+					$orderCalcRules->calc_result = $t;
+					$orderCalcRules->calc_amount = $data['product_tax'];
+					$orderCalcRules->modified_on = $today;
+					$orderCalcRules->virtuemart_order_item_id = $virtuemart_order_item_id;
+					$orderCalcRules->check();
+					$orderCalcRules->store();
 				}
 
-				if(empty($data['product_subtotal_discount']))$data['product_subtotal_discount'] = 0.0; // "",null,0,NULL, FALSE => 0.0
-
-				//We do two cases, either we have the final amount and discount
-				if(!empty($data['product_final_price']) and $data['product_final_price']!=0){
-
-					if(empty($data['product_tax']) or $data['product_tax']==0){
-						$data['product_tax'] = $data['product_final_price'] * $taxCalcValue / ($taxCalcValue + 100);
-						//vmdebug($data['product_final_price'] .' * '.$taxCalcValue.' / '.($taxCalcValue + 100).' = '.$data['product_tax']);
-					}
-
-					if(empty($data['product_item_price']) or $data['product_item_price']==0){
-						if(empty($data['product_tax']))$data['product_tax'] = 0.0;
-
-						$data['product_item_price'] = round($data['product_final_price'], $rounding) - $data['product_tax'];
-						$data['product_discountedPriceWithoutTax'] = 0.0;// round($data['product_final_price'], $rounding) ;
-						$data['product_priceWithoutTax'] = 0.0;
-						$data['product_basePriceWithTax'] =  round($data['product_final_price'], $rounding) - $data['product_subtotal_discount'];
-					}
-
-				} else
-					//or we have the base price and a manually set discount.
-					if(!empty($data['product_item_price']) and $data['product_item_price']!=0){
-						if(empty($data['product_tax']) or $data['product_tax']==0){
-							$data['product_tax'] = ($data['product_item_price']-$data['product_subtotal_discount']) * ($taxCalcValue/100.0);
-						}
-						$data['product_discountedPriceWithoutTax'] = 0.0;
-						$data['product_priceWithoutTax'] = 0.0;
-						$data['product_final_price'] = round($data['product_item_price'], $rounding) + $data['product_tax'] + $data['product_subtotal_discount'];
-						$data['product_basePriceWithTax'] =  round($data['product_final_price'], $rounding) - $data['product_subtotal_discount'];
-				}
 
 			}
-			//$data['product_subtotal_discount'] = (round($orderdata->product_final_price, $rounding) - round($data['product_basePriceWithTax'], $rounding)) * $orderdata->product_quantity;
-			$data['product_subtotal_with_tax'] = round($data['product_final_price'], $rounding) * $orderdata->product_quantity;
+
+
 		}
+
 		if(!empty($table->virtuemart_vendor_id)){
 			$data['virtuemart_vendor_id'] = $table->virtuemart_vendor_id;
 		}
 
+		$getProductById = false;
+		if(!empty($data['virtuemart_product_id']) and $table->virtuemart_product_id!=$data['virtuemart_product_id']){
+			$getProductById = true;
+		}
+
 		$table->bindChecknStore($data);
 
-		if ( $orderUpdate ) {
+		//update product identification
+		if ( $orderUpdate  and !empty($virtuemart_order_item_id)) {
+			$set = false;
+			if($getProductById){	// empty($data['order_item_sku']
+				$set = 'oi.order_item_sku=p.product_sku, oi.order_item_name=l.product_name';
+				$where = 'oi.virtuemart_product_id=p.virtuemart_product_id and
+							oi.virtuemart_product_id=l.virtuemart_product_id and
+							oi.virtuemart_order_item_id="'.(int)$virtuemart_order_item_id.'"';
+			} else if (empty($table->virtuemart_product_id) and !empty($data['order_item_sku'])){
 
-			if ( empty($data['order_item_sku']) and !empty($virtuemart_order_item_id) )
-			{
-				//update product identification
-				$db = JFactory::getDBO();
+				$set = 'oi.virtuemart_product_id=p.virtuemart_product_id, oi.order_item_name=l.product_name';
+				$where = 'p.virtuemart_product_id=l.virtuemart_product_id and
+				 			p.product_sku="'.$data['order_item_sku'].'" and
+				 			oi.virtuemart_order_item_id="'.$virtuemart_order_item_id.'"';
+			}
+
+			if(!empty($set)){
 				$prolang = '#__virtuemart_products_' . VmConfig::$vmlang;
 				$oi = " #__virtuemart_order_items";
 				$protbl = "#__virtuemart_products";
-				$sql = 'UPDATE '.$oi.', '.$protbl.', '.$prolang .
-					' SET '.$oi.'.order_item_sku='.$protbl.'.product_sku, '.$oi.'.order_item_name='.$prolang.'.product_name
-					 WHERE '.$oi.'.virtuemart_product_id='.$protbl.'.virtuemart_product_id
-					 and '.$oi.'.virtuemart_product_id='.$prolang.'.virtuemart_product_id
-					 and '.$oi.'.virtuemart_order_item_id='.(int)$virtuemart_order_item_id;
-				$db->setQuery($sql);
+				$update = $oi.' as oi, '.$protbl.' as p, '.$prolang . ' as l';
+
+				$db = JFactory::getDBO();
+				$q = 'UPDATE '.$update.' SET '.$set.' WHERE '.$where;
+				$db->setQuery($q);
 				if ($db->execute() === false) {
 					vmError('updateSingleItem '.$sql,'Error updating order');
-				}	
+				}
 			}
 		}
 
+		if(!empty($oldQuantity) and $oldQuantity!=$table->product_quantity){
+			$this->handleStockAfterStatusChangedPerProduct($oldOrderStatus, $oldOrderStatus, $table, $oldQuantity);
+		}
+		$this->handleStockAfterStatusChangedPerProduct($orderdata->order_status, $oldOrderStatus, $table,$table->product_quantity);
+
+		return $table;
+	}
+
+	function calculateRow($data, $taxCalcValue, $rounding, $daTax = true, $withTax = true, $overrideDiscount = false){
+
+		$quantity = $data['product_quantity'];
+		if(empty($data['product_subtotal_discount'])){
+			$data['product_subtotal_discount'] = 0.0;
+		} else {
+			$itemDiscount = $data['product_subtotal_discount'];
+			if($itemDiscount<0.0){
+				$itemDiscount = $itemDiscount * (-1);
+			}
+			$itemDiscount = $itemDiscount/$quantity;
+		}
+
+		$taxValue = $taxCalcValue;
+		if(!$withTax){
+			$data['product_tax'] = 0.0;
+			$taxValue = 0.0;
+		}
+
+		$roundIntern = 5;
+		if(VirtueMartModelOrders::isNotEmptyDec($data,'product_basePriceWithTax') and VirtueMartModelOrders::isEmptyDec($data, 'product_item_price') and VirtueMartModelOrders::isEmptyDec($data,'product_final_price')){
+
+			$data['product_item_price'] = $data['product_basePriceWithTax'] * (1 - $taxCalcValue / ($taxCalcValue + 100));
+			$data['product_item_price'] = round($data['product_item_price'], $roundIntern);
+		}
+
+		if(VirtueMartModelOrders::isNotEmptyDec($data,'product_item_price')){
+
+			$data['product_basePriceWithTax'] = round( $data['product_item_price'] * (1 + $taxValue/100.0), $rounding );
+
+			if($daTax){
+				if($overrideDiscount and VirtueMartModelOrders::isEmptyDec($data,'product_subtotal_discount') and VirtueMartModelOrders::isNotEmptyDec($data,'product_final_price')){
+					$itemDiscount = $data['product_basePriceWithTax'] - $data['product_final_price'];
+				} else {
+					$data['product_final_price'] = $data['product_basePriceWithTax'] - $itemDiscount;
+				}
+			} else {
+				if($overrideDiscount and VirtueMartModelOrders::isEmptyDec($data,'product_subtotal_discount') and VirtueMartModelOrders::isNotEmptyDec($data,'product_final_price')){
+					$itemDiscount = round($data['product_item_price'] - $data['product_final_price'] + $data['product_final_price'] * $taxValue/(100 + $taxValue), $rounding);
+				} else {
+					$data['product_final_price'] = round( ($data['product_item_price'] - $itemDiscount) * ((100 + $taxValue)/100.0) , $rounding);
+				}
+			}
+		} else if (VirtueMartModelOrders::isNotEmptyDec($data,'product_final_price')){
+			if($daTax){
+				$data['product_item_price'] = round( ($data['product_final_price'] + $itemDiscount) * (1 -  $taxValue / ($taxValue + 100)), $roundIntern ) ;
+				$data['product_basePriceWithTax'] = round($data['product_item_price'] * (1 + $taxCalcValue/100.0), $rounding );
+			} else {
+				$data['product_item_price'] = round( $data['product_final_price'] * (1 -  $taxValue / ($taxValue + 100)) + $itemDiscount, $roundIntern );
+				$data['product_basePriceWithTax'] = round( $data['product_item_price'] * (1 +  $taxValue/100.0), $rounding );
+			}
+		} else {
+			vmdebug('Missing case');
+		}
+
+		if($withTax){
+			$data['product_tax'] = round($data['product_final_price'], $rounding) * $taxCalcValue / ($taxCalcValue + 100);
+		} else {
+			$data['product_basePriceWithTax'] = round( $data['product_item_price'] * (1 + $taxCalcValue/100.0), $rounding );
+		}
+		$data['product_tax'] = round($data['product_tax'], $roundIntern);
+
+
+		$data['product_discountedPriceWithoutTax'] = $data['product_item_price'] - ($itemDiscount);
+		//$data['product_discountedPriceWithoutTax'] = $data['product_final_price'] - $data['product_tax'];
+
+		//if($daTax){
+			$data['product_priceWithoutTax'] = $data['product_final_price'] - $data['product_tax'];
+		/*} else {
+			$data['product_priceWithoutTax'] = $data['product_final_price'] - $data['product_tax'];
+		}*/
+
+
+//$data['product_subtotal_discount'] = (round($orderdata->product_final_price, $rounding) - round($data['product_basePriceWithTax'], $rounding)) * $orderdata->product_quantity;
+		$data['product_subtotal_with_tax'] = round($data['product_final_price'], $rounding) * $data['product_quantity'];
+
+		if($data['product_subtotal_discount']<0.0){
+			$itemDiscount = $itemDiscount * (-1);
+		}
+		$data['product_subtotal_discount'] = $quantity * $itemDiscount;
+vmdebug('my prices',$data);
+		return $data;
+	}
+
+	public static function isEmptyDec($d,$n){
+		return (boolean) (empty($d[$n]) or $d[$n]==0);
+	}
+
+	public static function isNotEmptyDec($d,$n){
+		return (boolean) (isset($d[$n]) and $d[$n]!=0);
+	}
+
+	public function updateBill($virtuemart_order_id, $vattax){
+
+		$this->_currencyDisplay = CurrencyDisplay::getInstance();
+		$rounding = $this->_currencyDisplay->_priceConfig['salesPrice'][1];
 		//OSP update cartRules/shipment/payment
 		//it would seem strange this is via item edit
 		//but in general, shipment and payment would be tractated as another items of the order
 		//in datas they are not, bu okay we have it here and functional
 		//moreover we can compute all aggregate values here via one aggregate SQL
-		if ( $orderUpdate and !empty( $table->virtuemart_order_id))
-		{
+		if (!empty( $virtuemart_order_id)) {
+
 			$db = JFactory::getDBO();
-			$ordid = $table->virtuemart_order_id;
-			///vmdebug('my order table ',$table);
+			$ordid = $virtuemart_order_id;
 			//cartRules
-			$calc_rules = vRequest::getVar('calc_rules','', '', 'array');
-			$calc_rules_amount = 0;
+			$calc_rules = vRequest::getVar('calc_rules',false);
+			$calculate_billTaxAmount = vRequest::getInt('calculate_billTaxAmount',false);
+			//$calc_rules_amount = 0;
 			$calc_rules_discount_amount = 0;
 			$calc_rules_tax_amount = 0;
+			$calc_rules_vattax_amount = 0;
 
 			if(!empty($calc_rules))
 			{
 				foreach($calc_rules as $calc_kind => $calc_rule) {
-					foreach($calc_rule as $virtuemart_order_calc_rule_id => $calc_amount) {
-						$sql = 'UPDATE `#__virtuemart_order_calc_rules` SET `calc_amount`="'.$calc_amount.'" WHERE `virtuemart_order_calc_rule_id`="'.$virtuemart_order_calc_rule_id.'"';
-						$db->setQuery($sql);
-						if(isset($calc_amount)) $calc_rules_amount += $calc_amount;
+
+					foreach($calc_rule as $virtuemart_calc_id => $calc_amount) {
+
+						if($calculate_billTaxAmount){
+							if(!isset($vattax[$virtuemart_calc_id])) continue;
+							$calc_amount = $vattax[$virtuemart_calc_id];
+						}
+
 						if ($calc_kind == 'DBTaxRulesBill' || $calc_kind == 'DATaxRulesBill') {
 							$calc_rules_discount_amount += $calc_amount;
 						}
-						if ($calc_kind == 'taxRulesBill') {
+						else if ($calc_kind == 'taxRulesBill') {
 							$calc_rules_tax_amount += $calc_amount;
 						}
-						if ($db->execute() === false) {
-							vmError($db->getError());
+						else if ($calc_kind == 'VatTax') {
+							$calc_rules_vattax_amount += $calc_amount;
 						}
 					}
 				}
 			}
+
+			$date = JFactory::getDate();
+			$today = $date->toSQL();
 
 			//shipment
 			$os = vRequest::getString('order_shipment');
@@ -626,7 +795,7 @@ $q = 'SELECT virtuemart_order_item_id, product_quantity, order_item_name,
 
 			if ( $os!="" )
 			{
-				$sql = 'UPDATE `#__virtuemart_orders` SET `order_shipment`="'.$os.'",`order_shipment_tax`="'.$ost.'" WHERE  `virtuemart_order_id`="'.$ordid.'"';
+				$sql = 'UPDATE `#__virtuemart_orders` SET `order_shipment`="'.$os.'",`order_shipment_tax`="'.$ost.'", `modified_on` = "'.$today.'" WHERE  `virtuemart_order_id`="'.$ordid.'"';
 				$db->setQuery($sql);
 				if ($db->execute() === false) {
 					vmError('updateSingleItem Error updating order_shipment '.$sql);
@@ -638,7 +807,7 @@ $q = 'SELECT virtuemart_order_item_id, product_quantity, order_item_name,
 			$opt = vRequest::getString('order_payment_tax');
 			if ( $op!="" )
 			{
-				$sql = 'UPDATE `#__virtuemart_orders` SET `order_payment`="'.$op.'",`order_payment_tax`="'.$opt.'" WHERE  `virtuemart_order_id`="'.$ordid.'"';
+				$sql = 'UPDATE `#__virtuemart_orders` SET `order_payment`="'.$op.'",`order_payment_tax`="'.$opt.'", `modified_on` = "'.$today.'" WHERE  `virtuemart_order_id`="'.$ordid.'"';
 				$db->setQuery($sql);
 				if ($db->execute() === false) {
 					vmError('updateSingleItem Error updating order payment'.$sql);
@@ -646,31 +815,31 @@ $q = 'SELECT virtuemart_order_item_id, product_quantity, order_item_name,
 			}
 
 			$sql = 'UPDATE `#__virtuemart_orders` SET '.
-					'`order_total`=(SELECT sum(product_final_price*product_quantity) FROM #__virtuemart_order_items where `virtuemart_order_id`='.$ordid.')+`order_shipment`+`order_shipment_tax`+`order_payment`+`order_payment_tax`+'.$calc_rules_amount.',
-					`order_discountAmount`=(SELECT sum(product_subtotal_discount) FROM #__virtuemart_order_items where `virtuemart_order_id`='.$ordid.'),
+			'`order_discountAmount`=(SELECT sum(product_subtotal_discount) FROM #__virtuemart_order_items where `virtuemart_order_id`='.$ordid.'),
 					`order_billDiscountAmount`=`order_discountAmount`+'.$calc_rules_discount_amount.',
 					`order_salesPrice`=(SELECT sum(product_final_price*product_quantity) FROM #__virtuemart_order_items where `virtuemart_order_id`='.$ordid.'),
 					`order_tax`=(SELECT sum( product_tax*product_quantity) FROM #__virtuemart_order_items where `virtuemart_order_id`='.$ordid.'),
 					`order_subtotal`=(SELECT sum(ROUND(product_item_price, '. $rounding .')*product_quantity) FROM #__virtuemart_order_items where `virtuemart_order_id`='.$ordid.'),';
-
+			vmdebug('$calc_rules_amount',$calc_rules_vattax_amount, $calc_rules_tax_amount, $calc_rules_discount_amount);
 			if(vRequest::getString('calculate_billTaxAmount')) {
-				$sql .= '`order_billTaxAmount`=(SELECT sum( product_tax*product_quantity) FROM #__virtuemart_order_items where `virtuemart_order_id`='.$ordid.')+`order_shipment_tax`+`order_payment_tax`+ '.$calc_rules_tax_amount.' ';
+				$sql .= '`order_billTaxAmount`= `order_shipment_tax`+`order_payment_tax`+ '.$calc_rules_tax_amount.' + '.$calc_rules_vattax_amount;
 			} else {
 				$sql .= '`order_billTaxAmount`="'.vRequest::getString('order_billTaxAmount').'"';
 			}
+			//$sql .= ',`order_total`=(SELECT sum(product_final_price*product_quantity) FROM #__virtuemart_order_items where `virtuemart_order_id`='.$ordid.')+`order_shipment`+`order_shipment_tax`+`order_payment`+`order_payment_tax`+'.$calc_rules_amount.',';
+			$sql .= ',`order_total`=(SELECT sum(product_final_price*product_quantity) FROM #__virtuemart_order_items where `virtuemart_order_id`='.$ordid.') + `order_shipment` +`order_payment` + `order_shipment_tax`+`order_payment_tax` - '.$calc_rules_discount_amount;
 
+			$sql .= ', `modified_on` = "'.$today.'"';
 			$sql .= ' WHERE  `virtuemart_order_id`='.$ordid;
 
-			$db->setQuery($sql); 
+			$db->setQuery($sql);
 			if ($db->execute() === false) {
 				vmError('updateSingleItem '.$db->getError().' and '.$sql);
 			}
 
 		}
 
-		$this->handleStockAfterStatusChangedPerProduct($orderdata->order_status, $oldOrderStatus, $table,$table->product_quantity);
 	}
-
 
 	/**
 	 * Strange name is just temporarly
@@ -802,7 +971,7 @@ $q = 'SELECT virtuemart_order_item_id, product_quantity, order_item_name,
 					$data->delivery_date = $date->toSQL();
 				}
 			} else {
-				VmConfig::loadJLang('com_virtuemart_orders', true);
+				vmLanguage::loadJLang('com_virtuemart_orders', true);
 				$data->delivery_date = vmText::_('COM_VIRTUEMART_DELDATE_INV');
 			}
 		}
@@ -812,34 +981,54 @@ $q = 'SELECT virtuemart_order_item_id, product_quantity, order_item_name,
 			$task= vRequest::getCmd('task',0);
 			$view= vRequest::getCmd('view',0);
 
-			$item_ids = vRequest::getVar('item_id',false);
-			if($item_ids){
+			//The item_id of the request is already given as inputOrder by the calling function (controller). inputOrder could be manipulated by the
+			//controller and so we must not use the request data here.
+			$upd_items = vRequest::getVar('item_id',false);
+			if($upd_items) {
 
-				foreach ($item_ids as $item_id => $order_item_data) {
+				//get tax calc_value of product VatTax
+				$db = JFactory::getDBO();
+				$sql = 'SELECT * FROM `#__virtuemart_order_calc_rules` WHERE `virtuemart_order_id` = "'.$virtuemart_order_id.'" ORDER BY virtuemart_order_item_id';
+				$db->setQuery( $sql );
+				$orderCalcs = $db->loadObjectList();
+
+				$vatTaxes = array();
+
+				foreach( $inputOrder as $item_id => $order_item_data ) {
+
+					if(!empty($item_id) and $item_id=='customer_notified') continue;	//Attention, we need the check against empty, else it continues for "0"
+
 					$order_item_data['current_order_status'] = $order_item_data['order_status'];
-					if (!isset($order_item_data['comments'])) $order_item_data['comments'] = '';
+					if(!isset( $order_item_data['comments'] )) $order_item_data['comments'] = '';
 					$order_item_data = (object)$order_item_data;
 					$order_item_data->virtuemart_order_id = $virtuemart_order_id;
 
 					//$this->updateSingleItem($order_item->virtuemart_order_item_id, $data->order_status, $order['comments'] , $virtuemart_order_id, $data->order_pass);
-					if(empty($item_id)){
-						$inputOrder['comments'] .= ' '.vmText::sprintf('COM_VIRTUEMART_ORDER_PRODUCT_ADDED',$order_item_data->order_item_name);
+					if(empty( $item_id )) {
+						$inputOrder['comments'] .= ' '.vmText::sprintf( 'COM_VIRTUEMART_ORDER_PRODUCT_ADDED', $order_item_data->order_item_name );
 					}
-					$this->updateSingleItem($item_id, $order_item_data,true);
+					$taxes = array();
+					foreach( $orderCalcs as $calc ) {
+
+						if($calc->virtuemart_order_item_id == $item_id and ($calc->calc_kind == 'VatTax' or $calc->calc_kind == 'DATax')) {
+							$taxes[] = $calc;
+						}
+					}
+
+					$this->updateSingleItem( $item_id, $order_item_data, true, $vatTaxes, $taxes );
 				}
+
+				$this->updateBill($virtuemart_order_id, $vatTaxes);
 			} else {
-				/*if($task=='edit'){
-					$update_lines = vRequest::getInt('update_lines');
-				} else /*/
-				if ($task=='updatestatus' and $view=='orders') {
+
+				$update_lines = 1;
+				if ($task==='updatestatus' and $view==='orders') {
 					$lines = vRequest::getVar('orders');
 					$update_lines = $lines[$virtuemart_order_id]['update_lines'];
-				} else {
-					$update_lines = 1;
 				}
 
 				if($update_lines==1){
-					vmdebug('$update_lines '.$update_lines);
+
 					$q = 'SELECT virtuemart_order_item_id
 												FROM #__virtuemart_order_items
 												WHERE virtuemart_order_id="'.$virtuemart_order_id.'"';
@@ -847,10 +1036,7 @@ $q = 'SELECT virtuemart_order_item_id, product_quantity, order_item_name,
 					$db->setQuery($q);
 					$order_items = $db->loadObjectList();
 					if ($order_items) {
-// 				vmdebug('updateStatusForOneOrder',$data);
-						foreach ($order_items as $order_item) {
-
-							//$this->updateSingleItem($order_item->virtuemart_order_item_id, $data->order_status, $order['comments'] , $virtuemart_order_id, $data->order_pass);
+						foreach ($order_items as $item_id=>$order_item) {
 							$this->updateSingleItem($order_item->virtuemart_order_item_id, $data);
 						}
 					}
@@ -986,7 +1172,7 @@ $q = 'SELECT virtuemart_order_item_id, product_quantity, order_item_name,
 				$taxes[$k]['calc_value'] = $VatTax['calc_value'];
 				$taxes[$k]['result'] = $VatTax['result'];
 			}
-			$_orderData->order_billTax = json_encode($taxes);
+			$_orderData->order_billTax = vmJsApi::safe_json_encode($taxes);
 		}
 
 		if (!empty($_cart->couponCode)) {
@@ -1001,8 +1187,9 @@ $q = 'SELECT virtuemart_order_item_id, product_quantity, order_item_name,
 		if (!class_exists('CurrencyDisplay')) {
 			require(VMPATH_ADMIN . '/helpers/currencydisplay.php');
 		}
+
 		if (isset($_cart->pricesCurrency)) {
-			$_orderData->user_currency_id = $_cart->paymentCurrency ;//$this->getCurrencyIsoCode($_cart->pricesCurrency);
+			$_orderData->user_currency_id = $_cart->pricesCurrency ;
 			$currency = CurrencyDisplay::getInstance($_orderData->user_currency_id);
 			if($_orderData->user_currency_id != $_orderData->order_currency){
 				$_orderData->user_currency_rate =   $currency->convertCurrencyTo($_orderData->user_currency_id ,1.0,false);
@@ -1010,6 +1197,22 @@ $q = 'SELECT virtuemart_order_item_id, product_quantity, order_item_name,
 				$_orderData->user_currency_rate=1.0;
 			}
 		}
+
+		$shoppergroups = $_cart->user->get('shopper_groups');
+		if (!empty($shoppergroups)) {
+			$_orderData->user_shoppergroups = implode(',', $shoppergroups);
+		}
+
+		if (isset($_cart->paymentCurrency)) {
+			$_orderData->payment_currency_id = $_cart->paymentCurrency ;//$this->getCurrencyIsoCode($_cart->pricesCurrency);
+			$currency = CurrencyDisplay::getInstance($_orderData->payment_currency_id);
+			if($_orderData->payment_currency_id != $_orderData->order_currency){
+				$_orderData->payment_currency_rate =   $currency->convertCurrencyTo($_orderData->payment_currency_id ,1.0,false);
+			} else {
+				$_orderData->payment_currency_rate=1.0;
+			}
+		}
+
 
 		$_orderData->virtuemart_paymentmethod_id = $_cart->virtuemart_paymentmethod_id;
 		$_orderData->virtuemart_shipmentmethod_id = $_cart->virtuemart_shipmentmethod_id;
@@ -1019,7 +1222,7 @@ $q = 'SELECT virtuemart_order_item_id, product_quantity, order_item_name,
 		$_orderData->order_pass = '';
 
 		$_orderData->order_language = $_cart->order_language;
-		$_orderData->ip_address = $_SERVER['REMOTE_ADDR'];
+		$_orderData->ip_address = ShopFunctions::getClientIP();;
 
 		$maskIP = VmConfig::get('maskIP','last');
 		if($maskIP=='last'){
@@ -1032,7 +1235,7 @@ $q = 'SELECT virtuemart_order_item_id, product_quantity, order_item_name,
 			$db = JFactory::getDbo();
 			$q = 'SELECT * FROM `#__virtuemart_orders` ';
 			if(!empty($_cart->virtuemart_order_id)){
-				$db->setQuery($q . ' WHERE `order_number`= "'.$_cart->virtuemart_order_id.'" AND `order_status` = "P" ');
+				$db->setQuery($q . ' WHERE `virtuemart_order_id`= "'.$_cart->virtuemart_order_id.'" AND `order_status` = "P" ');
 				$order = $db->loadAssoc();
 				if(!$order){
 					vmdebug('This should not happen, there is a cart with order_number, but not order stored '.$_cart->virtuemart_order_id);
@@ -1056,7 +1259,7 @@ $q = 'SELECT virtuemart_order_item_id, product_quantity, order_item_name,
 				}
 
 				//Dirty hack
-				$this->removeOrderItems($order['virtuemart_order_id']);
+				$this->removeOrderItems($order['virtuemart_order_id'],false);
 			}
 		}
 
@@ -1086,8 +1289,6 @@ $q = 'SELECT virtuemart_order_item_id, product_quantity, order_item_name,
 
 		$orderTable =  $this->getTable('orders');
 		$orderTable -> bindChecknStore($_orderData);
-
-		$db = JFactory::getDBO();
 
 		if (!empty($_cart->couponCode)) {
 			//set the virtuemart_order_id in the Request for 3rd party coupon components (by Seyi and Max)
@@ -1204,9 +1405,10 @@ $q = 'SELECT virtuemart_order_item_id, product_quantity, order_item_name,
 	}
 
 
-	function handleStockAfterStatusChangedPerProduct($newState, $oldState,$tableOrderItems, $quantity) {
+	function handleStockAfterStatusChangedPerProduct($newState, $oldState, $tableOrderItems, $quantity) {
 
-		if($newState == $oldState) return;
+		vmdebug( 'handleStockAfterStatusChangedPerProduct '.$oldState.' '.$newState.' '. $quantity, $tableOrderItems->product_quantity);
+		if($newState == $oldState and $quantity == $tableOrderItems->product_quantity) return;
 		// $StatutWhiteList = array('P','C','X','R','S','N');
 		$db = JFactory::getDBO();
 		$db->setQuery('SELECT * FROM `#__virtuemart_orderstates` ');
@@ -1217,7 +1419,7 @@ $q = 'SELECT virtuemart_order_item_id, product_quantity, order_item_name,
 			vmError('The workflow for '.$newState.' or  '.$oldState.' is unknown, take a look on model/orders function handleStockAfterStatusChanged','Can\'t process workflow, contact the shopowner. Status is '.$newState);
 			return ;
 		}
-		//vmdebug( 'updatestock qt :' , $quantity.' id :'.$productId);
+
 		// P 	Pending
 		// C 	Confirmed
 		// X 	Cancelled
@@ -1254,44 +1456,60 @@ $q = 'SELECT virtuemart_order_item_id, product_quantity, order_item_name,
 		else if (!$isReserved && $wasReserved ) $product_ordered = '-';
 		else $product_ordered = '=';
 
+		$diff = $tableOrderItems->product_quantity - $quantity;
+
+		if(!empty($diff) and $product_in_stock == '=' and $product_ordered == '='){
+
+			if($isReserved){
+				if($diff>0)	$product_ordered = '+'; else $product_ordered = '-';
+			}
+			if($isOut){
+				if($diff>0)	$product_in_stock = '+'; else $product_ordered = '-';
+			}
+			$quantity = abs($diff);
+		}
+
 		//Here trigger plgVmGetProductStockToUpdateByCustom
 		$productModel = VmModel::getModel('product');
 
 		if (!empty($tableOrderItems->product_attribute)) {
-			if(!class_exists('VirtueMartModelCustomfields'))require(VMPATH_ADMIN.DS.'models'.DS.'customfields.php');
+			if(!class_exists( 'VirtueMartModelCustomfields' )) require(VMPATH_ADMIN.DS.'models'.DS.'customfields.php');
 			$virtuemart_product_id = $tableOrderItems->virtuemart_product_id;
-			$product_attributes = json_decode($tableOrderItems->product_attribute,true);
-			foreach ($product_attributes as $virtuemart_customfield_id=>$param){
-				if ($param) {
-					if(is_array($param)){
-						reset($param);
-						$customfield_id = key($param);
+			$product_attributes = json_decode( $tableOrderItems->product_attribute, true );
+			foreach( $product_attributes as $virtuemart_customfield_id => $param ) {
+				if($param) {
+					if(is_array( $param )) {
+						reset( $param );
+						$customfield_id = key( $param );
 					} else {
 						$customfield_id = $param;
-					}			
-		
-					if ($customfield_id) {
-						if ($productCustom = VirtueMartModelCustomfields::getCustomEmbeddedProductCustomField ($customfield_id ) ) {
-							if ($productCustom->field_type == "E") {
-								if(!class_exists('vmCustomPlugin')) require(VMPATH_PLUGINLIBS.DS.'vmcustomplugin.php');
-								JPluginHelper::importPlugin('vmcustom');
+					}
+
+					if($customfield_id) {
+						if($productCustom = VirtueMartModelCustomfields::getCustomEmbeddedProductCustomField( $customfield_id )) {
+							if($productCustom->field_type == "E") {
+								if(!class_exists( 'vmCustomPlugin' )) require(VMPATH_PLUGINLIBS.DS.'vmcustomplugin.php');
+								JPluginHelper::importPlugin( 'vmcustom' );
 								$dispatcher = JDispatcher::getInstance();
-								$dispatcher->trigger('plgVmGetProductStockToUpdateByCustom',array(&$tableOrderItems,$param, $productCustom));
+								$dispatcher->trigger( 'plgVmGetProductStockToUpdateByCustom', array(&$tableOrderItems, $param, $productCustom) );
 							}
 						}
 					}
 				}
 			}
-
-			// we can have more then one product in case of pack
-			// in case of child, ID must be the child ID
-			// TO DO use $prod->amount change for packs(eg. 1 computer and 2 HDD)
-			if (is_array($tableOrderItems))	foreach ($tableOrderItems as $prod ) $productModel->updateStockInDB($prod, $quantity,$product_in_stock,$product_ordered);
-			else $productModel->updateStockInDB($tableOrderItems, $quantity,$product_in_stock,$product_ordered);
-
-		} else {
-			$productModel->updateStockInDB ($tableOrderItems, $quantity,$product_in_stock,$product_ordered);
 		}
+
+		// we can have more then one product in case of pack
+		// in case of child, ID must be the child ID
+		// TO DO use $prod->amount change for packs(eg. 1 computer and 2 HDD)
+		if (is_array($tableOrderItems))	{
+			foreach ($tableOrderItems as $prod ) {
+				$productModel->updateStockInDB($prod, $quantity,$product_in_stock,$product_ordered);
+			}
+		} else {
+			$productModel->updateStockInDB($tableOrderItems, $quantity,$product_in_stock,$product_ordered);
+		}
+
 
 	}
 
@@ -1310,7 +1528,12 @@ $q = 'SELECT virtuemart_order_item_id, product_quantity, order_item_name,
 
 		foreach ($cart->products  as $priceKey=>$product) {
 
-			$_orderItems->product_attribute = vmJsApi::safe_json_encode($product->customProductData);
+			if(!empty($product->customProductData)){
+				$_orderItems->product_attribute = vmJsApi::safe_json_encode($product->customProductData);
+			} else {
+				$_orderItems->product_attribute = '';
+			}
+
 
 			$_orderItems->virtuemart_order_item_id = null;
 			$_orderItems->virtuemart_order_id = $virtuemart_order_id;
@@ -1601,7 +1824,7 @@ $q = 'SELECT virtuemart_order_item_id, product_quantity, order_item_name,
 	 * @param integer $uid The user ID. Defaults to 0 for guests
 	 * @return string A unique ordernumber
 	 */
-	static public function generateOrderNumber($uid = 0,$length=4, $virtuemart_vendor_id=1) {
+	static public function generateOrderNumber($uid = 0,$length=5, $virtuemart_vendor_id=1) {
 		return self::genStdOrderNumber($virtuemart_vendor_id, $length);
 	}
 
@@ -1631,9 +1854,11 @@ $q = 'SELECT virtuemart_order_item_id, product_quantity, order_item_name,
 
 			$data['virtuemart_vendor_id'] = $orderDetails['virtuemart_vendor_id'];
 
-			JPluginHelper::importPlugin('vmshopper');
-			JPluginHelper::importPlugin('vmpayment');
 			JPluginHelper::importPlugin('vmextended');
+			JPluginHelper::importPlugin('vmshopper');
+			JPluginHelper::importPlugin('vmshipment');
+			JPluginHelper::importPlugin('vmpayment');
+
 			$dispatcher = JDispatcher::getInstance();
 			// plugin returns invoice number, 0 if it does not want an invoice number to be created by Vm
 			$plg_datas = $dispatcher->trigger('plgVmOnUserInvoice',array($orderDetails,&$data));
@@ -1703,8 +1928,18 @@ $q = 'SELECT virtuemart_order_item_id, product_quantity, order_item_name,
 
 		//Important, the data of the order update mails, payments and invoice should
 		//always be in the database, so using getOrder is the right method
-		$orderModel = VmModel::getModel('orders');
-		$order = $orderModel->getOrder($virtuemart_order_id,true);
+
+		$vendorModel = VmModel::getModel('vendor');
+		//Lets set the language to the BE default of the main vendor
+		$vendorUserId = $vendorModel->getUserIdByVendorId(1);
+		$vu = JFactory::getUser($vendorUserId);
+		$vLang = $vu->getParam('admin_language',VmConfig::$jDefLangTag);
+
+		shopFunctionsF::loadOrderLanguages($vLang);
+		$order = $this->getOrder($virtuemart_order_id);
+
+
+		$vars['orderDetails']=$order;
 
 		$payment_name = $shipment_name='';
 		if (!class_exists('vmPSPlugin')) require(VMPATH_PLUGINLIBS . DS . 'vmpsplugin.php');
@@ -1720,8 +1955,6 @@ $q = 'SELECT virtuemart_order_item_id, product_quantity, order_item_name,
 			$vars['newOrderData'] = (array)$newOrderData;
 		}
 
-		$vars['orderDetails']=$order;
-
 		//$vars['includeComments'] = vRequest::getVar('customer_notified', array());
 		//I think this is misleading, I think it should always ask for example $vars['newOrderData']['doVendor'] directly
 		//Using this function garantue us that it is always there. If the vendor should be informed should be done by the plugins
@@ -1729,36 +1962,68 @@ $q = 'SELECT virtuemart_order_item_id, product_quantity, order_item_name,
 		$vars['url'] = 'url';
 		if(!isset($newOrderData['doVendor'])) $vars['doVendor'] = false; else $vars['doVendor'] = $newOrderData['doVendor'];
 
+		$invoice = $this->createInvoiceByOrder($order);
+		if($invoice){
+			$vars['mediaToSend'][] = $invoice;
+		}
+
 		$virtuemart_vendor_id = $order['details']['BT']->virtuemart_vendor_id;
-		$vendorModel = VmModel::getModel('vendor');
+
+		$vendorEmail = array();
+		$vendorEmail[] = $vars['vendorEmail'] = $vendorModel->getVendorEmail($virtuemart_vendor_id);
+		$addVendorEmails = VmConfig::get('addVendorEmail','');
+		if (!empty($addVendorEmails)) $vendorEmail = array_merge($vendorEmail,explode(';',$addVendorEmails));
+
 		$vendor = $vendorModel->getVendor($virtuemart_vendor_id);
 		$vars['vendor'] = $vendor;
-		$vendorEmail = $vendorModel->getVendorEmail($virtuemart_vendor_id);
-		$vars['vendorEmail'] = $vendorEmail;
 
-		// florian : added if pdf invoice are enabled
-		$invoiceNumberDate = array();
-		if ($orderModel->createInvoiceNumber($order['details']['BT'], $invoiceNumberDate )) {
-			$orderstatusForInvoice = VmConfig::get('inv_os',array('C'));
-			if(!is_array($orderstatusForInvoice)) $orderstatusForInvoice = array($orderstatusForInvoice);   // for backward compatibility 2.0.8e
-			$pdfInvoice = (int)VmConfig::get('pdf_invoice', 0); // backwards compatible
-			$force_create_invoice=vRequest::getInt('create_invoice', -1);
-			//TODO we need an array of orderstatus
-			if ( (in_array($order['details']['BT']->order_status,$orderstatusForInvoice))  or $pdfInvoice==1  or $force_create_invoice==1 ){
-				if (!shopFunctions::InvoiceNumberReserved($invoiceNumberDate[0])) {
-					if(!class_exists('VirtueMartControllerInvoice')) require( VMPATH_SITE.DS.'controllers'.DS.'invoice.php' );
-					$controller = new VirtueMartControllerInvoice( array(
-						'model_path' => VMPATH_SITE.DS.'models',
-						'view_path' => VMPATH_SITE.DS.'views'
-					));
-					$vars['mediaToSend'][] = $controller->getInvoicePDF($order);
-				}
-			}
+		//Mail for vendor
+		$orderstatusForVendorEmail = VmConfig::get('email_os_v',array('U','C','R','X'));
+		if(!is_array($orderstatusForVendorEmail)) $orderstatusForVendorEmail = array($orderstatusForVendorEmail);
 
+		if ( in_array((string)$order['details']['BT']->order_status,$orderstatusForVendorEmail)){
+			//shopFunctionsF::loadOrderLanguages(VmConfig::$jDefLangTag);
+			//VmConfig::setLanguageByTag(VmConfig::$jDefLangTag);
+			$view = shopFunctionsF::prepareViewForMail('invoice', $vars);
+			$res = shopFunctionsF::sendVmMail( $view, $vendorEmail, TRUE );
 		}
 
 		// Send the email
-		$res = shopFunctionsF::renderMail('invoice', $order['details']['BT']->email, $vars, null,$vars['doVendor'],$this->useDefaultEmailOrderStatus);
+		//$res = shopFunctionsF::renderMail('invoice', $order['details']['BT']->email, $vars, null,$vars['doVendor'],$this->useDefaultEmailOrderStatus);
+		$sendMail = false;
+		if(!$this->useDefaultEmailOrderStatus and isset($vars['newOrderData']['customer_notified']) and $vars['newOrderData']['customer_notified']==1){
+			$sendMail = true;
+		} else {
+			$orderstatusForShopperEmail = VmConfig::get('email_os_s',array('U','C','S','R','X'));
+			if(!is_array($orderstatusForShopperEmail)) $orderstatusForShopperEmail = array($orderstatusForShopperEmail);
+			if ( in_array((string) $vars['orderDetails']['details']['BT']->order_status,$orderstatusForShopperEmail) ){
+				$sendMail = true;
+				vmdebug('renderMail by default orderstati');
+			}
+		}
+
+		shopFunctionsF::loadOrderLanguages(VmConfig::$vmlangTag);
+		$res = true;
+		if($sendMail){
+			if(!empty($vars['orderDetails']['details']) and !empty($vars['orderDetails']['details']['BT']->order_language)) {
+				$orderLang = $vars['orderDetails']['details']['BT']->order_language;
+				shopFunctionsF::loadOrderLanguages($orderLang);
+				$vendor = $vendorModel->getVendor($virtuemart_vendor_id);
+				$vars['vendor'] = $vendor;
+				$vars['orderDetails'] = $this->getOrder($virtuemart_order_id);
+			}
+
+			$shopperEmail = array();
+			$shopperEmailFields = VmConfig::get('email_sf_s',array('email'));
+			foreach ($shopperEmailFields as $field) {
+				if (!empty($order['details']['BT']->$field)) $shopperEmail[] = $order['details']['BT']->$field;
+			}
+			if (count($shopperEmail) < 1) $shopperEmail[] = $order['details']['BT']->email;
+
+			$view = shopFunctionsF::prepareViewForMail('invoice', $vars);
+			$res = shopFunctionsF::sendVmMail( $view, $shopperEmail, false );
+
+		}
 
 		if(is_object($res) or !$res){
 			$string = 'COM_VIRTUEMART_NOTIFY_CUSTOMER_ERR_SEND';
@@ -1770,6 +2035,7 @@ $q = 'SELECT virtuemart_order_item_id, product_quantity, order_item_name,
 		}
 
 		if($res!=-1){
+			vmLanguage::setLanguageByTag(vmLanguage::$jSelLangTag);
 			vmInfo( vmText::_($string,false).' '.$order['details']['BT']->first_name.' '.$order['details']['BT']->last_name. ', '.$order['details']['BT']->email);
 		}
 
@@ -1784,6 +2050,36 @@ $q = 'SELECT virtuemart_order_item_id, product_quantity, order_item_name,
 		return true;
 	}
 
+	public function createInvoiceByOrder($order){
+
+		if(!isset($order['details']['BT'])) return false;
+
+		$inv = false;
+		// florian : added if pdf invoice are enabled
+		$invoiceNumberDate = array();
+		if ($this->createInvoiceNumber($order['details']['BT'], $invoiceNumberDate )) {
+			$orderstatusForInvoice = VmConfig::get('inv_os',array('C'));
+			if(!is_array($orderstatusForInvoice)) $orderstatusForInvoice = array($orderstatusForInvoice);   // for backward compatibility 2.0.8e
+			$pdfInvoice = (int)VmConfig::get('pdf_invoice', 0); // backwards compatible
+			$force_create_invoice=vRequest::getInt('create_invoice', -1);
+			//TODO we need an array of orderstatus
+			if ( (in_array($order['details']['BT']->order_status,$orderstatusForInvoice))  or $pdfInvoice==1  or $force_create_invoice==1 ){
+				if (!shopFunctions::InvoiceNumberReserved($invoiceNumberDate[0])) {
+					if(!class_exists('VirtueMartControllerInvoice')) require( VMPATH_SITE.DS.'controllers'.DS.'invoice.php' );
+					$controller = new VirtueMartControllerInvoice( array(
+					'model_path' => VMPATH_SITE.DS.'models',
+					'view_path' => VMPATH_SITE.DS.'views'
+					));
+					$lTag = VmConfig::$vmlangTag;
+
+					$inv = $controller->getInvoicePDF($order);
+					vmLanguage::setLanguageByTag($lTag);
+				}
+			}
+
+		}
+		return $inv;
+	}
 
 	/**
 	 * Retrieve the details for an order line item.
@@ -1850,9 +2146,9 @@ $q = 'SELECT virtuemart_order_item_id, product_quantity, order_item_name,
 	 *remove product from order item table
 	*@var $virtuemart_order_id Order to clear
 	*/
-	function removeOrderItems ($virtuemart_order_id){
+	function removeOrderItems ($virtuemart_order_id, $auth = true){
 
-		if(!vmAccess::manager('orders.edit')) {
+		if($auth and !vmAccess::manager('orders.edit')) {
 			return false;
 		}
 		$q ='DELETE from `#__virtuemart_order_items` WHERE `virtuemart_order_id` = ' .(int) $virtuemart_order_id;
@@ -1888,6 +2184,15 @@ $q = 'SELECT virtuemart_order_item_id, product_quantity, order_item_name,
 
 		//TODO Why should the stock change, when the order is deleted? Paypal? Valerie?
 		if ($item->delete($orderLineId)) {
+			/*$q = "DELETE FROM `#__virtuemart_order_histories`
+			WHERE `virtuemart_order_id`=".$id;
+			$this->_db->setQuery($q);
+			$this->_db->execute();*/
+
+			$q = "DELETE FROM `#__virtuemart_order_calc_rules`
+			WHERE `virtuemart_order_item_id`=".$orderLineId;
+			$this->_db->setQuery($q);
+			$this->_db->execute();//*/
 			return true;
 		}
 		else {

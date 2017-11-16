@@ -3,10 +3,10 @@ defined('_JEXEC') or die('Restricted access');
 
 /**
  * @author Valérie Isaksen
- * @version $Id: sofort.php 9041 2015-11-05 11:59:38Z Milbo $
+ * @version $Id: sofort.php 9560 2017-05-30 14:13:21Z Milbo $
  * @package VirtueMart
  * @subpackage payment
- * @copyright Copyright (C) 2004-Copyright (C) 2004-2016 Virtuemart Team. All rights reserved.   - All rights reserved.
+ * @copyright Copyright (C) 2004-Copyright (C) 2004 - 2017 Virtuemart Team. All rights reserved.   - All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
@@ -17,11 +17,11 @@ defined('_JEXEC') or die('Restricted access');
  * http://virtuemart.net
  */
 if (!class_exists('vmPSPlugin')) {
-	require(JPATH_VM_PLUGINS . DS . 'vmpsplugin.php');
+	require(VMPATH_PLUGINLIBS . DS . 'vmpsplugin.php');
 }
 
 class plgVmPaymentSofort extends vmPSPlugin {
-	const RELEASE = 'VM 3.0.14';
+	const RELEASE = 'VM 3.2.4';
 	const SU_SOFORTBANKING = 'su';
 
 
@@ -523,7 +523,7 @@ class plgVmPaymentSofort extends vmPSPlugin {
 	 * @return string
 	 */
 	function _getPaymentResponseHtml ($method, $order, $payments) {
-		VmConfig::loadJLang('com_virtuemart_orders', TRUE);
+		vmLanguage::loadJLang('com_virtuemart_orders', TRUE);
 		if (!class_exists('CurrencyDisplay')) {
 			require(VMPATH_ADMIN . DS . 'helpers' . DS . 'currencydisplay.php');
 		}
@@ -532,7 +532,7 @@ class plgVmPaymentSofort extends vmPSPlugin {
 			require(VMPATH_SITE . DS . 'helpers' . DS . 'cart.php');
 		}
 
-		VmConfig::loadJLang('com_virtuemart_orders',TRUE);
+		vmLanguage::loadJLang('com_virtuemart_orders',TRUE);
 
 		$totalInPaymentCurrency = vmPSPlugin::getAmountInCurrency($order['details']['BT']->order_total,$order['details']['BT']->order_currency);
 		$cart = VirtueMartCart::getCart();
@@ -696,7 +696,7 @@ class plgVmPaymentSofort extends vmPSPlugin {
 		}
 		$htmla = array();
 		$html = '';
-		VmConfig::loadJLang('com_virtuemart');
+		vmLanguage::loadJLang('com_virtuemart');
 		$currency = CurrencyDisplay::getInstance();
 		foreach ($this->methods as $this->_currentMethod) {
 			if ($this->checkConditions($cart, $this->_currentMethod, $cart->cartPrices)) {
@@ -929,7 +929,7 @@ class plgVmPaymentSofort extends vmPSPlugin {
 	function sofortLog($sofortLib){
 		if ($this->_currentMethod->sofort_log) {
 			$sofortLib->setLogEnabled();
-			if (!class_exists( 'VmConfig' )) require(JPATH_ROOT.DS.'administrator'.DS.'components'.DS.'com_virtuemart'.DS.'helpers'.DS.'config.php');
+			if (!class_exists( 'VmConfig' )) require(JPATH_ROOT .'/administrator/components/com_virtuemart/helpers/config.php');
 			$logFileName=$this->getLogFileName();
 			$path = JFactory::getConfig()->get('log_path', VMPATH_ROOT . "/log" ).'/'.$logFileName.'.log.php';
 			if (!JFile::exists($path)) {

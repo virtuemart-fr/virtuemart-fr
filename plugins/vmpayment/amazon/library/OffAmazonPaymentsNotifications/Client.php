@@ -48,6 +48,20 @@ require_once 'OffAmazonPaymentsNotifications/Model/SellerBillingAgreementAttribu
 require_once 'OffAmazonPaymentsNotifications/Model/SellerOrderAttributes.php';
 require_once 'OffAmazonPaymentsNotifications/Model/SnsNotificationMetadata.php';
 require_once 'OffAmazonPaymentsNotifications/Model/Status.php';
+require_once 'OffAmazonPaymentsNotifications/Model/ProviderCreditNotification.php';
+require_once 'OffAmazonPaymentsNotifications/Model/ProviderCreditDetails.php';
+require_once 'OffAmazonPaymentsNotifications/Model/ProviderCreditSummary.php';
+require_once 'OffAmazonPaymentsNotifications/Model/ProviderCreditSummaryList.php';
+require_once 'OffAmazonPaymentsNotifications/Model/ProviderCreditReversalSummary.php';
+require_once 'OffAmazonPaymentsNotifications/Model/ProviderCreditReversalSummaryList.php';
+require_once 'OffAmazonPaymentsNotifications/Model/ProviderCreditReversalNotification.php';
+require_once 'OffAmazonPaymentsNotifications/Model/ProviderCreditReversalDetails.php';
+require_once 'OffAmazonPaymentsNotifications/Model/SolutionProviderMerchantNotification.php';
+require_once 'OffAmazonPaymentsNotifications/Model/MerchantRegistrationDetails.php';
+require_once 'OffAmazonPaymentsNotifications/Model/SolutionProviderOptions.php';
+require_once 'OffAmazonPaymentsNotifications/Model/SolutionProviderOption.php';
+require_once 'OffAmazonPaymentsService/MerchantValuesBuilder.php';
+require_once 'OffAmazonPayments/HttpRequest/Impl/HttpRequestFactoryCurlImpl.php';
 
 /**
  * Implementation of the OffAmazonPaymentsNotifications
@@ -64,16 +78,21 @@ class OffAmazonPaymentsNotifications_Client
      * @var SnsMessageValidator
      */
     private $_snsMessageValidator = null;
-    
+
     /**
      * Create an instance of the client class
      * 
      * @return void
      */
-    public function __construct()
+    public function __construct($config = null)
     {
+        $merchantValues = OffAmazonPaymentsService_MerchantValuesBuilder::create($config)->build();
         $this->_snsMessageValidator 
-            = new SnsMessageValidator(new OpenSslVerifySignature());  
+            = new SnsMessageValidator(
+                new OpenSslVerifySignature($merchantValues->getCnName(), 
+                new HttpRequestFactoryCurlImpl($merchantValues)
+                )
+            );  
     }
     
     /**
@@ -92,14 +111,13 @@ class OffAmazonPaymentsNotifications_Client
         // Is this json, is this
         // an sns message, do we have the fields we require
         $snsMessage = SnsMessageParser::parseNotification($headers, $body);
-        
         // security validation - check that this message is
         // from amazon and that it has been signed correctly
         $this->_snsMessageValidator->validateMessage($snsMessage);
         
         // Convert to object - convert from basic class to object
         $ipnMessage = IpnNotificationParser::parseSnsMessage($snsMessage);
+
         return XmlNotificationParser::parseIpnMessage($ipnMessage);
     }
 }
-?>

@@ -6,14 +6,14 @@
  * @package	VirtueMart
  * @subpackage User
  * @author Oscar van Eijk
- * @link http://www.virtuemart.net
+ * @link https://virtuemart.net
  * @copyright Copyright (c) 2004 - 2010 VirtueMart Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
- * @version $Id: edit_shopper.php 8080 2014-06-29 07:31:28Z alatak $
+ * @version $Id: edit_shopper.php 9496 2017-03-29 19:08:32Z Milbo $
  */
 
 // Check to ensure this file is included in Joomla!
@@ -291,7 +291,7 @@ function gotocontact(id) {
 			<tr>
 				<td></td>
 				<td valign="top">
-					<img src="<?php echo $mosConfig_live_site;?>/images/stories/<?php echo $this->contactDetails->image; ?>" align="middle" alt="Contact" />
+					<img src="/images/stories/<?php echo $this->contactDetails->image; ?>" align="middle" alt="Contact" />
 				</td>
 			</tr>
 		<?php } ?>
@@ -308,6 +308,6 @@ function gotocontact(id) {
 <input type="hidden" name="virtuemart_user_id" value="<?php echo $this->userDetails->JUser->get('id'); ?>" />
 <input type="hidden" name="virtuemart_user_id[]" value="<?php echo $this->userDetails->JUser->get('id'); ?>" />
 <input type="hidden" name="contact_id" value="" />
-<input type="hidden" name="layout" value="<?php echo $this->_layout; ?>" />
+
 
 

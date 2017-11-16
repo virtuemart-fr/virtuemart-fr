@@ -6,14 +6,14 @@
 * @package	VirtueMart
 * @subpackage Currency
 * @author RickG
-* @link http://www.virtuemart.net
+* @link https://virtuemart.net
 * @copyright Copyright (c) 2004 - 2010 VirtueMart Team. All rights reserved.
 * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
 * VirtueMart is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
-* @version $Id: currency.php 8618 2014-12-10 22:45:48Z Milbo $
+* @version $Id: currency.php 9413 2017-01-04 17:20:58Z Milbo $
 */
 
 // Check to ensure this file is included in Joomla!
@@ -52,8 +52,11 @@ class VirtuemartControllerCurrency extends VmController {
 
 		$data = vRequest::getRequest();
 
+		$data['currency_name'] = vRequest::getHtml('currency_name','');
 		$data['currency_positive_style'] = vRequest::getHtml('currency_positive_style','');
 		$data['currency_negative_style'] = vRequest::getHtml('currency_negative_style','');
+		$data['currency_thousands'] = vRequest::getHtml('currency_thousands','');
+		$data['currency_decimal_symbol'] = vRequest::getHtml('currency_decimal_symbol','');
 
 		parent::save($data);
 	}

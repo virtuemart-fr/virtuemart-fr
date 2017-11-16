@@ -2,12 +2,12 @@
 <extension version="2.5" type="plugin" group="vmpayment" method="upgrade">
     <description>Realex HPP and API</description>
     <name>realex_hpp_api</name>
-    <creationDate>March 11 2016</creationDate>
+    <creationDate>August 23 2017</creationDate>
     <author>The VirtueMart Development Team</author>
-    <authorUrl>http://www.virtuemart.net</authorUrl>
-    <copyright>Copyright (C) 2004-2016 Virtuemart Team. All rights reserved.</copyright>
+    <authorUrl>https://virtuemart.net</authorUrl>
+    <copyright>Copyright (C) 2004 - 2017 Virtuemart Team. All rights reserved.</copyright>
     <license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
-    <version>3.0.14</version>
+    <version>3.2.4</version>
     <description><![CDATA[<a href="http://realex.com" target="_blank">realex</a> is a popular
 	payment provider and available in many countries. ]]>
     </description>
@@ -204,7 +204,7 @@
                        description=""/>
                 <field name="payment_logos" type="vmfiles" multiple="true" label="VMPAYMENT_REALEX_HPP_API_LOGOS"
                        description="VMPAYMENT_REALEX_HPP_API_LOGOS_DESC"
-                       directory="/images/stories/virtuemart/payment"
+                       directory="/images/virtuemart/payment"
                        default="default" hide_default="1" hide_none="1"
                        stripext="0" exclude="^_"/>
                 <field name="card_payment_button" type="text" size="40" maxlength="25" default=""
@@ -212,7 +212,7 @@
                        description="VMPAYMENT_REALEX_HPP_API_CARD_PAYMENT_BUTTON_TIP"/>
                 <field class="remote" name="cvv_images" type="vmfiles" label="VMPAYMENT_REALEX_HPP_API_CVV_IMAGES"
                        description="VMPAYMENT_REALEX_HPP_API_CVV_IMAGES_DESC"
-                       directory="/images/stories/virtuemart/payment"
+                       directory="/images/virtuemart/payment"
                        default="default" hide_default="1" hide_none="1"
                        stripext="0" exclude="^_"/>
 

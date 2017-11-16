@@ -234,7 +234,7 @@ class vRequest {
 				if($t!=$k){
 					$var[$t] = $v;
 					unset($var[$k]);
-					vmdebug('unset invalid key',$k,$t);
+					//vmdebug('unset invalid key',$k,$t);
 				}
 			}
 			if(!empty($v) and is_array($v) and count($v)>1){

@@ -2,7 +2,7 @@
 /**
  * @package    Joomla.Language
  *
- * @copyright  Copyright (C) 2005 - 2015 Open Source Matters, Inc. All rights reserved.
+ * @copyright  Copyright (C) 2005 - 2017 Open Source Matters, Inc. All rights reserved.
  * @license    GNU General Public License version 2 or later; see LICENSE.txt
  */
 
@@ -95,8 +95,7 @@ abstract class Fr_FRLocalise
 		 */
 		public static function transliterate($string)
 		{
-		$str = JString::strtolower($string);
-
+		$str = \Joomla\String\StringHelper::strtolower($string);
 		// Specific language transliteration.
 		// This one is for latin 1, latin supplement , extended A, Cyrillic, Greek
 

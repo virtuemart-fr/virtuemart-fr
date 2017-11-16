@@ -5,7 +5,7 @@ defined('_JEXEC') or die();
  * @package    VirtueMart
  * @subpackage Plugins  - Elements
  * @author Valérie Isaksen
- * @link http://www.virtuemart.net
+ * @link https://virtuemart.net
  * @copyright Copyright (C) 2004-2015 Virtuemart Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
@@ -16,6 +16,7 @@ defined('_JEXEC') or die();
  */
 JFormHelper::loadFieldClass('list');
 jimport('joomla.form.formfield');
+
 class JFormFieldVmOrderState extends JFormFieldList {
 
 	/**
@@ -27,7 +28,9 @@ class JFormFieldVmOrderState extends JFormFieldList {
 	var $type = 'vmOrderState';
 
 	protected function getOptions() {
-		VmConfig::loadJLang('com_virtuemart_orders', TRUE);
+		if (!class_exists( 'VmConfig' )) require(JPATH_ROOT .'/administrator/components/com_virtuemart/helpers/config.php');
+
+		vmLanguage::loadJLang('com_virtuemart_orders', TRUE);
 
 		$options = array();
 		$db = JFactory::getDBO();

@@ -5,10 +5,10 @@
  *
  * @package	VirtueMart
  * @author Max Milbers, Valerie Isaksen
- * @link http://www.virtuemart.net
+ * @link https://virtuemart.net
  * @copyright Copyright (c) 2004 - 2014 VirtueMart Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
- * @version $Id: default_manufacturer.php 8794 2015-03-12 18:31:55Z Milbo $
+ * @version $Id: default_manufacturer.php 9413 2017-01-04 17:20:58Z Milbo $
  */
 // Check to ensure this file is included in Joomla!
 defined('_JEXEC') or die('Restricted access');

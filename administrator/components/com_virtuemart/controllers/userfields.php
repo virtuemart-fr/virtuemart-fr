@@ -6,14 +6,14 @@
 * @package	VirtueMart
 * @subpackage Userfields
 * @author Oscar van Eijk
-* @link http://www.virtuemart.net
+* @link https://virtuemart.net
 * @copyright Copyright (c) 2004 - 2010 VirtueMart Team. All rights reserved.
 * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
 * VirtueMart is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
-* @version $Id: userfields.php 8953 2015-08-19 10:30:52Z Milbo $
+* @version $Id: userfields.php 9478 2017-03-16 09:33:17Z Milbo $
 */
 
 // Check to ensure this file is included in Joomla!
@@ -42,14 +42,6 @@ class VirtuemartControllerUserfields extends VmController {
 
 	}
 
-	function Userfields(){
-
-		$document = JFactory::getDocument();
-		$viewType = $document->getType();
-		$view = $this->getView('userfields', $viewType);
-
-		parent::display();
-	}
 	function viewJson() {
 
 		// Create the view object.

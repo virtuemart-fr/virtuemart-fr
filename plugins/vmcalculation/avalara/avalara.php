@@ -16,7 +16,7 @@ die('Direct Access to ' . basename(__FILE__) . ' is not allowed.');
  *
  */
 
-if (!class_exists('vmCalculationPlugin')) require(JPATH_VM_PLUGINS.DS.'vmcalculationplugin.php');
+if (!class_exists('vmCalculationPlugin')) require(VMPATH_PLUGINLIBS.DS.'vmcalculationplugin.php');
 
 defined('AVATAX_DEBUG') or define('AVATAX_DEBUG', 1);
 
@@ -44,7 +44,8 @@ class plgVmCalculationAvalara extends vmCalculationPlugin {
 			'avatax_virtuemart_country_id'  => array(0,'int'),
             'avatax_virtuemart_state_id'  => array(0,'int'),
 			'accrual'		=> array(0,'int'),
-			'prevCheckoutAddInv' => array(1,'int')
+			'prevCheckoutAddInv' => array(1,'int'),
+			'taxfreightcode' => array('','char')
 		);
 
 		$this->setConfigParameterable ('calc_params', $varsToPush);
@@ -135,6 +136,7 @@ class plgVmCalculationAvalara extends vmCalculationPlugin {
         $html .= VmHTML::row('checkbox','VMCALCULATION_AVALARA_ACCRUAL','accrual',$calc->accrual);
 		$html .= VmHTML::row('checkbox','VMCALCULATION_AVALARA_DEV','dev',$calc->dev);
 		$html .= VmHTML::row('checkbox','VMCALCULATION_AVALARA_PREVCHECKOUT_AD_INVALID','prevCheckoutAddInv',$calc->prevCheckoutAddInv);
+		$html .= VmHTML::row('input','VMCALCULATION_AVALARA_TAXFREIGHTCODE','taxfreightcode',$calc->taxfreightcode);
 		$label = 'VMCALCULATION_AVALARA_VADDRESS';
 		$lang =JFactory::getLanguage();
 		$label = $lang->hasKey($label.'_TIP') ? '<span class="hasTip" title="'.vmText::_($label.'_TIP').'">'.vmText::_($label).'</span>' : vmText::_($label) ;
@@ -165,10 +167,17 @@ class plgVmCalculationAvalara extends vmCalculationPlugin {
 	//	$html .= VmHTML::row('checkbox','VMCALCULATION_ISTRAXX_AVALARA_TRACE','trace',$calc->trace);
 
 		$html .= '</table>';
-		if ($calc->activated) {
-			$html .= $this->ping($calc);
+		if(!class_exists('SoapClient')){
+			vmWarn('Please enable the SOAP client in your php configuration.');
+		} else {
+			if ($calc->activated) {
+				$html .= $this->ping($calc);
+			}
 		}
+
 		$html .= vmText::_('VMCALCULATION_AVALARA_MANUAL').'</fieldset>';
+
+
 		return TRUE;
 	}
 
@@ -322,7 +331,7 @@ class plgVmCalculationAvalara extends vmCalculationPlugin {
 			$err .='last request: '. $client->__getLastRequest().'<br />';
 			$err .='last response: '. $client->__getLastResponse().'<br />';
 			vmError($err);
-			avadebug('AvaTax the ping throws exception ',$exception);
+			avadebug('AvaTax the ping throws exception ',$exception->getMessage());
 		}
 
 		return $html;
@@ -697,6 +706,7 @@ class plgVmCalculationAvalara extends vmCalculationPlugin {
 				$shipment['amount'] = 1;
 				$shipment['price'] = $prices['shipmentValue'];              //decimal // TotalAmmount
 				$shipment['discount'] = 0.0;
+				$shipment['shipment'] = 1;
 				$products[] = $shipment;
 			}
 
@@ -930,6 +940,7 @@ class plgVmCalculationAvalara extends vmCalculationPlugin {
 					}
 				}
 			}
+
 			//$line->setTaxCode("");             //string
 			$line->setQty($product['amount']);                 //decimal
 			$line->setAmount($sign * $product['price'] * $product['amount']);              //decimal // TotalAmmount
@@ -958,6 +969,9 @@ class plgVmCalculationAvalara extends vmCalculationPlugin {
 				//$line->setTaxOverride(self::$vmadd['taxOverride']);
 			}
 
+			if(!empty($product['shipment'])){
+				if(!empty($calc->taxfreightcode)) $line->setTaxCode($calc->taxfreightcode);
+			}
 			$lines[] = $line;
 		}
 		$this->newATConfig($calc);
@@ -1147,6 +1161,7 @@ class plgVmCalculationAvalara extends vmCalculationPlugin {
 			$shipment['amount'] = 1;
 			$shipment['price'] = $orderDetails['details']['BT']->order_shipment;              //decimal // TotalAmmount
 			$shipment['discount'] = 0.0;
+			$shipment['shipment'] = 1;
 			$products[] = $shipment;
 		}
 		$products['discountAmount'] = $orderDetails['details']['BT']->order_discountAmount - $orderDetails['details']['BT']->coupon_discount;
@@ -1217,6 +1232,7 @@ class plgVmCalculationAvalara extends vmCalculationPlugin {
 
 		if(!function_exists('EnsureIsArray')) require(VMAVALARA_PATH.DS.'AvaTax.php');	// include in all Avalara Scripts
 		if(!class_exists('TaxServiceSoap')) require (VMAVALARA_CLASS_PATH.DS.'TaxServiceSoap.class.php');
+		if(!class_exists('TaxRequest')) require (VMAVALARA_CLASS_PATH.DS.'TaxRequest.class.php');
 		if(!class_exists('CancelTaxRequest')) require (VMAVALARA_CLASS_PATH.DS.'CancelTaxRequest.class.php');
 
 		$this->newATConfig($calc);
@@ -1279,7 +1295,8 @@ class plgVmCalculationAvalara extends vmCalculationPlugin {
 			}
 		}
 		if(empty($calc)){
-			avadebug('Retrieving calculation rule for avatax failed',$orderDetails->virtuemart_order_id);
+			$id = empty($orderDetails->virtuemart_order_id)? '':$orderDetails->virtuemart_order_id;
+			avadebug('Retrieving calculation rule for avatax failed',$id);
 			return false;
 		}
 

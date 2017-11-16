@@ -11,7 +11,7 @@
     <fieldset name="request"
               addfieldpath="/administrator/components/com_virtuemart/fields">
     <field name="productsublayout" type="vmproductsublayout"
-           label="COM_VIRTUEMART_CFG_PRODUCTS_SUBLAYOUT" required="true"
+           label="COM_VIRTUEMART_CFG_PRODUCTS_SUBLAYOUT"
            extension="com_virtuemart"
            description="COM_VIRTUEMART_CFG_PRODUCTS_SUBLAYOUT_TIP" />
     </fieldset>

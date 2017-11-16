@@ -6,14 +6,14 @@
 * @package	VirtueMart
 * @subpackage
 * @author Max Milberes
-* @link http://www.virtuemart.net
+* @link https://virtuemart.net
 * @copyright Copyright (c) 2004 - 2010 VirtueMart Team. All rights reserved.
 * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
 * VirtueMart is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
-* @version $Id: ratings.php 8618 2014-12-10 22:45:48Z Milbo $
+* @version $Id: ratings.php 9413 2017-01-04 17:20:58Z Milbo $
 */
 
 // Check to ensure this file is included in Joomla!
@@ -38,44 +38,6 @@ class VirtuemartControllerRatings extends VmController {
 	 */
 	function __construct() {
 		parent::__construct();
-
-		$task = vRequest::getVar('task');
-
-	}
-
-	function edit($layout=0){
-		$this->listreviews();
-	}
-
-	/**
-	 * Generic edit task
-	 */
-	function edit_review(){
-
-		vRequest::setVar('controller', $this->_cname);
-		vRequest::setVar('view', $this->_cname);
-		vRequest::setVar('layout', 'edit_review');
-
-		if(empty($view)){
-			$document = JFactory::getDocument();
-			$viewType = $document->getType();
-			$view = $this->getView($this->_cname, $viewType);
-		}
-
-		parent::display();
-	}
-
-	/**
-	 * lits the reviews
-	 */
-	public function listreviews(){
-
-		/* Create the view object */
-		$view = $this->getView('ratings', 'html');
-
-		$view->setLayout('list_reviews');
-
-		$view->display();
 	}
 
 	/**

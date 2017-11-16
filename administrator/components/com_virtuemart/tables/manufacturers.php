@@ -6,14 +6,14 @@
 * @package	VirtueMart
 * @subpackage Manufacturer
 * @author Patrick Kohl
-* @link http://www.virtuemart.net
+* @link https://virtuemart.net
 * @copyright Copyright (c) 2004 - 2010 VirtueMart Team. All rights reserved.
 * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
 * VirtueMart is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
-* @version $Id: manufacturers.php 8310 2014-09-21 17:51:47Z Milbo $
+* @version $Id: manufacturers.php 9413 2017-01-04 17:20:58Z Milbo $
 */
 
 // Check to ensure this file is included in Joomla!
@@ -44,6 +44,12 @@ class TableManufacturers extends VmTable {
     /** @var string manufacturer URL */
 	var $mf_url = '';
 
+	var $customtitle = '';
+	var $metakey = '';
+	var $metadesc = '';
+	var $metarobot = '';
+	var $metaauthor = '';
+
 	/** @var int published or unpublished */
 	var $published = 1;
 
@@ -57,7 +63,7 @@ class TableManufacturers extends VmTable {
 
 		$this->setUniqueName('mf_name');
 		$this->setLoggable();
-		$this->setTranslatable(array('mf_name','mf_email','mf_desc','mf_url'));
+		$this->setTranslatable(array('mf_name','mf_email','mf_desc','mf_url','metadesc','metakey','customtitle'));
 		$this->setSlug('mf_name');
 		$this->setTableShortCut('m');
 	}

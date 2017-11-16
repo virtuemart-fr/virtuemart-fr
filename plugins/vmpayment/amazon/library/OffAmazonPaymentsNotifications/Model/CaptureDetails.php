@@ -32,6 +32,7 @@ require_once 'OffAmazonPayments/Model.php';
  * <li>CreationTimestamp: string</li>
  * <li>CaptureStatus: OffAmazonPaymentsNotifications_Model_Status</li>
  * <li>SoftDescriptor: string</li>
+ * <li>ProviderCreditSummaryList: OffAmazonPaymentsNotifications_Model_ProviderCreditSummaryList</li>
  *
  * </ul>
  */ 
@@ -55,7 +56,8 @@ class OffAmazonPaymentsNotifications_Model_CaptureDetails
      * <li>IdList: OffAmazonPaymentsNotifications_Model_IdList</li>
      * <li>CreationTimestamp: string</li>
      * <li>CaptureStatus: OffAmazonPaymentsNotifications_Model_Status</li>
-     * <li>SoftDescriptor: string</li>
+     * <li>ProviderCreditSummaryList: OffAmazonPaymentsNotifications_Model_ProviderCreditSummaryList</li>
+ 	 * <li>SoftDescriptor: string</li>
      *
      * </ul>
      */
@@ -93,6 +95,10 @@ class OffAmazonPaymentsNotifications_Model_CaptureDetails
             'CaptureStatus' => array(
                 'FieldValue' => null, 
                 'FieldType' => 'OffAmazonPaymentsNotifications_Model_Status'
+            ),
+            'ProviderCreditSummaryList' => array(
+                'FieldValue' => null, 
+                'FieldType' => 'OffAmazonPaymentsNotifications_Model_ProviderCreditSummaryList'
             ),
             'SoftDescriptor' => array(
                 'FieldValue' => null, 
@@ -529,5 +535,50 @@ class OffAmazonPaymentsNotifications_Model_CaptureDetails
     {
         return !is_null($this->fields['SoftDescriptor']['FieldValue']);
     }
+    
+    /**
+     * Gets the value of the ProviderCreditSummaryList.
+     *
+     * @return ProviderCreditSummaryList ProviderCreditSummaryList
+     */
+    public function getProviderCreditSummaryList()
+    {
+    	return $this->fields['ProviderCreditSummaryList']['FieldValue'];
+    }
+    
+    /**
+     * Sets the value of the ProviderCreditSummaryList.
+     *
+     * @param ProviderCreditSummaryList ProviderCreditSummaryList
+     * @return void
+     */
+    public function setProviderCreditSummaryList($value)
+    {
+    	$this->fields['ProviderCreditSummaryList']['FieldValue'] = $value;
+    	return;
+    }
+    
+    /**
+     * Sets the value of the ProviderCreditSummaryList  and returns this instance
+     *
+     * @param ProviderCreditSummaryList $value ProviderCreditSummaryList
+     * @return OffAmazonPaymentsService_Model_CaptureDetails instance
+     */
+    public function withProviderCreditSummaryList($value)
+    {
+    	$this->setProviderCreditSummaryList($value);
+    	return $this;
+    }
+    
+    
+    /**
+     * Checks if ProviderCreditSummaryList  is set
+     *
+     * @return bool true if ProviderCreditSummaryList property is set
+     */
+    public function isSetProviderCreditSummaryList()
+    {
+    	return !is_null($this->fields['ProviderCreditSummaryList']['FieldValue']);
+    
+    }
 }
-?>

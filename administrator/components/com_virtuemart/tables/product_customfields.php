@@ -4,7 +4,7 @@
 * @package	VirtueMart
 * @subpackage product
 * @author Max Milbers
-* @link http://www.virtuemart.net
+* @link https://virtuemart.net
 * @copyright Copyright (c) 2011 - 2014 VirtueMart Team. All rights reserved.
 * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
 * VirtueMart is free software. This version may have been modified pursuant
@@ -60,10 +60,10 @@ class TableProduct_customfields extends VmTable {
 
 	function check(){
 
-		if(!empty($this->customfield_price)){
+		if($this->customfield_price !== null and $this->customfield_price !== ''){
 			$this->customfield_price = str_replace(array(',',' '),array('.',''),$this->customfield_price);
 		} else {
-			$this->customfield_price = null;
+			$this->customfield_price = 0;
 		}
 
 		return parent::check();

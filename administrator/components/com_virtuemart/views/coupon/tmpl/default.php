@@ -6,14 +6,14 @@
 * @package	VirtueMart
 * @subpackage Coupon
 * @author RickG
-* @link http://www.virtuemart.net
+* @link https://virtuemart.net
 * @copyright Copyright (c) 2004 - 2010 VirtueMart Team. All rights reserved.
 * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
 * VirtueMart is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
-* @version $Id: default.php 9041 2015-11-05 11:59:38Z Milbo $
+* @version $Id: default.php 9589 2017-06-26 13:52:48Z Milbo $
 */
 
 // Check to ensure this file is included in Joomla!
@@ -23,18 +23,18 @@ AdminUIHelper::startAdminArea($this);
 
 ?>
 
-<form action="index.php" method="post" name="adminForm" id="adminForm">
+<form action="index.php?option=com_virtuemart&view=coupon" method="post" name="adminForm" id="adminForm">
 	<div id="header">
 		<div id="filterbox">
 			<table>
 				<tr>
 					<td align="left" width="100%">
 						<?php echo vmText::_('COM_VIRTUEMART_FILTER'); ?>:
-						<input type="text" name="filter_ratings" value="<?php echo vRequest::getVar('filter_ratings', ''); ?>" />
-						<button class="btn btn-small" onclick="this.form.submit();"><?php echo vmText::_('COM_VIRTUEMART_GO'); ?></button>
-						<button class="btn btn-small" onclick="document.adminForm.filter_ratings.value='';"><?php echo vmText::_('COM_VIRTUEMART_RESET'); ?></button>
+                        <input type="text" name="filter_coupon" value="<?php echo vRequest::getVar('filter_coupon', ''); ?>" />
+                        <button class="btn btn-small" onclick="this.form.submit();"><?php echo vmText::_('COM_VIRTUEMART_GO'); ?></button>
+                        <button class="btn btn-small" onclick="document.adminForm.filter_coupon.value='';"><?php echo vmText::_('COM_VIRTUEMART_RESET'); ?></button>
 						<?php if($this->showVendors()){
-							echo Shopfunctions::renderVendorList(vmAccess::getVendorId());
+							echo Shopfunctions::renderVendorList();
 						} ?>
 					</td>
 				</tr>

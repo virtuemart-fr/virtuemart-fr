@@ -6,14 +6,14 @@
 * @package	VirtueMart
 * @subpackage Shipment
 * @author RickG
-* @link http://www.virtuemart.net
+* @link https://virtuemart.net
 * @copyright Copyright (c) 2004 - 2010 VirtueMart Team. All rights reserved.
 * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
 * VirtueMart is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
-* @version $Id: view.html.php 9041 2015-11-05 11:59:38Z Milbo $
+* @version $Id: view.html.php 9420 2017-01-12 09:35:36Z Milbo $
 */
 
 // Check to ensure this file is included in Joomla!
@@ -48,7 +48,7 @@ class VirtuemartViewShipmentmethod extends VmViewAdmin {
 
 		$layoutName = vRequest::getCmd('layout', 'default');
 		if ($layoutName == 'edit') {
-			VmConfig::loadJLang('plg_vmpsplugin', false);
+			vmLanguage::loadJLang('plg_vmpsplugin', false);
 
 			JForm::addFieldPath(VMPATH_ADMIN . DS . 'fields');
 
@@ -70,9 +70,8 @@ class VirtuemartViewShipmentmethod extends VmViewAdmin {
 				require(VMPATH_ADMIN . DS . 'helpers' . DS . 'image.php');
 
 			 if(!class_exists('VirtueMartModelVendor')) require(VMPATH_ADMIN.DS.'models'.DS.'vendor.php');
-			 $vendor_id = 1;
-			 $currency=VirtueMartModelVendor::getVendorCurrency ($vendor_id);
-			 $this->assignRef('vendor_currency', $currency->currency_symbol);
+
+
 
 			if($this->showVendors()){
 					$vendorList= ShopFunctions::renderVendorList($shipment->virtuemart_vendor_id);
@@ -83,6 +82,16 @@ class VirtuemartViewShipmentmethod extends VmViewAdmin {
 			$this->assignRef('shipment', $shipment);
 			$this->shopperGroupList = ShopFunctions::renderShopperGroupList($shipment->virtuemart_shoppergroup_ids,true);
 
+			$currency_model = VmModel::getModel ('currency');
+			$currencies = $currency_model->getCurrencies ();
+
+			$currency = VirtueMartModelVendor::getVendorCurrency ($shipment->virtuemart_vendor_id);
+			$this->assignRef('vendor_currency', $currency->currency_symbol);
+
+			if(empty($shipment->currency_id)) $shipment->currency_id = $currency->virtuemart_currency_id;
+			$attrs['class'] = 'vm-chzn-select vm-drop';
+			$this->currencyList = JHtml::_ ('select.genericlist', $currencies, 'currency_id', $attrs, 'virtuemart_currency_id', 'currency_name', $shipment->currency_id);
+
 			$this->addStandardEditViewCommands($shipment->virtuemart_shipmentmethod_id);
 
 		} else {
@@ -92,7 +101,7 @@ class VirtuemartViewShipmentmethod extends VmViewAdmin {
 			$this->addStandardDefaultViewLists($model);
 
 			$this->shipments = $model->getShipments();
-			VmConfig::loadJLang('com_virtuemart_shoppers',TRUE);
+			vmLanguage::loadJLang('com_virtuemart_shoppers',TRUE);
 
 			foreach ($this->shipments as &$data){
 				// Write the first 5 shoppergroups in the list

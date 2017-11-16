@@ -5,7 +5,7 @@ defined('JPATH_BASE') or die;
 
 jimport('joomla.form.formfield');
 defined('DS') or define('DS', DIRECTORY_SEPARATOR);
-if (!class_exists( 'VmConfig' )) require(JPATH_ROOT.DS.'administrator'.DS.'components'.DS.'com_virtuemart'.DS.'helpers'.DS.'config.php');
+if (!class_exists( 'VmConfig' )) require(JPATH_ROOT .'/administrator/components/com_virtuemart/helpers/config.php');
 if (!class_exists('ShopFunctions'))
 require(VMPATH_ADMIN . DS . 'helpers' . DS . 'shopfunctions.php');
 
@@ -49,6 +49,9 @@ class JFormFieldProduct extends JFormField
 		require(VMPATH_ADMIN . DS . 'helpers' . DS . 'vmmodel.php');
 		$productModel = VmModel::getModel('Product');
 		$productModel->_noLimit = true;
+		if(vmAccess::manager('managevendors')){
+			$productModel->virtuemart_vendor_id = 0;
+		}
 		$products = $productModel->getProductListing(false, false, false, false, true,false);
 		$productModel->_noLimit = false;
 		$i = 0;

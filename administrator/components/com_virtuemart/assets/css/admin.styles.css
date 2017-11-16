@@ -3,10 +3,8 @@
 /*#cpanel div.icon{margin:3px}*/
 .admin-content div.icon a {
 	display: block;
-	height: 93px !important;
-	height: 95px;
-	width: 118px !important;
-	width: 120px;
+	min-height: 124px;
+	width: 180px;
 	vertical-align: middle;
 	text-decoration : none;
 	border: none;
@@ -91,3 +89,31 @@ a.fg-button,.always-left{float:left!important}
 table.adminlist td.order{width:100px !important;}
 ol.logline {margin: 15px 0;padding: 0 0 0 20px;background: #F7F7F7; border: 1px solid #CCC;}
 ol.logline li {margin: 0 0 0 20px;padding: 5px 10px 5px 10px;list-style: decimal-leading-zero;word-wrap: break-word;border-left: 1px solid #CCC;background: #FFF;}
+
+.vmLoading {
+	display: block;
+	/*position: fixed;*/
+	z-index: 1000;
+	top: 0;
+	left: 0;
+/*	height: 100%;
+	width: 100%;*/
+	background: rgba(255, 255, 255, 0.0) url('../../../../../components/com_virtuemart/assets/images/vm-preloader.gif') 50% 45% no-repeat;
+}
+
+/* Anytime the body has the loading class, our
+   modal element will be visible */
+
+.vmLoading .vmLoadingDiv {
+	display: block;
+}
+
+.vmLoadingDiv .vmLoadingDivMsg {
+	position: relative;
+	top: 50%;
+}
+
+.goto-product {
+	margin: auto;
+	float: right;
+}

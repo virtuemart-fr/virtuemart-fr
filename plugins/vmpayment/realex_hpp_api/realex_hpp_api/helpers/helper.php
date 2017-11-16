@@ -4,10 +4,10 @@
  * Realex payment plugin
  *
  * @author Valerie Isaksen
- * @version $Id: helper.php 9193 2016-03-11 10:17:04Z Milbo $
+ * @version $Id: helper.php 9420 2017-01-12 09:35:36Z Milbo $
  * @package VirtueMart
  * @subpackage payment
- * Copyright (C) 2004-2016 Virtuemart Team. All rights reserved.
+ * Copyright (C) 2004 - 2017 Virtuemart Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
@@ -1072,7 +1072,7 @@ class  RealexHelperRealex {
 
 		}
 
-		VmConfig::loadJLang('com_virtuemart_orders', TRUE);
+		vmLanguage::loadJLang('com_virtuemart_orders', TRUE);
 
 		// FROM PAYMENT LOG??? why not from history
 		if ($payments) {

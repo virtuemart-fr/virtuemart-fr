@@ -6,7 +6,7 @@
  * @package    VirtueMart
  * @subpackage
  * @author Max Milbers, Valerie Isaksen
- * @link http://www.virtuemart.net
+ * @link https://virtuemart.net
  * @copyright Copyright (c) 2004 - 2014 VirtueMart Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
@@ -24,31 +24,31 @@ if($ask_recommened_loaded) return '';
 $product = $viewData['product'];
 
 if(VmConfig::get('usefancy',1)){
-	vmJsApi::addJScript( 'fancybox/jquery.fancybox-1.3.4.pack',false);
+	vmJsApi::addJScript( 'fancybox/jquery.fancybox-1.3.4.pack',false, false);
 	vmJsApi::css('jquery.fancybox-1.3.4');
 	$Modal ="
-		jQuery('a.ask-a-question, a.printModal, a.recommened-to-friend, a.manuModal').click(function(event){
+		$('a.ask-a-question, a.printModal, a.recommened-to-friend, a.manuModal').click(function(event){
 		  event.preventDefault();
-		  jQuery.fancybox({
-			href: jQuery(this).attr('href'),
+		  $.fancybox({
+			href: $(this).attr('href'),
 			type: 'iframe',
 			height: 550
 			});
 		  });
 		";
 } else {
-	
-	vmJsApi::addJScript( 'facebox', false );
+
+	vmJsApi::addJScript( 'facebox', false, false );
 	vmJsApi::css( 'facebox' );
     $Modal ="
-    		jQuery('a.ask-a-question, a.printModal, a.recommened-to-friend, a.manuModal').click(function(event){
+    		$('a.ask-a-question, a.printModal, a.recommened-to-friend, a.manuModal').click(function(event){
 		      event.preventDefault();
-		      jQuery.facebox({
-		        ajax: jQuery(this).attr('href'),
+		      $.facebox({
+		        ajax: $(this).attr('href'),
 		        rev: 'iframe|550|550'
 		        });
 		      });
-    		"; 
+    		";
 }
 
 vmJsApi::addJScript('popups',"

@@ -6,14 +6,14 @@
  * @package	VirtueMart
  * @subpackage
  * @author Max Milbers
- * @link http://www.virtuemart.net
+ * @link https://virtuemart.net
  * @copyright Copyright (c) 2004 - 2010 VirtueMart Team. All rights reserved by the author.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
- * @version $Id: media.php 9058 2015-11-10 18:30:54Z Milbo $
+ * @version $Id: media.php 9591 2017-06-27 13:24:53Z Milbo $
  */
 
 // Check to ensure this file is included in Joomla!
@@ -215,7 +215,13 @@ class VirtueMartModelMedia extends VmModel {
 			$selectFields[] = ' `virtuemart_media_id` ';
 
 
-			if(!vmAccess::manager('managevendors')){
+			if(vmAccess::manager('managevendors')){
+				$vendorId = vRequest::getInt('virtuemart_vendor_id',false);
+				if(!empty($vendorId)){
+					$whereItems[] = '(`virtuemart_vendor_id` = "'.$vendorId.'" OR `shared`="1")';
+				}
+
+			} else {
 				$vendorId = vmAccess::isSuperVendor();
 				$whereItems[] = '(`virtuemart_vendor_id` = "'.$vendorId.'" OR `shared`="1")';
 			}
@@ -380,7 +386,7 @@ class VirtueMartModelMedia extends VmModel {
 			return false;
 		}
 
-		VmConfig::loadJLang('com_virtuemart_media');
+		vmLanguage::loadJLang('com_virtuemart_media');
 		if (!class_exists('VmMediaHandler')) require(VMPATH_ADMIN.DS.'helpers'.DS.'mediahandler.php');
 
 		$table = $this->getTable('medias');

@@ -12,7 +12,7 @@ defined('JPATH_PLATFORM') or die;
 JFormHelper::loadFieldClass('rules');
 
 defined('DS') or define('DS', DIRECTORY_SEPARATOR);
-if (!class_exists( 'VmConfig' )) require(JPATH_ROOT.DS.'administrator'.DS.'components'.DS.'com_virtuemart'.DS.'helpers'.DS.'config.php');
+if (!class_exists( 'VmConfig' )) require(JPATH_ROOT .'/administrator/components/com_virtuemart/helpers/config.php');
 
 /**
  * This is an overload of the core Rules form field
@@ -35,16 +35,21 @@ class JFormFieldVmRules extends JFormFieldRules {
 	protected function getInput() {
 
 		VmConfig::loadConfig();
+		vmLanguage::loadJLang('com_virtuemart_perms');
 		JHtml::_('behavior.tooltip');
 		if(JVM_VERSION<3){
 			return $this->vmRulesJ25();
 		} else {
-			return $this->vmRules();
+			if (version_compare (JVERSION, '3.5.0', 'lt')) {
+				return $this->vmRules();
+			} else {
+				return parent::getInput();
+			}
 		}
-
 	}
 
-	public function vmRules(){
+
+	private function vmRules(){
 		// Initialise some field attributes.
 		$section = $this->element['section'] ? (string)$this->element['section'] : '';
 		$component = $this->element['component'] ? (string)$this->element['component'] : '';

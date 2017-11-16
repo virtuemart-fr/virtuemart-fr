@@ -7,7 +7,7 @@
  * @subpackage Cart
  * @author Max Milbers, Valérie Isaksen
  *
- * @link http://www.virtuemart.net
+ * @link https://virtuemart.net
  * @copyright Copyright (c) 2004 - 2010 VirtueMart Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
@@ -20,13 +20,6 @@
 defined('_JEXEC') or die('Restricted access');
 vmJsApi::jPrice();
 $document = JFactory::getDocument();
-$js="
-		function setShipment() {
-		    amazonPayment.setShipmentReloadWallet();
-		}
-";
-
-vmJsApi::addJScript('vm.setShipment', $js);
 
 $buttonclass = 'button vm-button-correct';
 $buttonclass = 'default';
@@ -43,7 +36,6 @@ if (isset($this->found_shipment_method) and $this->found_shipment_method) {
 		foreach ($this->shipments_shipment_rates as $shipment_shipment_rates) {
 			if (is_array($shipment_shipment_rates)) {
 				foreach ($shipment_shipment_rates as $shipment_shipment_rate) {
-					$shipment_shipment_rate = str_replace('input', 'input onClick="setShipment();"', $shipment_shipment_rate);
 					echo "<div>" . $shipment_shipment_rate . "</div>\n";
 				}
 			}
@@ -51,6 +43,10 @@ if (isset($this->found_shipment_method) and $this->found_shipment_method) {
 		?>
 	</fieldset>
 <?php
+} else {
+
+		vmInfo('VMPAYMENT_AMAZON_UPDATECART_SHIPMENT_NOT_FOUND');
+
 }
 
 

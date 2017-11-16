@@ -3,7 +3,7 @@ if( !defined( '_JEXEC' ) ) die( 'Direct Access to '.basename(__FILE__).' is not 
 
 /**
 *
-* @version $Id: default.php 8953 2015-08-19 10:30:52Z Milbo $
+* @version $Id: default.php 9607 2017-07-26 10:11:27Z Milbo $
 * @package VirtueMart
 * @subpackage Report
 * @copyright Copyright (C) VirtueMart Team - All rights reserved.
@@ -27,7 +27,7 @@ else $addDateInfo = false;
 //JHtml::_('behavior.framework', true);
 
 ?>
-<form action="index.php" method="post" name="adminForm" id="adminForm">
+<form action="index.php?option=com_virtuemart&view=report" method="post" name="adminForm" id="adminForm">
     <div id="header">
         <h2><?php echo vmText::sprintf('COM_VIRTUEMART_REPORT_TITLE', vmJsApi::date( $this->from_period, 'LC',true) , vmJsApi::date( $this->until_period, 'LC',true) ); ?></h2>
         <div id="filterbox">
@@ -42,11 +42,7 @@ else $addDateInfo = false;
                     echo vmText::_('COM_VIRTUEMART_REPORT_FROM_PERIOD') .  vmJsApi::jDate($this->from_period, 'from_period');
                     echo vmText::_('COM_VIRTUEMART_REPORT_UNTIL_PERIOD') . vmJsApi::jDate($this->until_period, 'until_period');
                         if(VmConfig::get('multix','none')!='none'){
-                            $vendorId = vmConfig::isSuperVendor();
-                            if(vmAccess::manager('managevendors')){
-                                $vendorId = vRequest::getInt('virtuemart_vendor_id',$vendorId);
-                            }
-                        	echo ShopFunctions::renderVendorList($vendorId);
+                        	echo ShopFunctions::renderVendorList();
                         } ?>
                         <button class="btn btn-small" onclick="this.form.period.value='';this.form.submit();"><?php echo vmText::_('COM_VIRTUEMART_GO'); ?>
                         </button>
@@ -89,6 +85,9 @@ else $addDateInfo = false;
 	                    <?php echo $this->sort('virtuemart_product_id', 'COM_VIRTUEMART_PRODUCT_ID') ; ?>
                     </th>
 		        <?php
+	                } else /*if(VmConfig::get('multix','none')!='none')*/{
+	                ?><th><?php
+				        echo $this->sort('coupon_discount', 'COM_VIRTUEMART_COUPON') ;
 	                }
 		        ?>
                 </tr>
@@ -111,7 +110,15 @@ else $addDateInfo = false;
                      ?>
                     </td>
                     <td align="center">
-                        <?php echo $r['count_order_id'];?>
+                        <?php
+						if($intervals=='orders'){
+							$link = 'index.php?option=com_virtuemart&view=orders&task=edit&virtuemart_order_id=' . $r['virtuemart_order_id'];
+							echo JHtml::_ ('link', JRoute::_ ($link, FALSE), $r['order_number'], array('title' => vmText::_ ('COM_VIRTUEMART_ORDER_EDIT_ORDER_NUMBER') . ' ' . $r['order_number'], 'target' => '_blank'));
+
+						} else {
+							echo $r['count_order_id'];
+						}
+                        ?>
                     </td>
                     <td align="center">
                         <?php echo $r['product_quantity'];?>
@@ -131,8 +138,11 @@ else $addDateInfo = false;
 		                <?php echo $r['virtuemart_product_id'];?>
 	                </td>
 
-	         <?php  }
-			    ?>
+	        <?php  } else /*if(VmConfig::get('multix','none')!='none')*/{ ?>
+	                    <td align="center">
+					    <?php echo $r['coupon_discount'] ; ?>
+						</td>
+			<?php  } ?>
 
                 </tr>
                 <?php

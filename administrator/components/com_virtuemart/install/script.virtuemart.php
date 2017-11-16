@@ -9,18 +9,9 @@
  */
 defined('_JEXEC') or die('Restricted access');
 
-//Maybe it is possible to set this within the xml file note by Max Milbers
-$memory_limit = (int) substr(ini_get('memory_limit'),0,-1);
-if(!empty($memory_limit) and $memory_limit<128)  @ini_set( 'memory_limit', '128M' );
 
-$maxtime = (int) ini_get('max_execution_time');
-if($maxtime < 140){
-	@ini_set( 'max_execution_time', '140' );
-}
 
-defined('DS') or define('DS', DIRECTORY_SEPARATOR);
-defined('VMPATH_ROOT') or define('VMPATH_ROOT', JPATH_ROOT);
-defined('VMPATH_ADMIN') or define('VMPATH_ADMIN', VMPATH_ROOT.DS.'administrator'.DS.'components'.DS.'com_virtuemart');
+
 
 
 
@@ -39,19 +30,28 @@ if (!defined('_VM_SCRIPT_INCLUDED')) {
 		 * method must be called after preflight
 		 * Sets the paths and loads VMFramework config
 		 */
-		public function loadVm() {
-// 			$this->path = JInstaller::getInstance()->getPath('extension_administrator');
-
-			if(empty($this->path)){
-				$this->path = VMPATH_ADMIN;
+		public function loadVm($fresh = true) {
+ 			$this->source_path = JInstaller::getInstance()->getPath('source');
+			if(!empty($this->source_path)){
+				defined('VMPATH_ROOT') or define('VMPATH_ROOT', $this->source_path);
+			} else {
+				defined('VMPATH_ROOT') or define('VMPATH_ROOT', JPATH_ROOT);
+				$this->source_path = VMPATH_ROOT .'/administrator/components/com_virtuemart';
 			}
-			if(!class_exists('VmConfig')) require_once($this->path .'/helpers/config.php');
-			VmConfig::loadConfig(false,true);
-			if(!class_exists('VmTable')) require_once($this->path .'/helpers/vmtable.php');
-			if(!class_exists('VmModel')) require_once($this->path .'/helpers/vmmodel.php');
-			VmTable::addIncludePath($this->path.DS.'tables');
-			VmModel::addIncludePath($this->path.DS.'models');
 
+
+			if(!class_exists('VmConfig')) require_once(VMPATH_ROOT .'/administrator/components/com_virtuemart/helpers/config.php');
+			VmConfig::loadConfig(true,$fresh);
+			VmConfig::loadJLang('com_virtuemart');
+
+			$this->path = VMPATH_ADMIN;
+
+			VmTable::addIncludePath($this->path .'/tables');
+			VmModel::addIncludePath($this->path .'/models');
+
+			//Maybe it is possible to set this within the xml file note by Max Milbers
+			VmConfig::ensureMemoryLimit(256);
+			VmConfig::ensureExecutionTime(300);
 		}
 
 		public function checkIfUpdate(){
@@ -120,14 +120,15 @@ if (!defined('_VM_SCRIPT_INCLUDED')) {
 		 */
 		public function install ($loadVm = true) {
 
-			if($loadVm) $this->loadVm();
-
 			if($this->checkIfUpdate()){
 				return $this->update($loadVm);
 			}
+
+			$this->loadVm(true);
+
 			$_REQUEST['install'] = 1;
-			if(!class_exists('JFile')) require(VMPATH_LIBS.DS.'joomla'.DS.'filesystem'.DS.'file.php');
-			if(!class_exists('JFolder')) require(VMPATH_LIBS.DS.'joomla'.DS.'filesystem'.DS.'folder.php');
+			if(!class_exists('JFile')) require(VMPATH_LIBS .'/joomla/filesystem/file.php');
+			if(!class_exists('JFolder')) require(VMPATH_LIBS .'/joomla/filesystem/folder.php');
 
 			$this -> joomlaSessionDBToMediumText();
 
@@ -148,37 +149,30 @@ if (!defined('_VM_SCRIPT_INCLUDED')) {
 
 			$model->setStoreOwner();
 
-			//copy sampel media
-			$src = $this->path .DS. 'assets' .DS. 'images' .DS. 'vmsampleimages';
-			// 			if(version_compare(JVERSION,'1.6.0','ge')) {
-
-			$this->createIndexFolder(VMPATH_ROOT .DS. 'images'.DS.'stories');
-			$this->createIndexFolder(VMPATH_ROOT .DS. 'images'.DS.'stories'.DS.'virtuemart');
-			$this->createIndexFolder(VMPATH_ROOT .DS. 'images'.DS.'stories'.DS.'virtuemart'.DS.'shipment');
-			$this->createIndexFolder(VMPATH_ROOT .DS. 'images'.DS.'stories'.DS.'virtuemart'.DS.'payment');
-			$this->createIndexFolder(VMPATH_ROOT .DS. 'images'.DS.'stories'.DS.'virtuemart'.DS.'category');
-			$this->createIndexFolder(VMPATH_ROOT .DS. 'images'.DS.'stories'.DS.'virtuemart'.DS.'category'.DS.'resized');
-			$this->createIndexFolder(VMPATH_ROOT .DS. 'images'.DS.'stories'.DS.'virtuemart'.DS.'manufacturer');
-			$this->createIndexFolder(VMPATH_ROOT .DS. 'images'.DS.'stories'.DS.'virtuemart'.DS.'manufacturer'.DS.'resized');
-			$this->createIndexFolder(VMPATH_ROOT .DS. 'images'.DS.'stories'.DS.'virtuemart'.DS.'product');
-			$this->createIndexFolder(VMPATH_ROOT .DS. 'images'.DS.'stories'.DS.'virtuemart'.DS.'product'.DS.'resized');
-			$this->createIndexFolder(VMPATH_ROOT .DS. 'images'.DS.'stories'.DS.'virtuemart'.DS.'forSale');
-			$this->createIndexFolder(VMPATH_ROOT .DS. 'images'.DS.'stories'.DS.'virtuemart'.DS.'forSale'.DS.'invoices');
-			$this->createIndexFolder(VMPATH_ROOT .DS. 'images'.DS.'stories'.DS.'virtuemart'.DS.'forSale'.DS.'resized');
-			$this->createIndexFolder(VMPATH_ROOT .DS. 'images'.DS.'stories'.DS.'virtuemart'.DS.'typeless');
 
 
-			$dst = VMPATH_ROOT .DS. 'images' .DS. 'stories' .DS. 'virtuemart';
+			$this->createIndexFolder(VMPATH_ROOT .DS. 'images');
+			$this->createIndexFolder(VMPATH_ROOT .DS. 'images'.DS.'virtuemart');
+			$this->createIndexFolder(VMPATH_ROOT .DS. 'images'.DS.'virtuemart'.DS.'shipment');
+			$this->createIndexFolder(VMPATH_ROOT .DS. 'images'.DS.'virtuemart'.DS.'payment');
+			$this->createIndexFolder(VMPATH_ROOT .DS. 'images'.DS.'virtuemart'.DS.'category');
+			$this->createIndexFolder(VMPATH_ROOT .DS. 'images'.DS.'virtuemart'.DS.'category'.DS.'resized');
+			$this->createIndexFolder(VMPATH_ROOT .DS. 'images'.DS.'virtuemart'.DS.'manufacturer');
+			$this->createIndexFolder(VMPATH_ROOT .DS. 'images'.DS.'virtuemart'.DS.'manufacturer'.DS.'resized');
+			$this->createIndexFolder(VMPATH_ROOT .DS. 'images'.DS.'virtuemart'.DS.'product');
+			$this->createIndexFolder(VMPATH_ROOT .DS. 'images'.DS.'virtuemart'.DS.'product'.DS.'resized');
+			$this->createIndexFolder(VMPATH_ROOT .DS. 'images'.DS.'virtuemart'.DS.'forSale');
+			$this->createIndexFolder(VMPATH_ROOT .DS. 'images'.DS.'virtuemart'.DS.'forSale'.DS.'invoices');
+			$this->createIndexFolder(VMPATH_ROOT .DS. 'images'.DS.'virtuemart'.DS.'forSale'.DS.'resized');
+			$this->createIndexFolder(VMPATH_ROOT .DS. 'images'.DS.'virtuemart'.DS.'typeless');
 
-			$this->recurse_copy($src,$dst);
+			$this->installLanguageTables();
 
-			if(!class_exists('GenericTableUpdater')) require($this->path . DS . 'helpers' . DS . 'tableupdater.php');
-			$updater = new GenericTableUpdater();
-			$updater->createLanguageTables();
+
 
 			$this->checkAddDefaultShoppergroups();
 
-			$model->updateJoomlaUpdateServer('component','com_virtuemart',$this->path.DS.'virtuemart.xml');
+			$model->updateJoomlaUpdateServer('component','com_virtuemart',$this->source_path.DS.'virtuemart.xml');
 
 			$this->deleteSwfUploader();
 
@@ -219,11 +213,11 @@ if (!defined('_VM_SCRIPT_INCLUDED')) {
 		 */
 		public function update ($loadVm = true) {
 
-			if($loadVm) $this->loadVm();
-
 			if(!$this->checkIfUpdate()){
 				return $this->install($loadVm);
 			}
+
+			$this->loadVm(false);
 
 			if(!class_exists('JFile')) require(VMPATH_LIBS.DS.'joomla'.DS.'filesystem'.DS.'file.php');
 			if(!class_exists('JFolder')) require(VMPATH_LIBS.DS.'joomla'.DS.'filesystem'.DS.'folder.php');
@@ -234,7 +228,6 @@ if (!defined('_VM_SCRIPT_INCLUDED')) {
 
 			$this->_db = JFactory::getDBO();
 
-			if(empty($this->path)) $this->path = VMPATH_ADMIN;
 
 			$params = JComponentHelper::getParams('com_languages');
 			$lang = $params->get('site', 'en-GB');//use default joomla
@@ -253,38 +246,40 @@ if (!defined('_VM_SCRIPT_INCLUDED')) {
 
 			$this->alterTable('#__virtuemart_product_prices',
 				array(
-				'product_price_vdate' => '`product_price_publish_up` DATETIME NULL DEFAULT NULL AFTER `product_currency`',
-				'product_price_edate' => '`product_price_publish_down` DATETIME NULL DEFAULT NULL AFTER `product_price_publish_up`'
+				'product_price_vdate' => '`product_price_publish_up` datetime NOT NULL default \'0000-00-00 00:00:00\' NULL AFTER `product_currency`',
+				'product_price_edate' => '`product_price_publish_down` datetime NOT NULL default \'0000-00-00 00:00:00\' AFTER `product_price_publish_up`'
 			));
 			$this->alterTable('#__virtuemart_customs',array(
-				'custom_field_desc' => '`custom_desc` char(255) COMMENT \'description or unit\'',
+				'custom_field_desc' => '`custom_desc` varchar(4095) COMMENT \'description or unit\'',
+				'custom_params' => '`custom_params` text  NOT NULL'
 			));
 			$this->alterTable('#__virtuemart_product_customfields',array(
 				'custom_value' => ' `customfield_value` varchar(2500) COMMENT \'field value\'',
 				'custom_price' => ' `customfield_price` DECIMAL(15,6) COMMENT \'price\'',
-				'custom_param' => ' `customfield_params` varchar(17000) NULL DEFAULT NULL',
-				'idx_custom_value' => ' INDEX `idx_published` (`published`)'
+				'custom_param' => ' `customfield_params` text COMMENT \'Param for Plugins\''
 			));
 
 
 			$this->alterTable('#__virtuemart_userfields',array(
-				'params' => '`userfield_params` varchar(17500) NOT NULL DEFAULT "" COMMENT \'userfield params\'',
+				'params' => '`userfield_params` text',
 			));
 
 			$this->alterTable('#__virtuemart_orders',array(
-				'customer_note' => '`oc_note` varchar(20000) NOT NULL DEFAULT "" COMMENT \'old customer notes\'',
+				'customer_note' => '`oc_note` text NOT NULL DEFAULT "" COMMENT \'old customer notes\'',
 			));
 
 			if(!class_exists('GenericTableUpdater')) require($this->path . DS . 'helpers' . DS . 'tableupdater.php');
 			$updater = new GenericTableUpdater();
 
 			$updater->updateMyVmTables();
-			$result = $updater->createLanguageTables();
+			$this->installLanguageTables();
+
 
 			$this->checkAddDefaultShoppergroups();
 
 			//$this->adjustDefaultOrderStates();
-
+			$this->addMissingOrderstati();
+			$this->adjustMenuParamsCategoryView();
 			$this->fixOrdersVendorId();
 
 			$this->updateAdminMenuEntries();
@@ -297,19 +292,73 @@ if (!defined('_VM_SCRIPT_INCLUDED')) {
 			//copy sampel media
 			$src = $this->path .DS. 'assets' .DS. 'images' .DS. 'vmsampleimages';
 			if(JFolder::exists($src)){
-				$dst = VMPATH_ROOT .DS. 'images' .DS. 'stories' .DS. 'virtuemart';
+				$dst = VMPATH_ROOT .DS. 'images' .DS. 'virtuemart';
 				$this->recurse_copy($src,$dst);
 			}
 
-			$model->updateJoomlaUpdateServer('component','com_virtuemart', $this->path.DS.'virtuemart.xml');
+			//copy payment/shipment logos to new directory
+			$dest = JPATH_ROOT .DS. 'images'.DS.'virtuemart';
+			$src = JPATH_ROOT .DS. 'images'.DS.'stories'.DS.'virtuemart';
+			if(JFolder::exists($src.DS.'payment') and !JFolder::exists($dest.DS.'payment')){
+				$this->recurse_copy($src.DS.'payment',$dest.DS.'payment');
+			}
+			if(JFolder::exists($src.DS.'shipment') and !JFolder::exists($dest.DS.'shipment')){
+				$this->recurse_copy($src.DS.'shipment',$dest.DS.'shipment');
+			}
+
+
+			$model->updateJoomlaUpdateServer('component','com_virtuemart', $this->source_path.DS.'virtuemart.xml');
 
 			//fix joomla BE menu
-			$this->checkFixJoomlaBEMenuEntries();
+			if(version_compare(JVERSION,'3.7.0','ge')) {
+				$this->removeOldMenuLinks();
+			} else {
+				$this->checkFixJoomlaBEMenuEntries();
+			}
+
 
 			$this->deleteSwfUploader();
+
+			$this->updateOldConfigEntries();
 			if($loadVm) $this->displayFinished(true);
 
 			return true;
+		}
+
+		private function installLanguageTables(){
+			VmModel::getModel('config');
+			VirtueMartModelConfig::installLanguageTables();
+		}
+
+		private function updateOldConfigEntries(){
+
+			$config = VmConfig::loadConfig();
+			if(VmConfig::get('featured','none') == 'none'){
+				$config->set('featured', $config->get('show_featured', 1));
+				$config->set('discontinued', $config->get('show_discontinued', 0));
+				$config->set('topten', $config->get('show_topTen', 0));
+				$config->set('recent', $config->get('show_recent', 0));
+				$config->set('latest', $config->get('show_latest', 0));
+
+				$config->set('featured_rows', $config->get('featured_products_rows',1));
+				$config->set('discontinued_rows', $config->get('discontinued_products_rows',1));
+				$config->set('topten_rows', $config->get('topTen_products_rows',1));
+				$config->set('recent_rows', $config->get('recent_products_rows',1));
+				$config->set('latest_rows', $config->get('latest_products_rows',1));
+
+				$config->set('omitLoaded_topten', $config->get('omitLoaded_topTen',1));
+				$config->set('showcategory', $config->get('showCategory',1));
+
+				$data['virtuemart_config_id'] = 1;
+				$data['config'] = $config->toString();
+
+				$confTable = VmModel::getModel('config')->getTable('configs');
+				$confTable->bindChecknStore($data);
+
+				VmConfig::loadConfig(true);
+			}
+
+
 		}
 
 		private function deleteSwfUploader(){
@@ -380,6 +429,174 @@ if (!defined('_VM_SCRIPT_INCLUDED')) {
 
 		}
 
+		private function addMissingOrderstati(){
+
+			if(empty($this->_db)){
+				$this->_db = JFactory::getDBO();
+			}
+
+			$q = '';
+
+			$qc = 'SELECT * FROM `#__virtuemart_orderstates` WHERE `order_status_code`="F"';
+			$this->_db->setQuery($qc);
+			$f = $this->_db->loadResult();
+			if(!$f) {
+				$q .= "(null, 'F', 'COM_VIRTUEMART_ORDER_STATUS_COMPLETED', '', 'R',7, 1)";
+			}
+
+			$qc = 'SELECT * FROM `#__virtuemart_orderstates` WHERE `order_status_code`="D"';
+			$this->_db->setQuery($qc);
+			$d = $this->_db->loadResult();
+
+			if(!$d) {
+				if(!empty($q)) {
+					$q .= ',';
+				}
+				$q .= "(null, 'D', 'COM_VIRTUEMART_ORDER_STATUS_DENIED', '', 'A',8, 1)";
+			}
+
+			if(!empty($q)) {
+				$qi = "INSERT INTO `#__virtuemart_orderstates` (`virtuemart_orderstate_id`, `order_status_code`, `order_status_name`, `order_status_description`, `order_stock_handle`, `ordering`, `virtuemart_vendor_id`) VALUES ".$q.";";
+
+				$this->_db->setQuery($qi);
+
+				if(!$this->_db->execute()){
+					$app = JFactory::getApplication();
+					$app->enqueueMessage('Error: Insert Orderstati '.$qi );
+					$ok = false;
+				}
+			}
+		}
+
+		private function adjustMenuParamsCategoryView(){
+
+			if(empty($this->_db)) $this->_db = JFactory::getDBO();
+
+			$this->_db->setQuery('SELECT `extension_id` FROM `#__extensions` WHERE `type` = "component" AND `element`="com_virtuemart" and state="0"');
+			$jId = $this->_db->loadResult();
+
+			if($jId){
+
+				$q = 'SELECT * FROM #__menu WHERE component_id = "'.$jId.'" AND client_id="0" and link like "%view=category%" ';
+				$this->_db->setQuery($q);
+				$menues = $this->_db->loadAssocList();
+				//vmdebug('my menues',$menues);
+
+				foreach($menues as $menu){
+					$linkOrig = $menu['link'];
+					$menu['link'] = 'index.php?option=com_virtuemart&view=category';
+					$link = str_replace('index.php?option=com_virtuemart&view=category','',$linkOrig);
+					if(strlen($link)>1){
+						vmdebug('Updating link',$link);
+						$registry = new JRegistry;
+						$registry->loadString($menu['params']);
+
+						$paramsLink = explode('&',$link);
+						foreach($paramsLink as $param){
+							if(strpos($param,'=')!==FALSE){
+								$spl = explode('=',$param);
+								if(!empty($spl[0]) and isset($spl[1])){
+									if($spl[0]!='virtuemart_category_id' and $spl[0]!='virtuemart_manufacturer_id'){
+										$registry->set($spl[0], $spl[1]);
+									} else {
+										$menu['link'] .= '&'.$spl[0].'='.$spl[1];
+									}
+								} else {
+									vmdebug('Key empty ',$spl);
+								}
+							}
+						}
+						$params = (string)$registry;
+					} else {
+						$params = $menu['params'];
+					}
+
+					if($linkOrig!=$menu['link'] and $menu['params']!=$params){
+						$q = 'UPDATE #__menu' .
+						' SET link = "'.$menu['link'].'", params = "'.$this->_db->escape($params).'"'.
+						' WHERE id = '.(int) $menu['id'];
+						$this->_db->setQuery( $q);
+
+						if (!$this->_db->query()) {
+							$m = 'Updating vm category menu failed '.$q;
+							vmError($m, $m);
+						} else {
+							vmdebug('Updated menu $menu '.$menu['id'],$linkOrig,$menu['link'],$param);
+						}
+					} else {
+						//vmdebug('Menu dont need update '.$menu['id']);
+					}
+
+				}
+
+				//For the moment, we do not convert old virtuemart views
+				if(false){
+					$q = 'SELECT * FROM #__menu WHERE component_id = "'.$jId.'" AND client_id="0" and link like "%view=virtuemart%" ';
+					$this->_db->setQuery($q);
+					$menues = $this->_db->loadAssocList();
+
+					foreach($menues as $menu){
+						$linkOrig = $menu['link'];
+						$menu['link'] = 'index.php?option=com_virtuemart&view=category&virtuemart_category_id=0&virtuemart_manufacturer_id=0';
+
+						$registry = new JRegistry;
+						$registry->loadString($menu['params']);
+
+						if(strpos($linkOrig,'productsublayout')){
+							vmdebug('Found productsublayout in the link');
+							$productsublayout = str_replace('index.php?option=com_virtuemart&view=virtuemart&productsublayout=','',$linkOrig);
+						} else {
+							$productsublayout = Vmconfig::get('productsublayout',0 );
+						}
+
+						$paramNames = array(
+						'categorylayout' => VmConfig::get('vmlayout', 0),
+						'show_store_desc' => VmConfig::get('show_store_desc',1),
+						'showcategory_desc' => VmConfig::get('showcategory_desc', 1),
+						'showcategory' => VmConfig::get('show_categories',1),
+						'categories_per_row' => VmConfig::get('homepage_categories_per_row',3),
+						'showproducts' => '1',
+						'showsearch' => '0',
+						'productsublayout' => $productsublayout,
+						'products_per_row' => VmConfig::get('homepage_products_per_row', 3),
+						'featured' => VmConfig::get('show_featured',1),
+						'featured_rows' => VmConfig::get('featured_products_rows',1),
+						'discontinued' => VmConfig::get('show_discontinued',0),
+						'discontinued_rows' => VmConfig::get('discontinued_products_rows',1),
+						'latest' => VmConfig::get('show_latest',1),
+						'latest_rows' => VmConfig::get('latest_products_rows',1),
+						'topten' => VmConfig::get('show_topTen',1),
+						'topten_rows' => VmConfig::get('topTen_products_rows',1),
+						'recent' => VmConfig::get('show_recent',0),
+						'recent_rows' => VmConfig::get('recent_products_rows',1));
+
+						foreach($paramNames as $key => $default){
+							$registry->set($key, $default);
+						}
+
+						$params = (string)$registry;
+
+						if($linkOrig!=$menu['link'] and $menu['params']!=$params){
+							$q = 'UPDATE #__menu' .
+							' SET link = "'.$menu['link'].'", params = "'.$this->_db->escape($params).'"'.
+							' WHERE id = '.(int) $menu['id'];
+							$this->_db->setQuery( $q);
+
+							if (!$this->_db->query()) {
+								$m = 'Updating vm category menu failed '.$q;
+								vmError($m, $m);
+							} else {
+								vmdebug('Updated menu $menu '.$menu['id'],$menu['link'],$param);
+							}
+						} else {
+							vmdebug('Menu dont need update '.$menu['id']);
+						}
+					}
+				}
+
+			}
+		}
+
 		private function adjustDefaultOrderStates(){
 
 			if(empty($this->_db)){
@@ -408,13 +625,27 @@ if (!defined('_VM_SCRIPT_INCLUDED')) {
 
 		}
 
+		public function removeOldMenuLinks(){
+
+			$db = JFactory::getDbo();
+			$db->setQuery('SELECT `extension_id` FROM `#__extensions` WHERE `type` = "component" AND `element`="com_virtuemart" and state="0"');
+			$jId = $db->loadResult();
+
+			if($jId){
+				$db = JFactory::getDbo();
+				$db->setQuery('DELETE FROM `#__menu` WHERE `component_id` = "'.$jId.'" AND `type` = "component" AND `menutype`="vmadmin"');
+				$db->execute();
+			}
+
+		}
+
 		/**
 		 *
 		 */
 		public function checkFixJoomlaBEMenuEntries(){
 
 			$db = JFactory::getDbo();
-			$db->setQuery('SELECT `extension_id` FROM `#__extensions` WHERE `type` = "component" AND `element`="com_virtuemart"');
+			$db->setQuery('SELECT `extension_id` FROM `#__extensions` WHERE `type` = "component" AND `element`="com_virtuemart" and state="0"');
 			$jId = $db->loadResult();
 
 			if($jId){
@@ -544,7 +775,7 @@ if (!defined('_VM_SCRIPT_INCLUDED')) {
 							vmWarn( 'JInstaller::install: '.$sqlfile.' '.vmText::_('COM_VIRTUEMART_SQL_ERROR')." ".$db->stderr(true));
 							$ok = false;
 						}
-						vmdebug('Update Admin menu entries value $updateQuery',$updateBase.$updateQuery);
+						//vmdebug('Update Admin menu entries value $updateQuery',$updateBase.$updateQuery);
 					}
 				}
 
@@ -847,13 +1078,12 @@ if (!defined('_VM_SCRIPT_INCLUDED')) {
 		public function postflight ($type, $parent=null) {
 			$_REQUEST['install'] = 0;
 			if ($type != 'uninstall') {
-				$this->loadVm();
+				$this->loadVm(false);
 				//fix joomla BE menu
 				$model = VmModel::getModel('updatesmigration');
 
 
 
-				// 				VmConfig::loadConfig(true);
 				if(!class_exists('VirtueMartModelConfig')) require(VMPATH_ADMIN .'/models/config.php');
 				$res  = VirtueMartModelConfig::checkConfigTableExists();
 
@@ -878,7 +1108,7 @@ if (!defined('_VM_SCRIPT_INCLUDED')) {
 		 * @param String $dst path
 		 * @param String $type modules, plugins, languageBE, languageFE
 		 */
-		private function recurse_copy($src,$dst ) {
+		private function recurse_copy($src,$dst,$delete = true ) {
 
 			$dir = '';
 			if(JFolder::exists($src)){
@@ -896,13 +1126,13 @@ if (!defined('_VM_SCRIPT_INCLUDED')) {
 								$this->recurse_copy($src .DS. $file,$dst .DS. $file);
 							}
 							else {
-								if(JFile::exists($dst .DS. $file)){
+								if($delete and JFile::exists($dst .DS. $file)){
 									if(!JFile::delete($dst .DS. $file)){
 										$app = JFactory::getApplication();
 										$app -> enqueueMessage('Couldnt delete '.$dst .DS. $file);
 									}
 								}
-								if(!JFile::move($src .DS. $file,$dst .DS. $file)){
+								if(!JFile::copy($src .DS. $file,$dst .DS. $file)){
 									$app = JFactory::getApplication();
 									$app -> enqueueMessage('Couldnt move '.$src .DS. $file.' to '.$dst .DS. $file);
 								}
@@ -910,7 +1140,7 @@ if (!defined('_VM_SCRIPT_INCLUDED')) {
 						}
 					}
 					closedir($dir);
-					if (is_dir($src)) JFolder::delete($src);
+					//if (is_dir($src)) JFolder::delete($src);
 					return true;
 				}
 			}

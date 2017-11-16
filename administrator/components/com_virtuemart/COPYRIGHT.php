@@ -1,12 +1,12 @@
 <?php
 if( !defined( '_JEXEC' ) ) die( 'Direct Access to '.basename(__FILE__).' is not allowed.' );
 /**
-* @version $Id: COPYRIGHT.php 9012 2015-10-09 11:49:32Z Milbo $
+* @version $Id: COPYRIGHT.php 9294 2016-09-21 09:56:21Z Milbo $
 * @package VirtueMart
 * @subpackage core
 * @author Sören
 * @author Max Milbers
-* @copyright Copyright (C) 2004-2008 soeren - All rights reserved., 2010-2011 by the virtuemart team (addendum for vm2)
+* @copyright Copyright (C) 2004-2008 soeren - All rights reserved., 2010-2016 by the virtuemart team (addendum for vm2)
 * @license http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL 2, see COPYRIGHT.php
 * VirtueMart is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -31,7 +31,9 @@ Max Milbers, Patrick Kohl, Valérie Isaksen, Rick Glunt, Roland Dalmulder, Oscar
 Jörg Kiekebusch, Christopher Roussel, John Acosta, George Kostopoulos, Zbigniew Mazur, John Wicks, Markus Öhler, Stephanie Schmidt,
 Vu Hoang Viet, Simon Hodgkiss, Fred Bidon, Mickaël Cabanas, Alexander Kludt, Konstantin Dzvonik
 
-
+2013-1014
+Max Milbers, Valérie Isaksen, Jörg Kiekebusch, Matt Lewis-Garner, kkmediaproduction,
+2015-2016 Max Milbers, Valérie Isaksen, Jörg Kiekebusch, kkmediaproduction, Stefan Schumacher, Spyros Petrakis, Abhishek Das, Matt Lewis-Garner
 
 If you have contributed a vital part of VirtueMart that is not mentioned and/or missing here,
 and you feel that your copyright note should be mentioned here,
