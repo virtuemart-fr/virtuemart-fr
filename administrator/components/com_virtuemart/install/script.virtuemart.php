@@ -487,7 +487,6 @@ if (!defined('_VM_SCRIPT_INCLUDED')) {
 					$menu['link'] = 'index.php?option=com_virtuemart&view=category';
 					$link = str_replace('index.php?option=com_virtuemart&view=category','',$linkOrig);
 					if(strlen($link)>1){
-						vmdebug('Updating link',$link);
 						$registry = new JRegistry;
 						$registry->loadString($menu['params']);
 

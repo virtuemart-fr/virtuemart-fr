@@ -381,7 +381,7 @@ function vmdebug($debugdescr,$debugvalues=NULL){
 				if (count($args) > 1) {
 					for($i=1;$i<count($args);$i++){
 						if(isset($args[$i])){
-							$debugdescr .=' Var'.$i.': <pre>'.print_r($args[$i],1).'<br />'.print_r(get_class_methods($args[$i]),1).'</pre>';
+							$debugdescr .=' Var'.$i.': <pre>'.print_r($args[$i],1).'<br />'.print_r(get_class_methods($args[$i]),1).'</pre>'."\n";
 						}
 					}
 
@@ -390,7 +390,7 @@ function vmdebug($debugdescr,$debugvalues=NULL){
 
 			if(VmConfig::$echoDebug){
 				VmConfig::$maxMessageCount++;
-				echo $debugdescr."\n";
+				echo $debugdescr;
 			} else if(VmConfig::$logDebug){
 				logInfo($debugdescr,'vmdebug');
 			}else {
@@ -690,24 +690,21 @@ class VmConfig {
 
 	static function setErrRepDebug(){
 		$ret[0] = ini_set('display_errors', '-1');
+		$cVer = phpversion();
 		if(VM_VERSION<3){
-			if(version_compare(phpversion(),'5.4.0','<' )){
-				vmdebug('PHP 5.3');
+			if(version_compare($cVer,'5.4.0','<' )){
 				$ret[1] = error_reporting( E_ALL ^ E_STRICT );
 			} else {
-				vmdebug('PHP 5.4');
 				$ret[1] = error_reporting( E_ALL );
 			}
 		} else {
-			if(version_compare(phpversion(),'5.4.0','<' )){
-				vmdebug('PHP 5.3');
+			if(version_compare($cVer,'5.4.0','<' )){
 				$ret[1] = error_reporting( E_ALL );
 			} else {
-				vmdebug('PHP 5.4');
 				$ret[1] = error_reporting( E_ALL & ~E_STRICT);
 			}
 		}
-		vmdebug('Show All Errors');
+		vmdebug('Show All Errors, PHP-Version '.$cVer);
 	}
 
 
@@ -1407,9 +1404,9 @@ class vmURI{
 
 	static function getCurrentUrlBy ($source = 'request',$route = false, $white = true, $ignore = false){
 
-		$vars = array('option', 'view', 'controller', 'task', 'virtuemart_category_id', 'virtuemart_manufacturer_id', 'virtuemart_product_id', 'virtuemart_user_id', 'addrtype', 'virtuemart_user_info', 'virtuemart_currency_id', 'layout', 'format', 'limitstart', 'limit', 'language', 'keyword', 'search', 'virtuemart_order_id', 'order_number', 'order_pass', 'tmpl', 'usersearch', 'manage', 'orderby', 'dir', 'Itemid', 'lang');	//TODO Maybe better to remove the 'lang', which keeps the SEF suffix
+		$vars = array('id', 'option', 'view', 'controller', 'task', 'virtuemart_category_id', 'virtuemart_manufacturer_id', 'virtuemart_product_id', 'virtuemart_user_id', 'virtuemart_vendor_id', 'addrtype', 'virtuemart_user_info', 'virtuemart_currency_id', 'layout', 'format', 'limitstart', 'limit', 'language', 'keyword', 'search', 'virtuemart_order_id', 'order_number', 'order_pass', 'tmpl', 'usersearch', 'manage', 'orderby', 'dir', 'Itemid', 'customfields', 'lang', 'searchAllCats');	//TODO Maybe better to remove the 'lang', which keeps the SEF suffix
 
-		$url = 'index.php?';
+		$url = '';
 		if($white){
 			if(is_array($white) ){
 				$vars = array_merge($vars, $white);
@@ -1417,16 +1414,16 @@ class vmURI{
 			if(is_array($ignore) ){
 				$vars = array_diff($vars, $ignore);
 			}
+
 			foreach ($vars as $k){
 				$v = vRequest::getVar($k);
 				if(isset($v)){
-					$v = vRequest::filterUrl($v);
 					if(is_array($v)){
 						foreach($v as $ka => $va){
-							$url .= $k.'['.vRequest::filterUrl($ka).']='.vRequest::filterUrl($va).'&';
+							$url .= $k.'['.urlencode(vRequest::filterUrl($ka)).']='.urlencode(vRequest::filterUrl($va)).'&';
 						}
 					} else {
-						$url .= $k.'='.$v.'&';
+						$url .= $k.'='.urlencode(vRequest::filterUrl($v)).'&';
 					}
 				}
 			}
@@ -1444,19 +1441,22 @@ class vmURI{
 				$k = vRequest::filterUrl($k);
 				if(is_array($v)){
 					foreach($v as $ka => $va){
-						$url .= $k.'['.vRequest::filterUrl($ka).']='.vRequest::filterUrl($va).'&';
+						$url .= $k.'['.urlencode(vRequest::filterUrl($ka)).']='.urlencode(vRequest::filterUrl($va)).'&';
 					}
 				} else {
-					$url .= $k.'='.vRequest::filterUrl($v).'&';
+					$url .= $k.'='.urlencode(vRequest::filterUrl($v)).'&';
 				}
 			}
 		}
 
 		$url = $urlold = rtrim($url,'&');
-		if ($route){
-			$url = JRoute::_($url);
+		if(!empty($url)){
+			$url = 'index.php?'.$url;
+			if ($route){
+				$url = JRoute::_($url);
+			}
 		}
-		vmdebug('getCurrentUrlBy ',$urlold,$url);
+		
 		return $url;
 	}
 

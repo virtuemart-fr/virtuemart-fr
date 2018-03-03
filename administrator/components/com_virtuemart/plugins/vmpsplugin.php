@@ -741,11 +741,11 @@ abstract class vmPSPlugin extends vmPlugin {
 			if(!class_exists('JFolder')){
 				require(VMPATH_LIBS.DS.'joomla'.DS.'filesystem'.DS.'folder.php');
 			}
-			$url ='/images/virtuemart/' . $this->_psType ;
+			$url ='images/virtuemart/' . $this->_psType ;
 
-			if(!JFolder::exists( VMPATH_ROOT .$url)){
-				$url = '/images/stories/virtuemart/' . $this->_psType;
-				if(!JFolder::exists(VMPATH_ROOT .$url)){
+			if(!JFolder::exists( VMPATH_ROOT .'/'. $url)){
+				$url = 'images/stories/virtuemart/' . $this->_psType;
+				if(!JFolder::exists(VMPATH_ROOT .'/'. $url)){
 					return $img;
 				}
 			}
@@ -755,7 +755,7 @@ abstract class vmPSPlugin extends vmPlugin {
 			}
 			foreach ($logo_list as $logo) {
 				if(!empty($logo)){
-					if(JFile::exists(VMPATH_ROOT .$url .DS.$logo)){
+					if(JFile::exists(VMPATH_ROOT .DS. $url .DS.$logo)){
 						$alt_text = substr ($logo, 0, strpos ($logo, '.'));
 						$img .= '<span class="vmCart' . ucfirst($this->_psType) . 'Logo" ><img align="middle" src="' . JUri::root().$url.'/'.$logo . '"  alt="' . $alt_text . '" /></span> ';
 					}

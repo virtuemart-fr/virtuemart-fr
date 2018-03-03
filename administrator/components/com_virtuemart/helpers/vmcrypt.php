@@ -26,7 +26,7 @@ class vmCrypt {
 
 		$key = self::_getKey ();
 
-		if(function_exists('mcrypt_encrypt')){
+		if(!empty($key) and function_exists('mcrypt_encrypt')){
 			// create a random IV to use with CBC encoding
 			$iv_size = mcrypt_get_iv_size(MCRYPT_RIJNDAEL_256, MCRYPT_MODE_CBC);
 			$iv = mcrypt_create_iv($iv_size, MCRYPT_RAND);
@@ -87,7 +87,7 @@ class vmCrypt {
 		vmSetStartTime('_checkCreateKeyFile');
 		static $existingKeys = false;
 
-		$keyPath = self::_getEncryptSafepath ();
+		$keyPath = self::getEncryptSafepath ();
 
 		if(!$existingKeys){
 			$dir = opendir($keyPath);
@@ -96,8 +96,8 @@ class vmCrypt {
 				while(false !== ( $file = readdir($dir)) ) {
 					if (( $file != '.' ) && ( $file != '..' )) {
 						if ( !is_dir($keyPath .DS. $file)) {
-							$ext = Jfile::getExt($file);
-							if($ext=='ini' and file_exists($keyPath .DS. $file)){
+							$ext = JFile::getExt($file);
+							if($ext=='ini' and $file!='vmm.ini' and file_exists($keyPath .DS. $file)){
 								$content = parse_ini_file($keyPath .DS. $file);
 								if($content and is_array($content) and isset($content['unixtime'])){
 									$k = $content['unixtime'];
@@ -128,6 +128,12 @@ class vmCrypt {
 			$key = '';
 			$usedKey = '';
 			$uDate = 0;
+
+			if(empty($date)){
+				$date = new JDate('now');
+				$date = $date->toSQL();
+			}
+
 			if(!empty($date)){
 
 				foreach($existingKeys as $unixDate=>$values){
@@ -135,7 +141,7 @@ class vmCrypt {
 						vmdebug('$unixDate '.$unixDate.' >= $date '.$date);
 						continue;
 					}
-					vmdebug('$unixDate < $date '.$unixDate);
+					vmdebug('$unixDate < $date '.$date. ' '.$unixDate);
 					$usedKey = $values;
 					$uDate = $unixDate;
 				}
@@ -206,7 +212,7 @@ class vmCrypt {
 		}
 	}
 
-	private static function _getEncryptSafepath () {
+	public static function getEncryptSafepath () {
 
 		if (!class_exists('ShopFunctions'))
 			require(VMPATH_ADMIN . DS . 'helpers' . DS . 'shopfunctions.php');
@@ -221,6 +227,7 @@ class vmCrypt {
 	}
 
 	private static function createEncryptFolder ($folderName) {
+		jimport('joomla.filesystem.folder');
 
 		//$folderName = self::_getEncryptSafepath ();
 

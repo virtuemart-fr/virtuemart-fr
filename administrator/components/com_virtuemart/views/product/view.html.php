@@ -13,7 +13,7 @@
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
- * @version $Id: view.html.php 9615 2017-08-01 17:05:28Z Milbo $
+ * @version $Id: view.html.php 9704 2017-12-20 13:33:53Z Milbo $
  */
 
 // Check to ensure this file is included in Joomla!
@@ -198,8 +198,12 @@ class VirtuemartViewProduct extends VmViewAdmin {
 				}
 
 				$option = vRequest::getCmd('option');
-				$lists['filter_order'] = $app->getUserStateFromRequest($option.'filter_order_orders', 'filter_order', 'email', 'cmd');
-				$lists['filter_order_Dir'] = $app->getUserStateFromRequest($option.'filter_order_Dir', 'filter_order_Dir', 'ASC', 'word');
+				//$lists['filter_order'] = $app->getUserStateFromRequest($option.'filter_order_orders', 'filter_order', 'email', 'cmd');
+				//$lists['filter_order_Dir'] = $app->getUserStateFromRequest($option.'filter_order_Dir', 'filter_order_Dir', 'ASC', 'word');
+
+				$lists['filter_order'] = $app->getUserStateFromRequest('com_virtuemart.product.productShoppers.filter_order', 'filter_order', 'email', 'cmd');
+				$lists['filter_order_Dir'] = $app->getUserStateFromRequest('com_virtuemart.product.productShoppers.filter_order_Dir', 'filter_order_Dir', 'ASC', 'word');
+
 
 				$order_status = vRequest::getvar('order_status',array('S'));
 				$productShoppers = $model->getProductShoppersByStatus($product->virtuemart_product_id,$order_status,$lists['filter_order'],$lists['filter_order_Dir'] );
@@ -215,6 +219,13 @@ class VirtuemartViewProduct extends VmViewAdmin {
 					$shoppergroupModel = VmModel::getModel('shoppergroup');
 					$this->activeShoppergroups = vmText::_($shoppergroupModel->getDefault(0)->shopper_group_name);
 				}
+
+				if (!class_exists ('calculationHelper')) {
+					require(VMPATH_ADMIN .'/helpers/calculationh.php');
+				}
+				$this->calculator = calculationHelper::getInstance ();
+				$this->deliveryCountry = ShopFunctions::getCountryByID ($this->calculator->_deliveryCountry,  'country_3_code');
+				$this->deliveryState = ShopFunctions::getStateByID ($this->calculator->_deliveryState,  'state_3_code');
 
 				// Load protocustom lists
 				$customModel = VmModel::getModel ('custom');
@@ -306,7 +317,9 @@ class VirtuemartViewProduct extends VmViewAdmin {
 					$session->set('reset_pag', false,'vm');
 				}
 				$this->categories = $catmodel->getCategoryTree(0,0,false,$this->lists['search'],$limit);
-
+				foreach($this->categories as $i=>$c){
+					$this->categories[$i]->productcount = $catmodel->countProducts($this->categories[$i]->virtuemart_category_id);
+				}
 				$catpagination = $catmodel->getPagination();
 				$this->assignRef('catpagination', $catpagination);
 
@@ -334,6 +347,7 @@ class VirtuemartViewProduct extends VmViewAdmin {
 				break;
 
 		default:
+			$product_parent = false;
 			if ($product_parent_id=vRequest::getInt('product_parent_id',false) ) {
 				$product_parent= $model->getProductSingle($product_parent_id,false);
 
@@ -354,17 +368,6 @@ class VirtuemartViewProduct extends VmViewAdmin {
 			$this->SetViewTitle($title, $msg );
 
 			$this->addStandardDefaultViewLists($model,'created_on');
-
-			if($cI = vRequest::getInt('virtuemart_category_id',false)){
-
-				//$old_state = $app->getUserState('virtuemart_category_id');
-				$old_state = $app->getUserState('virtuemart_category_id');
-				if(empty($old_state) or $old_state!=$cI){
-					vRequest::setVar('com_virtuemart.product.filter_order','pc.ordering');
-					$model->filter_order = 'pc.ordering';
-					$old_state = $app->setUserState('virtuemart_category_id',$cI);
-				}
-			}
 
 			$superVendor = vmAccess::isSuperVendor();
 			if(empty($superVendor)){
@@ -479,7 +482,11 @@ class VirtuemartViewProduct extends VmViewAdmin {
 		    				'parent' => vmText::_('COM_VIRTUEMART_PRODUCT_LIST_SEARCH_BY_PARENT_PRODUCT'),
 							'product' => vmText::_('COM_VIRTUEMART_PRODUCT_LIST_SEARCH_BY_DATE_TYPE_PRODUCT'),
 							'price' => vmText::_('COM_VIRTUEMART_PRODUCT_LIST_SEARCH_BY_DATE_TYPE_PRICE'),
-							'withoutprice' => vmText::_('COM_VIRTUEMART_PRODUCT_LIST_SEARCH_BY_DATE_TYPE_WITHOUTPRICE')
+							'withoutprice' => vmText::_('COM_VIRTUEMART_PRODUCT_LIST_SEARCH_BY_DATE_TYPE_WITHOUTPRICE'),
+							'featured' => vmText::_('COM_VIRTUEMART_SHOW_FEATURED'),
+							'topten' => vmText::_('COM_VIRTUEMART_SHOW_TOPTEN'),
+							'latest' => vmText::_('COM_VIRTUEMART_LATEST_PRODUCT'),
+							'discontinued' => vmText::_('COM_VIRTUEMART_PRODUCT_FORM_DISCONTINUED'),
 			);
 			$this->lists['search_type'] = VmHTML::selectList('search_type', $model->search_type,$options, 1, "", 'style="width:130px;"');
 
@@ -495,7 +502,10 @@ class VirtuemartViewProduct extends VmViewAdmin {
 				JToolBarHelper::custom('massxref_sgrps', 'new', 'new', vmText::_('COM_VIRTUEMART_PRODUCT_XREF_SGRPS'), true);
 			}
 			if (vmAccess::manager('product.create')) {
-				JToolBarHelper::custom('createchild', 'new', 'new', vmText::_('COM_VIRTUEMART_PRODUCT_CHILD'), true);
+				if($product_parent){
+					$product_parent = true;
+				}
+				JToolBarHelper::custom('createchild', 'new', 'new', vmText::_('COM_VIRTUEMART_PRODUCT_CHILD'), !$product_parent);
 				JToolBarHelper::custom('cloneproduct', 'copy', 'copy', vmText::_('COM_VIRTUEMART_PRODUCT_CLONE'), true);
 			}
 			JToolBarHelper::custom('addrating', 'default', '', vmText::_('COM_VIRTUEMART_ADD_RATING'), true);
@@ -577,7 +587,7 @@ class VirtuemartViewProduct extends VmViewAdmin {
 
 			} else {
 				$c[$product_parent_id] = '';
-				vmdebug('my link displayLinkToParent '.$product_parent_id,$parent);
+				//vmdebug('my link displayLinkToParent '.$product_parent_id,$parent);
 			}
 
 		}

@@ -9,7 +9,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU/GPL
  */
 if (typeof Virtuemart === "undefined")
-	Virtuemart = {};
+	var Virtuemart = {};
 //var Virtuemart = window.Virtuemart || {};
 
 (function($) {

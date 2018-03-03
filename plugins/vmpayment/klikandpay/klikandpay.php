@@ -10,7 +10,7 @@ defined('_JEXEC') or die('Direct Access to ' . basename(__FILE__) . 'is not allo
  * @subpackage Payment
  * @author Valérie Isaksen
  * @link https://virtuemart.net
- * @copyright Copyright (c) 2004 - August 23 2017 VirtueMart Team. All rights reserved.
+ * @copyright Copyright (c) 2004 - December 21 2017 VirtueMart Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
@@ -152,7 +152,7 @@ class plgVmpaymentKlikandpay extends vmPSPlugin {
 			"RETOURVOK" => $retourParams,
 			"RETOURVHS" => $retourParams,
 			"MODULE" => 'VirtueMart',
-			"MODULE_VERSION" => '3.2.4',
+			"MODULE_VERSION" => '3.2.12',
 		);
 
 		$subscribe = array();

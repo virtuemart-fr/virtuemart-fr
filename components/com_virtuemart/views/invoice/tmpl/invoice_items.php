@@ -89,15 +89,21 @@ if(!class_exists('VirtueMartModelCustomfields'))require(VMPATH_ADMIN.DS.'models'
 VirtueMartModelCustomfields::$useAbsUrls = ($this->isMail or $this->isPdf);
 foreach($this->orderDetails['items'] as $item) {
 	$qtt = $item->product_quantity ;
-	$product_link = JURI::root().'index.php?option=com_virtuemart&view=productdetails&virtuemart_category_id=' . $item->virtuemart_category_id .
-		'&virtuemart_product_id=' . $item->virtuemart_product_id . '&Itemid=' . $menuItemID;
+
+    if ($this->print and !$this->isPdf) {
+		$product_name = $item->order_item_name;;
+	} else {
+		$product_name = '<a href="'.JURI::root().'index.php?option=com_virtuemart&view=productdetails&virtuemart_category_id=' . $item->virtuemart_category_id .
+		'&virtuemart_product_id=' . $item->virtuemart_product_id . '&Itemid=' . $menuItemID.'">'.$item->order_item_name.'</a>';
+	}
+
 	?>
 	<tr style="vertical-align: top;">
 		<td style="text-align: left;">
 			<?php echo $item->order_item_sku; ?>
 		</td>
 		<td style="text-align: left;" colspan="2">
-			<div float="right" ><a href="<?php echo $product_link; ?>"><?php echo $item->order_item_name; ?></a></div>
+			<div float="right" ><?php echo $product_name; ?></div>
 			<?php
 				$product_attribute = VirtueMartModelCustomfields::CustomsFieldOrderDisplay($item,'FE');
 				echo $product_attribute;

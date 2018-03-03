@@ -13,7 +13,7 @@
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
-* @version $Id: view.html.php 9590 2017-06-27 12:46:05Z Milbo $
+* @version $Id: view.html.php 9661 2017-10-27 15:29:47Z Milbo $
 */
 
 // Check to ensure this file is included in Joomla!
@@ -56,12 +56,24 @@ class VirtuemartViewMedia extends VmViewAdmin {
 			}
         	$cat_id = vRequest::getInt('virtuemart_category_id',0);
 
-			$super = vmAccess::isSuperVendor();
-			if($super==1){
+			if(vmAccess::manager('media.new')){
 				JToolBarHelper::custom('synchronizeMedia', 'new', 'new', vmText::_('COM_VIRTUEMART_TOOLS_SYNC_MEDIA_FILES'),false);
 			}
 
-			$this->addStandardDefaultViewCommands();
+			$this->addStandardDefaultViewCommands(true, false);
+
+			if(vmAccess::manager('media.delete')){
+				//JToolBarHelper::custom('deleteMedia', 'delete', 'deleteFile', vmText::_('COM_VM_MEDIA_DELETE_FILES'),false);
+				//JToolBarHelper::custom('deleteEntry', 'delete', 'deleteEntry', vmText::_('COM_VM_MEDIA_DELETE_ENTRY'),false);
+
+				$bar = JToolbar::getInstance('toolbar');
+				$bar->appendButton('Confirm', 'COM_VM_MEDIA_DELETE_CONFIRM', 'delete', 'COM_VM_MEDIA_FILES_DELETE', 'deleteFiles', true);
+				$bar->appendButton('Standard', 'delete', 'JTOOLBAR_DELETE', 'remove', true);
+				//$bar->appendButton('Confirm', 'COM_VM_MEDIA_DELETE_CONFIRM', 'delete', $alt, $task, true);
+				//JToolBarHelper::deleteList('COM_VM_MEDIA_DELETE_CONFIRM');
+				JToolBarHelper::spacer('10');
+			}
+
 			$this->addStandardDefaultViewLists($model,null,null,'searchMedia');
 			$options = array( '' => vmText::_('COM_VIRTUEMART_LIST_ALL_TYPES'),
 				'product' => vmText::_('COM_VIRTUEMART_PRODUCT'),

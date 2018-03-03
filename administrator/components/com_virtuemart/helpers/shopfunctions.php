@@ -11,7 +11,7 @@ defined ('_JEXEC') or die('Direct Access to ' . basename (__FILE__) . ' is not a
  * @author Max Milbers
  * @author Patrick Kohl
  * @copyright Copyright (c) 2004-2008 Soeren Eberhardt-Biermann, 2009 VirtueMart Team. All rights reserved.
- * @version $Id: shopfunctions.php 9621 2017-08-14 12:20:48Z Milbo $
+ * @version $Id: shopfunctions.php 9673 2017-11-16 14:16:16Z Milbo $
  */
 class ShopFunctions {
 
@@ -81,6 +81,7 @@ class ShopFunctions {
 			$i++;
 		}
 
+		if(!$list) return '';
 		$list = substr ($list, 2);
 		$ttip = substr ($ttip, 2);
 

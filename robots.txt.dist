@@ -30,8 +30,3 @@ Disallow: /modules/
 Disallow: /plugins/
 Disallow: /tmp/
 
-User-agent: Googlebot
-Allow: /components/com_virtuemart/assets/
-#This are the lines for the vmbeez5 template, you should adjust this to your templates
-Allow: /templates/vmbeez5/css/
-Allow: /templates/vmbeez5/javascript/

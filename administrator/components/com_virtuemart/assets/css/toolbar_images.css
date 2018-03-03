@@ -4,8 +4,8 @@
 .icon-32-lock{ background: url(../images/icon_32/icon-32-lock.png); }
 
 /* 48x48 images and joomla overide to use it*/
-#cpanel span.vmicon48 {    display: inline-block !important; height: 48px; width: 48px;margin-top: 10px;}
-#cpanel div.icon { cursor: pointer;float: left;margin:3px; }
+span.vmicon48 {    display: inline-block !important; height: 48px; width: 48px;margin-top: 10px;}
+div.icon { cursor: pointer;float: left;margin:3px; }
 
 .vmicon48, .icon-48-head{background-image: url(../images/icone48.png) ; background-repeat: no-repeat !important; display :inline-block ;}
 

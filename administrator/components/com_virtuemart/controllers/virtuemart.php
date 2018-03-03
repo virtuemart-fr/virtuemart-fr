@@ -84,9 +84,6 @@ class VirtuemartControllerVirtuemart extends VmController {
 
 			$request = file_get_contents('https:'.$link, false, $context);
 
-
-			//VmConfig::$echoDebug=1;
-			//vmdebug('my request ',$request);
 			if(!empty($request)) {
 				if(preg_match('@(error|access denied)@i', $request)) {
 					//return false;
@@ -101,11 +98,8 @@ class VirtuemartControllerVirtuemart extends VmController {
 						$data = $this->nag($data);
 					}
 				}
-
 			}
-			//vmdebug('my $data ',$data);//*/
 		}
-		//$data = array();
 		echo vmJsApi::safe_json_encode($data);
 		jExit();
 	}
@@ -116,13 +110,10 @@ class VirtuemartControllerVirtuemart extends VmController {
 
 			if(!empty($data->html)){
 
-				if (!class_exists('ShopFunctions'))
-					require(VMPATH_ADMIN . DS . 'helpers' . DS . 'shopfunctions.php');
-				$safePath = ShopFunctions::checkSafePath();
-				if (empty($safePath)) {
-					return NULL;
-				}
-				$safePath .= '/vmm.ini';
+				if(!class_exists('vmCrypt'))
+					require(VMPATH_ADMIN.DS.'helpers'.DS.'vmcrypt.php');
+				$safePath = vmCrypt::getEncryptSafepath();
+				$safePath .= DS.'vmm.ini';
 				$date = JFactory::getDate();
 				$today = $date->toUnix();
 

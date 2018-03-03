@@ -14,7 +14,7 @@
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
- * @version $Id: shopfunctionsf.php 9627 2017-08-22 16:56:14Z Milbo $
+ * @version $Id: shopfunctionsf.php 9682 2017-11-30 12:16:43Z Milbo $
  */
 
 // Check to ensure this file is included in Joomla!
@@ -361,6 +361,7 @@ class shopFunctionsF {
 
 	static public function sortLoadProductCustomsStockInd(&$products,$pModel){
 
+		if(!$products) return;
 		$customfieldsModel = VmModel::getModel ('Customfields');
 		if (!class_exists ('vmCustomPlugin')) {
 			require(VMPATH_PLUGINLIBS . DS . 'vmcustomplugin.php');
@@ -399,12 +400,15 @@ class shopFunctionsF {
 
 	static public function calculateProductRowsHeights($products,$currency,$products_per_row){
 
+		$rowsHeight = array();
+		if(!$products) return $rowsHeight;
+
 		$col = 1;
 		$nb = 1;
 		$row = 1;
 		$BrowseTotalProducts = count($products);
 		$rowHeights = array();
-		$rowsHeight = array();
+
 
 		foreach($products as $product){
 
@@ -624,7 +628,9 @@ class shopFunctionsF {
 		$subject = (isset($view->subject)) ? $view->subject : vmText::_( 'COM_VIRTUEMART_DEFAULT_MESSAGE_SUBJECT' );
 		$mailer = JFactory::getMailer();
 		$mailer->addRecipient( $recipient );
-		$mailer->setSubject(  html_entity_decode( $subject , ENT_QUOTES, 'UTF-8') );
+
+		$subjectMailer= '=?utf-8?B?'.base64_encode($subject).'?=';
+		$mailer->setSubject(  html_entity_decode( $subjectMailer , ENT_QUOTES, 'UTF-8') );
 		$mailer->isHTML( VmConfig::get( 'order_mail_html', TRUE ) );
 		$mailer->setBody( $body );
 		$replyTo = array();
@@ -679,29 +685,37 @@ class shopFunctionsF {
 		}
 		$mailer->setSender( $sender );
 
-		if(VmConfig::get('debug_mail',false)){
-			if(!is_array($recipient)) $recipient = array($recipient);
-			if(VmConfig::showDebug()){
-				vmdebug('The mail to send subject '.$subject.' to "'.implode(' ',$recipient).'" from '.$sender[0].' '.$sender[1].' '.vmText::$language->getTag().'<br>'.$body);
-			} else {
-				vmInfo('The mail to send subject '.$subject.' to "'.implode(' ',$recipient).'" from '.$sender[0].' '.$sender[1].'<br>'.$body);
-			}
-
-			return false;
-		} else {
-			try {
-				$return = $mailer->Send();
-			}
-			catch (Exception $e)
-			{
-				VmConfig::$logDebug = true;
-				vmdebug('Error sending mail ',$e);
-				vmError('Error sending mail ');
-				// this will take care of the error message
-				return false;
-			}
+		$mailer->setSender($sender);
+		$debug_email = VmConfig::get('debug_mail', false);
+		if (VmConfig::get('debug_mail', false) == '1') {
+			$debug_email = 'debug_email';
 
 		}
+		if ($debug_email) {
+			if (!is_array($recipient)) {
+				$recipient = array($recipient);
+			}
+			if (VmConfig::showDebug()) {
+				vmdebug('Debug mail active, no mail sent. The mail to send subject ' . $subject . ' to "' . implode(' ', $recipient) . '" from ' . $sender[0] . ' ' . $sender[1] . ' ' . vmText::$language->getTag() . '<br>' . $body);
+			} else {
+				vmInfo('Debug mail active, no mail sent. The mail to send subject ' . $subject . ' to "' . implode(' ', $recipient) . '" from ' . $sender[0] . ' ' . $sender[1] . '<br>' . $body);
+			}
+			if ($debug_email == 'debug_email') {
+				return true;
+			}
+		}
+		try {
+			$return = $mailer->Send();
+		}
+		catch (Exception $e)
+		{
+			VmConfig::$logDebug = true;
+			vmdebug('Error sending mail ',$e);
+			vmError('Error sending mail ');
+			// this will take care of the error message
+			return false;
+		}
+
 
 		return $return; 
 	}
@@ -905,13 +919,10 @@ class shopFunctionsF {
 	static function getInvoiceName($invoice_number, $layout='invoice'){
 
 		$tmpT = false;
+		vmLanguage::loadJLang('com_virtuemart_orders', true);
 		if(VmConfig::get('invoiceNameInShopLang',true)){
 			$tmpT = VmConfig::$vmlangTag;
-			if($tmpT!=VmConfig::$jDefLangTag){
-				//ensure that the invoice is written in shop language
-				vmdebug('invoiceNameInShopLang VmConfig::$jDefLangTag '.VmConfig::$jDefLangTag,$tmpT);
-				vmLanguage::loadJLang('com_virtuemart_orders', true, VmConfig::$jDefLangTag);
-			}
+			vmLanguage::setLanguageByTag(VmConfig::$jDefLangTag);
 		}
 		$prefix = vmText::_('COM_VIRTUEMART_FILEPREFIX_'.strtoupper($layout));
 		if($tmpT!=false){
@@ -963,10 +974,13 @@ class shopFunctionsF {
 			$dispatcher->trigger('onInit',$id);
 			if(version_compare(JVERSION, '3.5', 'ge')){
 				$plugin = JPluginHelper::getPlugin('captcha', 'recaptcha');
-				$params = new JRegistry($plugin->params);
-				if ($params->get('version') != '1.0') {
-					return '<div id="jform_captcha" class="g-recaptcha  required" data-sitekey="'.$params->get('public_key').'" data-theme="'.$params->get('theme2').'" data-size="normal"></div>';
+				if(!empty($plugin->params)){
+					$params = new JRegistry($plugin->params);
+					if ($params->get('version') != '1.0') {
+						return '<div id="jform_captcha" class="g-recaptcha  required" data-sitekey="'.$params->get('public_key').'" data-theme="'.$params->get('theme2').'" data-size="normal"></div>';
+					}
 				}
+
 			}
 			JHTML::_('behavior.framework');
 			return '<div id="'.$id.'"></div>';

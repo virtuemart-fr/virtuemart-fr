@@ -3,7 +3,7 @@ defined('_JEXEC') or die('Restricted access');
 
 /**
  * @author Valérie Isaksen
- * @version $Id: sofort.php 9560 2017-05-30 14:13:21Z Milbo $
+ * @version $Id: sofort.php 9667 2017-11-15 11:17:36Z Milbo $
  * @package VirtueMart
  * @subpackage payment
  * @copyright Copyright (C) 2004-Copyright (C) 2004 - 2017 Virtuemart Team. All rights reserved.   - All rights reserved.
@@ -21,7 +21,7 @@ if (!class_exists('vmPSPlugin')) {
 }
 
 class plgVmPaymentSofort extends vmPSPlugin {
-	const RELEASE = 'VM 3.2.4';
+	const RELEASE = 'VM 3.2.12';
 	const SU_SOFORTBANKING = 'su';
 
 
@@ -704,7 +704,6 @@ class plgVmPaymentSofort extends vmPSPlugin {
 				$methodSalesPrice = $this->calculateSalesPrice($cart, $this->_currentMethod, $cartPrices);
 
 				$logo = $this->displayLogos($this->_currentMethod->payment_logos);
-				$logo_link = $this->getLogoLink();
 				$payment_cost = '';
 				if ($methodSalesPrice) {
 					$payment_cost = $currency->priceDisplay($methodSalesPrice);
@@ -718,7 +717,6 @@ class plgVmPaymentSofort extends vmPSPlugin {
 				                                                       'plugin' => $this->_currentMethod,
 				                                                       'checked' => $checked,
 				                                                       'payment_logo' => $logo,
-				                                                       'payment_logo_link' => $logo_link,
 				                                                       'payment_cost' => $payment_cost,
 				                                                  ));
 

@@ -15,7 +15,7 @@
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
- * @version $Id: user.php 9623 2017-08-15 12:15:33Z Milbo $
+ * @version $Id: user.php 9705 2017-12-20 13:55:51Z Milbo $
  */
 
 // Check to ensure this file is included in Joomla!
@@ -411,6 +411,9 @@ class VirtueMartModelUser extends VmModel {
 		if(isset($data['language'])){
 			$user->setParam('language',$data['language']);
 		}
+
+		// Load the users plugin group.
+		JPluginHelper::importPlugin('user');
 
 		// Save the JUser object
 		if (!$user->save()) {
@@ -905,9 +908,16 @@ class VirtueMartModelUser extends VmModel {
 			vmdebug('getBTuserinfo_id is '.$this->_id);
 		}
 
-		$q = 'SELECT `virtuemart_userinfo_id` FROM `#__virtuemart_userinfos` WHERE `virtuemart_user_id` = "' .(int)$id .'" AND `address_type`="BT" ';
-		$db->setQuery($q);
-		return $db->loadResult();
+		static $c = array();
+
+		if(isset($c[$id])){
+			return $c[$id];
+		} else {
+			$q = 'SELECT `virtuemart_userinfo_id` FROM `#__virtuemart_userinfos` WHERE `virtuemart_user_id` = "' .(int)$id .'" AND `address_type`="BT" ';
+			$db->setQuery($q);
+			$c[$id] = $db->loadResult();
+			return $c[$id];
+		}
 	}
 
 	/**
@@ -929,11 +939,14 @@ class VirtueMartModelUser extends VmModel {
 		/*
 		 * JUser  or $this->_id is the logged user
 		 */
-
-		if(!empty($this->_data->JUser)){
+		if(!empty($this->_data->JUser) and $this->_data->JUser->id==$this->_id){
 			$JUser = $this->_data->JUser;
 		} else {
-			$JUser = JUser::getInstance($this->_id);
+			if(empty($this->_data)){
+				$JUser = JUser::getInstance($this->_id);
+			} else {
+				$JUser = $this->_data->JUser = JUser::getInstance($this->_id);
+			}
 		}
 
 		$data = null;

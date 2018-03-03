@@ -15,7 +15,7 @@
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
-* @version $Id: list.php 9601 2017-07-11 14:26:05Z Milbo $
+* @version $Id: list.php 9653 2017-10-18 12:59:33Z Milbo $
 */
 
 // Check to ensure this file is included in Joomla!
@@ -32,8 +32,8 @@ if(VmConfig::get ('ajax_order', TRUE)){
 <h1><?php echo vmText::_('COM_VIRTUEMART_ORDERS_VIEW_DEFAULT_TITLE'); ?></h1>
 <?php
 if (count($this->orderlist) == 0) {
-	//echo vmText::_('COM_VIRTUEMART_ACC_NO_ORDER');
-	 echo shopFunctionsF::getLoginForm(false,true);
+
+	echo shopFunctionsF::getLoginForm(false,$this->trackingByOrderPass);
 } else { ?>
 <div id="editcell">
 	<table class="adminlist" width="80%">

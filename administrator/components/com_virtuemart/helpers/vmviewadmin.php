@@ -356,9 +356,9 @@ class VmViewAdmin extends JViewLegacy {
 		$doc->setTitle($app->getCfg('sitename'). ' - ' .vmText::_('JADMINISTRATION').' - '.strip_tags($msg));
 	}
 
-	function sort($orderby ,$name=null ){
+	function sort($orderby ,$name=null, $task=null ){
 		if (!$name) $name= 'COM_VIRTUEMART_'.strtoupper ($orderby);
-		return JHtml::_('grid.sort' , vmText::_($name) , $orderby , $this->lists['filter_order_Dir'] , $this->lists['filter_order']);
+		return JHtml::_('grid.sort' , vmText::_($name) , $orderby , $this->lists['filter_order_Dir'] , $this->lists['filter_order'], $task);
 	}
 
 	public function addStandardHiddenToForm($controller=null, $task=''){

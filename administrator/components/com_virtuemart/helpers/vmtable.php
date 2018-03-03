@@ -1293,7 +1293,7 @@ class VmTable extends vObject implements JObservableInterface, JTableInterface {
 
 		$i = 0;
 
-		while ($i < 20) {
+		while ($i < 40) {
 
 			$tbl_key = $this->_tbl_key;
 			$q = 'SELECT `' . $name . '` FROM `' . $tbl_name . '` WHERE `' . $name . '` =  "' . $this->$name . '" ';
@@ -1310,9 +1310,6 @@ class VmTable extends vObject implements JObservableInterface, JTableInterface {
 
 					if(is_numeric($existingNbr)){
 						$existingNbr++;
-						if($i>10){
-							$existingNbr = $existingNbr +  rand (1, 9);
-						}
 						$this->$name = substr($this->$name,0,$posNbr+1) . $existingNbr;
 					} else{
 						$this->$name = $this->$name . '-1';
@@ -1320,7 +1317,7 @@ class VmTable extends vObject implements JObservableInterface, JTableInterface {
 				} else {
 					$this->$name = $this->$name . '-1';
 				}
-				vmdebug('checkCreateUnique slug = '.$name.' changed to ',$this->$name);
+				vmdebug('checkCreateUnique '.$name.' = '.$existingSlugName.' changed to ',$this->$name);
 			} else {
 				return true;
 			}

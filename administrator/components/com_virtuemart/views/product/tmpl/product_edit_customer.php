@@ -13,7 +13,7 @@
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
- * @version $Id: product_edit_customer.php 9572 2017-06-07 15:03:30Z kkmediaproduction $
+ * @version $Id: product_edit_customer.php 9704 2017-12-20 13:33:53Z Milbo $
  */
 // Check to ensure this file is included in Joomla!
 defined ('_JEXEC') or die('Restricted access');
@@ -90,13 +90,13 @@ $i = 0;
 				<table class="adminlist table ui-sortable" cellspacing="0" cellpadding="0">
 					<thead>
 					<tr>
-						<th class="title"><?php echo $this->sort ('ou.first_name', 'COM_VIRTUEMART_NAME');?></th>
-						<th class="title"><?php echo $this->sort ('ou.email', 'COM_VIRTUEMART_EMAIL');?></th>
+						<th class="title"><?php echo $this->sort ('ou.first_name', 'COM_VIRTUEMART_NAME','productShoppers');?></th>
+						<th class="title"><?php echo $this->sort ('ou.email', 'COM_VIRTUEMART_EMAIL','productShoppers');?></th>
 						<th class="title"><?php echo vmText::_ ('COM_VIRTUEMART_SHOPPER_FORM_PHONE');?></th>
 						<th class="title"><?php echo vmText::_ ('COM_VIRTUEMART_ORDER_PRINT_QUANTITY');?></th>
 						<th class="title"><?php echo vmText::_ ('COM_VIRTUEMART_ORDER_PRINT_ITEM_STATUS');?></th>
-						<th class="title"><?php echo $this->sort ('o.order_number', 'COM_VIRTUEMART_ORDER_NUMBER');?></th>
-						<th class="title"><?php echo $this->sort ('order_date', 'COM_VIRTUEMART_ORDER_CDATE');?></th>
+						<th class="title"><?php echo $this->sort ('o.order_number', 'COM_VIRTUEMART_ORDER_NUMBER', 'productShoppers');?></th>
+						<th class="title"><?php echo $this->sort ('order_date', 'COM_VIRTUEMART_ORDER_CDATE','productShoppers');?></th>
 					</tr>
 					</thead>
 					<tbody id="customers-list">
@@ -118,6 +118,7 @@ $i = 0;
 						<th class="title"><?php echo vmText::_ ('COM_VIRTUEMART_NAME');?></th>
 						<th class="title"><?php echo vmText::_ ('COM_VIRTUEMART_USERNAME');?></th>
 						<th class="title"><?php echo vmText::_ ('COM_VIRTUEMART_EMAIL');?></th>
+                        <th class="title"><?php echo vmText::_ ('COM_VIRTUEMART_CREATED_ON');?></th>
 					</tr>
 					</thead>
 					<tbody id="customers-notify-list">
@@ -127,10 +128,10 @@ $i = 0;
 							foreach ($this->waitinglist as $key => $wait) {
 								if ($wait->virtuemart_user_id == 0) {
 									$row = '<tr class="row'.$i.'"><td></td><td></td><td><a href="mailto:' . $wait->notify_email . '">' .
-									$wait->notify_email . '</a></td></tr>';
+									$wait->notify_email . '</a></td><td>' .  vmJsApi::date($wait->created_on, 'LC2', TRUE) . '</td></tr>';
 								}
 								else {
-									$row = '<tr class="row'.$i.'"><td>' . $wait->name . '</td><td>' . $wait->username . '</td><td>' . '<a href="mailto:' . $wait->notify_email . '">' . $wait->notify_email . '</a>' . '</td></tr>';
+									$row = '<tr class="row'.$i.'"><td>' . $wait->name . '</td><td>' . $wait->username . '</td><td>' . '<a href="mailto:' . $wait->notify_email . '">' . $wait->notify_email . '</a>' . '</td> <td>' . vmJsApi::date($wait->created_on, 'LC2', TRUE) . '</td></tr>';
 								}
 								echo $row;
 								$i = 1 - $i;

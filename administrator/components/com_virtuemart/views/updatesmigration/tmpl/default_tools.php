@@ -13,7 +13,7 @@
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
-* @version $Id: default_tools.php 9621 2017-08-14 12:20:48Z Milbo $
+* @version $Id: default_tools.php 9633 2017-09-07 08:16:00Z Milbo $
 */
 
 // Check to ensure this file is included in Joomla!
@@ -148,13 +148,3 @@ if(!VmConfig::get('dangeroustools', false)){
 </table>
 
 
-<script type="text/javascript">
-<!--
-function confirmation(message, destnUrl) {
-	var answer = confirm(message);
-	if (answer) {
-		window.location = destnUrl;
-	}
-}
-//-->
-</script>

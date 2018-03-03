@@ -15,7 +15,7 @@
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
- * @version $Id: default.php 9605 2017-07-26 06:22:08Z Milbo $
+ * @version $Id: default.php 9669 2017-11-15 14:25:58Z Milbo $
  */
 
 defined ('_JEXEC') or die('Restricted access');
@@ -52,12 +52,19 @@ if ($this->show_store_desc and !empty($this->vendor->vendor_store_desc)) { ?>
 	</div>
 <?php }
 
-if (!empty($this->showcategory_desc) and empty($this->keyword) and !empty($this->category)) {
+if (!empty($this->showcategory_desc) and empty($this->keyword)){
+	if(!empty($this->category)) {
 	?>
 <div class="category_description">
 	<?php echo $this->category->category_description; ?>
 </div>
-<?php
+<?php }
+	if(!empty($this->manu_descr)) {
+		?>
+        <div class="manufacturer-description">
+			<?php echo $this->manu_descr; ?>
+        </div>
+	<?php }
 }
 
 // Show child categories
@@ -67,7 +74,7 @@ if ($this->showcategory and empty($this->keyword)) {
 	}
 }
 
-if (!empty($this->products)) {
+if (!empty($this->products) or ($this->showsearch or $this->keyword !== false)) {
 ?>
 <div class="browse-view">
 <?php
@@ -137,7 +144,9 @@ if(!empty($this->orderByList)) { ?>
 </div> <!-- end of orderby-displaynumber -->
 <?php } ?>
 
+<?php if (!empty($this->category->category_name)) { ?>
 <h1><?php echo vmText::_($this->category->category_name); ?></h1>
+<?php } ?>
 
 	<?php
 	if (!empty($this->products)) {

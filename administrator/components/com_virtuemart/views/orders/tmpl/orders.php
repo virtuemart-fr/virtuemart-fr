@@ -13,7 +13,7 @@
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
- * @version $Id: orders.php 9600 2017-07-11 14:18:13Z Milbo $
+ * @version $Id: orders.php 9650 2017-10-18 10:52:18Z Milbo $
  */
 // Check to ensure this file is included in Joomla!
 defined ('_JEXEC') or die('Restricted access');
@@ -171,7 +171,7 @@ if(!is_array($orderstatusForShopperEmail)) $orderstatusForShopperEmail = array($
 $jsOrderStatusShopperEmail = vmJsApi::safe_json_encode($orderstatusForShopperEmail);
 
 $j = 'if (typeof Virtuemart === "undefined")
-	Virtuemart = {};
+	var Virtuemart = {};
 	Virtuemart.orderstatus = '.$jsOrderStatusShopperEmail.';
 	jQuery(document).ready(function() {
 		//Virtuemart.onReadyOrderItems();

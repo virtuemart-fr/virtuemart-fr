@@ -32,8 +32,8 @@ class calculationHelper {
 
 	protected $_debug;
 	protected $_manufacturerId;
-	protected $_deliveryCountry;
-	protected $_deliveryState;
+	public $_deliveryCountry;
+	public $_deliveryState;
 	public $_currencyDisplay;
 	var $_cart = null;
 
@@ -124,7 +124,6 @@ class calculationHelper {
 			$this->_calcModel = VmModel::getModel('calc');
 		}
 		$this->productVendorId = (int)$id;
-		//vmdebug('setVendorId $allrules '.$this->productVendorId,count($this->allrules));
 		if(empty($this->allrules[$this->productVendorId])){
 			$epoints = array("'Marge'","'Tax'","'VatTax'","'DBTax'","'DATax'");
 			$this->allrules[$this->productVendorId]['Marge'] = array();
@@ -132,16 +131,9 @@ class calculationHelper {
 			$this->allrules[$this->productVendorId]['VatTax'] 	= array();
 			$this->allrules[$this->productVendorId]['DBTax'] = array();
 			$this->allrules[$this->productVendorId]['DATax'] = array();
-			/*$qOld = 'SELECT * FROM #__virtuemart_calcs WHERE
-		                    `calc_kind` IN (' . implode(",",$epoints). ' )
-		                     AND `published`="1"
-		                     AND (`virtuemart_vendor_id`="' . $this->productVendorId . '" OR `shared`="1" )
-		                     AND ( ( publish_up = "' . $this->_nullDate . '" OR publish_up <= "' . $this->_now . '" )
-		                        AND ( publish_down = "' . $this->_nullDate . '" OR publish_down >= "' . $this->_now . '" )
-										OR `for_override` = "1" )';
-			//*/
+
 			$select = 'SELECT c.*';
-			$q = ' FROM #__virtuemart_calcs as c';
+			$q = ' FROM #__virtuemart_calcs as c ';
 			$shopperGrpJoin = '';
 			if(!empty($this->_shopperGroupId) and count($this->_shopperGroupId)>0){
 				//$select .= ', cs.virtuemart_shoppergroup_id';
@@ -157,21 +149,17 @@ class calculationHelper {
 			if(!empty($this->_deliveryCountry)){
 				//$select .= ', cc.virtuemart_country_id';
 				$q .= ' LEFT JOIN #__virtuemart_calc_countries as cc ON cc.virtuemart_calc_id=c.virtuemart_calc_id ';
-				$countryGrpJoin = "\n AND (";
-				$countryGrpJoin .= ' virtuemart_country_id = '.(int)$this->_deliveryCountry;
-				$countryGrpJoin .=' OR (virtuemart_country_id) IS NULL) ';
+				$countryGrpJoin = "\n".' AND ( virtuemart_country_id = "'.(int)$this->_deliveryCountry.'" OR (virtuemart_country_id) IS NULL) ';
 			}
 
 			$stateGrpJoin = '';
 			if(!empty($this->_deliveryState)){
 				//$select .= ', cst.virtuemart_state_id';
 				$q .= ' LEFT JOIN #__virtuemart_calc_states as cst ON cst.virtuemart_calc_id=c.virtuemart_calc_id ';
-				$stateGrpJoin = "\n AND (";
-				$stateGrpJoin .= ' virtuemart_state_id = '.(int)$this->_deliveryState;
-				$stateGrpJoin .=' OR (virtuemart_state_id) IS NULL) ';
+				$stateGrpJoin = "\n".' AND ( virtuemart_state_id = "'.(int)$this->_deliveryState.'" OR (virtuemart_state_id) IS NULL) ';
 			}
 
-			$q .= 'WHERE `calc_kind` IN (' . implode(",",$epoints). ' )
+			$q .= ' WHERE `calc_kind` IN (' . implode(",",$epoints). ' )
                 AND `published`="1"
                 AND (`virtuemart_vendor_id`="' . $id . '" OR `shared`="1" )
 				AND ( publish_up = "' . $this->_db->escape($this->_nullDate) . '" OR publish_up <= "' . $this->_db->escape($this->_now) . '" )
@@ -184,12 +172,12 @@ class calculationHelper {
 			$allrules = $this->_db->loadAssocList();
 
 			if(!$allrules) return;
+
 			//By Maik, key of array is directly virtuemart_calc_id
 			foreach ($allrules as $rule){
-				//$rul = $this->_calcModel->getCalc($rule['virtuemart_calc_id']);
 				$this->allrules[$this->productVendorId][$rule['calc_kind']][$rule['virtuemart_calc_id']] = $rule;
 			}
-			if ($this->_debug) vmdebug('Calculation rules',$allrules);
+			if ($this->_debug) vmdebug('Calculation rules',$select . $q, $allrules);
 		}
 
 	}
@@ -246,8 +234,35 @@ class calculationHelper {
 
 	protected function setCountryState() {
 
-		if ($this->_app->isAdmin())
+		if ($this->_app->isAdmin()) {
+			$userModel = VmModel::getModel('user');
+			$userDetails = $userModel->getUser();
+			$virtuemart_userinfo_id_BT = $userModel->getBTuserinfo_id($userDetails->JUser->get('id'));
+			if ($virtuemart_userinfo_id_BT) {
+				$userFieldsArray = $userModel->getUserInfoInUserFields(NULL,'BT',$virtuemart_userinfo_id_BT,false);
+				$userFieldsBT = $userFieldsArray[$virtuemart_userinfo_id_BT];
+				if ($userFieldsBT) {
+					if (isset($userFieldsBT['fields']['virtuemart_country_id']) and isset($userFieldsBT['fields']['virtuemart_country_id']['virtuemart_country_id'])) {
+						$this->_deliveryCountry = $userFieldsBT['fields']['virtuemart_country_id']['virtuemart_country_id'];
+					}
+					if (isset($userFieldsBT['fields']['virtuemart_state_id']) and isset($userFieldsBT['fields']['virtuemart_state_id']['virtuemart_state_id'])) {
+						$this->_deliveryState = $userFieldsBT['fields']['virtuemart_state_id']['virtuemart_state_id'];
+					}
+				}
+			} else {
+				if(!class_exists('VirtueMartModelVendor')) require(VMPATH_ADMIN.DS.'models'.DS.'vendor.php');
+				$vendorModel = VmModel::getModel ('vendor');
+				$vendorAddress = $vendorModel->getVendorAdressBT (1);
+				if (isset( $vendorAddress->virtuemart_country_id)){
+					$this->_deliveryCountry = $vendorAddress->virtuemart_country_id;
+				}
+				if (isset( $vendorAddress->virtuemart_state_id)) {
+					$this->_deliveryState = $vendorAddress->virtuemart_state_id;
+				}
+			}
 			return;
+		}
+
 
 		if(empty($this->_cart)){
 			if (!class_exists('VirtueMartCart')) require(VMPATH_SITE . DS . 'helpers' . DS . 'cart.php');
@@ -271,7 +286,6 @@ class calculationHelper {
 		} else if (!empty($this->_cart->BT['virtuemart_state_id'])) {
 			$this->_deliveryState = (int)$this->_cart->BT['virtuemart_state_id'];
 		}
-
 	}
 
 	/** function to start the calculation, here it is for the product

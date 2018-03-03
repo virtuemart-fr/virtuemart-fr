@@ -94,6 +94,7 @@ class plgVmPaymentPaypal extends vmPSPlugin {
 			'payment_currency' => array('', 'int'),
 			'email_currency' => array('', 'char'),
 			'log_ipn' => array('', 'int'),
+			'check_ips' => array('', 'int'),
 			'payment_logos' => array('', 'char'),
 			'debug' => array(0, 'int'),
 			'log' => array(0, 'int'),
@@ -1331,8 +1332,8 @@ class plgVmPaymentPaypal extends vmPSPlugin {
 			}
 		}
 		$method_name = $this->_psType . '_name';
+		$idN = 'virtuemart_'.$this->_psType.'method_id';
 
-		$htmla = array();
 		foreach ($this->methods as $this->_currentMethod) {
 			if ($this->checkConditions($cart, $this->_currentMethod, $cart->cartPrices)) {
 
@@ -1378,10 +1379,10 @@ class plgVmPaymentPaypal extends vmPSPlugin {
 					$html .= '<br/><span class="vmpayment_cardinfo">' . $paypalInterface->getPaymentPlanDesc() . '</span>';
 				}
 
-				$htmla[] = $html;
+				$htmlIn[$this->_psType][$this->_currentMethod->$idN] =$html;
 			}
 		}
-		$htmlIn[] = $htmla;
+
 		return true;
 
 	}

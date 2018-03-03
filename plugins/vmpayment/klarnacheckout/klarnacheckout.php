@@ -37,7 +37,7 @@ if (!class_exists('Klarna')) {
 
 
 class plgVmPaymentKlarnaCheckout extends vmPSPlugin {
-	const RELEASE = 'VM 3.2.4';
+	const RELEASE = 'VM 3.2.12';
 	protected $currency_code_3;
 	protected $currency_id;
 	protected $country_code_2;

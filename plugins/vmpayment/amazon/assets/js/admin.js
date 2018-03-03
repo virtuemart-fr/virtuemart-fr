@@ -46,7 +46,7 @@ jQuery().ready(function ($) {
             $('.status_refunded').parents('.control-group').hide();
             $('.ipnurl').parents('.control-group').hide();
             $('.ipn_warning').parents('.control-group').hide();
-            $('.soft_decline').parents('.control-group').hide();
+            //$('.soft_decline').parents('.control-group').hide();
             $('.sandbox_error_simulation').parents('.control-group').hide();
 
         } else {
@@ -55,7 +55,7 @@ jQuery().ready(function ($) {
             $('.status_authorization').parents('.control-group').show();
             $('.ipnurl').parents('.control-group').show();
             $('.ipn_warning').parents('.control-group').show();
-            $('.soft_decline').parents('.control-group').show();
+            //$('.soft_decline').parents('.control-group').show();
             $('.sandbox_error_simulation').parents('.control-group').show();
             handleCaptureMode();
         }

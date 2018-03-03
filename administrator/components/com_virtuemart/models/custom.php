@@ -429,7 +429,7 @@ class VirtueMartModelCustom extends VmModel {
 			JPluginHelper::importPlugin ('vmcustom');
 			$dispatcher = JDispatcher::getInstance ();
 			//We call here vmplugin->getTablePluginParams which sets the xParam and the varsToPush of the Plugin
-			vmdebug('setParameterableByFieldType before trigger plgVmGetTablePluginParams ',$custom_element, $custom_jplugin_id, $xParams,$varsToPush);
+			//vmdebug('setParameterableByFieldType before trigger plgVmGetTablePluginParams ',$custom_element, $custom_jplugin_id, $xParams,$varsToPush);
 			$retValue = $dispatcher->trigger ('plgVmGetTablePluginParams', array('custom',$custom_element, $custom_jplugin_id, &$xParams, &$varsToPush));
 		}
 		$xParams = $table->_xParams;
@@ -468,14 +468,16 @@ class VirtueMartModelCustom extends VmModel {
 		} else if($type=='S' or $type=='B'){
 			$varsToPush = array(
 				'addEmpty'		=> array(0, 'int'),
-				'selectType'	=> array(0, 'int')
+				'selectType'	=> array(0, 'int'),
+				'multiplyPrice'	=> array('', 'string')
 			);
 		} else if($type=='M'){
 			$varsToPush = array(
 				'width'		=> array('', 'string'),
 				'height'	=> array('', 'string'),
 				'addEmpty'		=> array(0, 'int'),
-				'selectType'	=> array(1, 'int')
+				'selectType'	=> array(1, 'int'),
+				'multiplyPrice'	=> array('', 'string')
 			);
 		} else if($type=='R'){
 			$varsToPush = array(

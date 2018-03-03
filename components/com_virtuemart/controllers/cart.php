@@ -13,7 +13,7 @@
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
- * @version $Id: cart.php 9606 2017-07-26 06:55:50Z Milbo $
+ * @version $Id: cart.php 9663 2017-11-09 00:00:38Z Milbo $
  */
 // Check to ensure this file is included in Joomla!
 defined('_JEXEC') or die('Restricted access');
@@ -115,11 +115,11 @@ class VirtueMartControllerCart extends JControllerLegacy {
 
 		$request = vRequest::getRequest();
 		$task = vRequest::getCmd('task');
-		if(($task == 'confirm' or isset($request['confirm'])) and !$cart->getInCheckOut()){
 
+		if(($task == 'confirm' or isset($request['confirm'])) and !$cart->getInCheckOut()){
 			$cart->confirmDone();
 			$view = $this->getView('cart', 'html');
-			$view->setLayout('order_done');
+			$view->setLayout('orderdone');
 			$cart->_fromCart = false;
 			$view->display();
 			return true;
@@ -151,17 +151,34 @@ class VirtueMartControllerCart extends JControllerLegacy {
 
 		$cart->saveCartFieldsInCart();
 
+		//For storing cartfields
+		$currentUser = JFactory::getUser();
+		/*
+		$userModel = VmModel::getModel('user');
+
+		if($currentUser->guest!=1 and !empty($currentUser->id)){
+
+			$btId = $userModel->getBTuserinfo_id($currentUser->id);
+			if($btId){
+				$cart->BT['virtuemart_userinfo_id'] = $btId;
+
+				$dataT = $userModel->getTable('userinfos');
+				$dataT->bindChecknStore($cart->BT,true);
+			}
+		}
+		*/
+
 		if($cart->updateProductCart()){
 			vmInfo('COM_VIRTUEMART_PRODUCT_UPDATED_SUCCESSFULLY');
 		}
 
-		//Maybe better in line 133
+
 		$STsameAsBT = vRequest::getInt('STsameAsBT', null);
 		if(isset($STsameAsBT)){
 			$cart->STsameAsBT = $STsameAsBT;
 		}
 
-		$currentUser = JFactory::getUser();
+		//$currentUser = JFactory::getUser();
 		if(!$currentUser->guest){
 			$cart->selected_shipto = vRequest::getVar('shipto', $cart->selected_shipto);
 			if(!empty($cart->selected_shipto)){
@@ -498,6 +515,8 @@ class VirtueMartControllerCart extends JControllerLegacy {
 			foreach($data[0] as $k => $v) {
 				$data[$k] = $v;
 			}
+		} else {
+			$cart->BT = 0;
 		}
 
 		$cart->BT['email'] = $newUser->email;
@@ -506,6 +525,7 @@ class VirtueMartControllerCart extends JControllerLegacy {
 		$cart->STsameAsBT = 1;
 		$cart->selected_shipto = 0;
 		$cart->virtuemart_shipmentmethod_id = 0;
+		$cart->virtuemart_paymentmethod_id = 0;
 		$cart->saveAddressInCart($data, 'BT');
 
 		$this->resetShopperGroup(false);

@@ -1,6 +1,6 @@
 
 if (typeof Virtuemart === "undefined")
-    Virtuemart = {};
+    var Virtuemart = {};
 
 Virtuemart.showprices = jQuery(function($) {
     jQuery(document).ready(function( $ ) {

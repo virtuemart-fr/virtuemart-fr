@@ -3,7 +3,7 @@ if( !defined( '_JEXEC' ) ) die( 'Direct Access to '.basename(__FILE__).' is not 
 
 /**
 *
-* @version $Id: default.php 9607 2017-07-26 10:11:27Z Milbo $
+* @version $Id: default.php 9663 2017-11-09 00:00:38Z Milbo $
 * @package VirtueMart
 * @subpackage Report
 * @copyright Copyright (C) VirtueMart Team - All rights reserved.
@@ -37,13 +37,13 @@ else $addDateInfo = false;
                     <td align="left" width="100%">
 						<?php echo vmText::_('COM_VIRTUEMART_ORDERSTATUS') . $this->lists['state_list']; ?>
 						<?php echo vmText::_('COM_VIRTUEMART_REPORT_INTERVAL') . $this->lists['intervals']; ?>
-                        <?php echo vmText::_('COM_VIRTUEMART_REPORT_SET_PERIOD') . $this->lists['select_date'];
+						<?php echo vmText::_('COM_VIRTUEMART_REPORT_SET_PERIOD') . $this->lists['select_date'];
 
-                    echo vmText::_('COM_VIRTUEMART_REPORT_FROM_PERIOD') .  vmJsApi::jDate($this->from_period, 'from_period');
-                    echo vmText::_('COM_VIRTUEMART_REPORT_UNTIL_PERIOD') . vmJsApi::jDate($this->until_period, 'until_period');
-                        if(VmConfig::get('multix','none')!='none'){
-                        	echo ShopFunctions::renderVendorList();
-                        } ?>
+						echo vmText::_('COM_VIRTUEMART_REPORT_FROM_PERIOD') .  vmJsApi::jDate($this->from_period, 'from_period');
+						echo vmText::_('COM_VIRTUEMART_REPORT_UNTIL_PERIOD') . vmJsApi::jDate($this->until_period, 'until_period');
+						if(VmConfig::get('multix','none')!='none'){
+							echo ShopFunctions::renderVendorList();
+						} ?>
                         <button class="btn btn-small" onclick="this.form.period.value='';this.form.submit();"><?php echo vmText::_('COM_VIRTUEMART_GO'); ?>
                         </button>
                     </td>
@@ -51,66 +51,66 @@ else $addDateInfo = false;
             </table>
         </div>
         <div id="resultscounter">
-            <?php echo $this->pagination->getResultsCounter();?>
+			<?php echo $this->pagination->getResultsCounter();?>
         </div>
     </div>
 
     <div id="editcell">
-	    <table class="adminlist table table-striped" cellspacing="0" cellpadding="0">
+        <table class="adminlist table table-striped" cellspacing="0" cellpadding="0">
             <thead>
-                <tr>
+            <tr>
+                <th>
+					<?php echo $this->sort('created_on', 'COM_VIRTUEMART_'.$intervalTitle); ?>
+                </th>
+                <th class="right">
+					<?php echo $this->sort('o.virtuemart_order_id', 'COM_VIRTUEMART_REPORT_BASIC_ORDERS') ; ?>
+                </th>
+                <th class="right">
+					<?php echo $this->sort('product_quantity', 'COM_VIRTUEMART_REPORT_BASIC_TOTAL_ITEMS') ; ?>
+                </th>
+                <th class="right">
+					<?php echo $this->sort('order_subtotal_netto', 'COM_VIRTUEMART_REPORT_BASIC_REVENUE_NETTO') ; ?>
+                </th>
+                <th class="right">
+					<?php echo $this->sort('order_subtotal_brutto', 'COM_VIRTUEMART_REPORT_BASIC_REVENUE_BRUTTO') ; ?>
+                </th>
+				<?php
+				$intervals = vRequest::getCmd ('intervals', 'day');
+				if($intervals=='product_s'){
+					?>
                     <th>
-                        <?php echo $this->sort('created_on', 'COM_VIRTUEMART_'.$intervalTitle); ?>
+						<?php echo $this->sort('order_item_name', 'COM_VIRTUEMART_PRODUCT_NAME') ; ?>
                     </th>
                     <th>
-                        <?php echo $this->sort('o.virtuemart_order_id', 'COM_VIRTUEMART_REPORT_BASIC_ORDERS') ; ?>
+						<?php echo $this->sort('virtuemart_product_id', 'COM_VIRTUEMART_PRODUCT_ID') ; ?>
                     </th>
-                    <th>
-                        <?php echo $this->sort('product_quantity', 'COM_VIRTUEMART_REPORT_BASIC_TOTAL_ITEMS') ; ?>
-                    </th>
-                    <th>
-                        <?php echo $this->sort('order_subtotal_netto', 'COM_VIRTUEMART_REPORT_BASIC_REVENUE_NETTO') ; ?>
-                    </th>
-                    <th>
-		                <?php echo $this->sort('order_subtotal_brutto', 'COM_VIRTUEMART_REPORT_BASIC_REVENUE_BRUTTO') ; ?>
-                    </th>
-                <?php
-                    $intervals = vRequest::getCmd ('intervals', 'day');
-	                if($intervals=='product_s'){
-		        ?>
-		            <th>
-                        <?php echo $this->sort('order_item_name', 'COM_VIRTUEMART_PRODUCT_NAME') ; ?>
-                    </th>
-                    <th>
-	                    <?php echo $this->sort('virtuemart_product_id', 'COM_VIRTUEMART_PRODUCT_ID') ; ?>
-                    </th>
-		        <?php
-	                } else /*if(VmConfig::get('multix','none')!='none')*/{
-	                ?><th><?php
-				        echo $this->sort('coupon_discount', 'COM_VIRTUEMART_COUPON') ;
-	                }
-		        ?>
-                </tr>
+					<?php
+				} else /*if(VmConfig::get('multix','none')!='none')*/{
+				?><th class="right"><?php
+					echo $this->sort('coupon_discount', 'COM_VIRTUEMART_COUPON') ;
+					}
+					?>
+            </tr>
             </thead>
             <tbody>
-                <?php
-	    $i = 0;
-	    for ($j =0; $j < $rows; ++$j ){
-	    	$r = $this->report[$j];
+			<?php
+			$i = 0;
+			for ($j =0; $j < $rows; ++$j ){
+				$r = $this->report[$j];
 
-	    	//$is = $this->itemsSold[$j];
-	    	$s = 0;
-	    	?>
+				//$is = $this->itemsSold[$j];
+				$s = 0;
+				?>
                 <tr class="row<?php echo $i;?>">
                     <td align="center">
-                        <?php echo $r['intervals'] ;
+						<?php echo $r['intervals'] ;
 						if ( $addDateInfo ) {
 							echo ' ('.substr ( $r['created_on'],0,4 ).')';
 						}
-                     ?>
+						?>
                     </td>
-                    <td align="center">
-                        <?php
+                    <td class="right">
+						<?php
 						if($intervals=='orders'){
 							$link = 'index.php?option=com_virtuemart&view=orders&task=edit&virtuemart_order_id=' . $r['virtuemart_order_id'];
 							echo JHtml::_ ('link', JRoute::_ ($link, FALSE), $r['order_number'], array('title' => vmText::_ ('COM_VIRTUEMART_ORDER_EDIT_ORDER_NUMBER') . ' ' . $r['order_number'], 'target' => '_blank'));
@@ -118,53 +118,53 @@ else $addDateInfo = false;
 						} else {
 							echo $r['count_order_id'];
 						}
-                        ?>
+						?>
                     </td>
-                    <td align="center">
-                        <?php echo $r['product_quantity'];?>
+                    <td class="right">
+						<?php echo $r['product_quantity'];?>
                     </td>
-                    <td align="right">
-                        <?php echo $r['order_subtotal_netto'];?>
+                    <td class="right">
+						<?php echo $r['order_subtotal_netto'];?>
                     </td>
-                    <td align="right">
-		                <?php echo $r['order_subtotal_brutto'];?>
+                    <td class="right">
+						<?php echo $r['order_subtotal_brutto'];?>
                     </td>
-		    <?php   if($intervals=='product_s'){
-	                ?>
-	                <td align="center">
-		                <?php echo $r['order_item_name'];?>
-	                </td>
-	                <td align="center">
-		                <?php echo $r['virtuemart_product_id'];?>
-	                </td>
+					<?php   if($intervals=='product_s'){
+						?>
+                        <td align="center">
+							<?php echo $r['order_item_name'];?>
+                        </td>
+                        <td align="center">
+							<?php echo $r['virtuemart_product_id'];?>
+                        </td>
 
-	        <?php  } else /*if(VmConfig::get('multix','none')!='none')*/{ ?>
-	                    <td align="center">
-					    <?php echo $r['coupon_discount'] ; ?>
-						</td>
-			<?php  } ?>
+					<?php  } else /*if(VmConfig::get('multix','none')!='none')*/{ ?>
+                        <td class="right">
+							<?php echo $r['coupon_discount'] ; ?>
+                        </td>
+					<?php  } ?>
 
                 </tr>
-                <?php
-	    	$i = 1-$i;
-	    }
-	    ?>
+				<?php
+				$i = 1-$i;
+			}
+			?>
             </tbody>
-           <thead>
-                <tr>
-                    <th  class="right"><?php echo vmText::_('COM_VIRTUEMART_TOTAL').' : '; ?></th>
-                    <th><?php echo $this->totalReport['number_of_ordersTotal']?></th>
-                    <th><?php echo $this->totalReport['itemsSoldTotal'];?></th>
-                    <th class="right"><?php echo $this->totalReport['revenueTotal_netto'];?></th>
-                    <th class="right"><?php echo $this->totalReport['revenueTotal_brutto'];?></th>
-				</tr>
+            <thead>
+            <tr>
+                <th  class="right"><?php echo vmText::_('COM_VIRTUEMART_TOTAL').' : '; ?></th>
+                <th class="right"><?php echo $this->totalReport['number_of_ordersTotal']?></th>
+                <th class="right"><?php echo $this->totalReport['itemsSoldTotal'];?></th>
+                <th class="right"><?php echo $this->totalReport['revenueTotal_netto'];?></th>
+                <th class="right"><?php echo $this->totalReport['revenueTotal_brutto'];?></th>
+            </tr>
             </thead>
             <tfoot>
-                <tr>
-                    <td colspan="10">
-                        <?php echo $this->pagination->getListFooter(); ?>
-                    </td>
-                </tr>
+            <tr>
+                <td colspan="10">
+					<?php echo $this->pagination->getListFooter(); ?>
+                </td>
+            </tr>
             </tfoot>
         </table>
     </div>

@@ -52,7 +52,8 @@ class VirtueMartControllerInvoice extends JControllerLegacy
 		if ($format != 'pdf') {
 			$viewName='invoice';
 
-			$view = $this->getView($viewName, $format);
+			$view = $this->getViewWithTemplate($viewName, $format);
+			//$view = $this->getView($viewName, $format);
 			$view->headFooter = true;
 			$view->display();
 		} else {
@@ -158,8 +159,29 @@ class VirtueMartControllerInvoice extends JControllerLegacy
 		JFactory::getApplication()->close();
 	}
 
+	function getViewWithTemplate($viewName, $format){
+
+		$this->addViewPath( VMPATH_SITE.DS.'views' );
+		$view = $this->getView($viewName, $format);
+		$this->writeJs = false;
+		$view->addTemplatePath( VMPATH_SITE.DS.'views'.DS.$viewName.DS.'tmpl' );
+
+		if(!class_exists('VmTemplate')) require(VMPATH_SITE.DS.'helpers'.DS.'vmtemplate.php');
+		$template = VmTemplate::loadVmTemplateStyle();
+		$templateName = VmTemplate::setTemplate($template);
+
+		if(!empty($templateName)){
+			$TemplateOverrideFolder = JPATH_SITE.DS."templates".DS.$templateName.DS."html".DS."com_virtuemart".DS."invoice";
+			if(file_exists($TemplateOverrideFolder)){
+				$view->addTemplatePath( $TemplateOverrideFolder);
+			}
+		}
+		return $view;
+	}
+
 	function getInvoicePDF($orderDetails, $viewName='invoice', $layout='invoice', $format='html', $force = false){
-// 		$force = true;
+
+		vmLanguage::loadJLang('com_virtuemart',1);
 
 		$path = VmConfig::get('forSale_path',0);
 		if(empty($path) ){
@@ -203,29 +225,9 @@ class VirtueMartControllerInvoice extends JControllerLegacy
 			return $path;
 		}
 
-		if(VmConfig::get('invoiceInUserLang', false) and !empty($orderDetails['details']) and !empty($orderDetails['details']['BT']->order_language)) {
-			$orderLang = $orderDetails['details']['BT']->order_language;
-			shopFunctionsF::loadOrderLanguages($orderLang);
-			$orderDetails = $orderModel->getOrder($orderDetails['details']['BT']->virtuemart_order_id);
-		} else {
-			shopFunctionsF::loadOrderLanguages(VmConfig::$jDefLangTag);
-		}
 
-		$this->addViewPath( VMPATH_SITE.DS.'views' );
-		$view = $this->getView($viewName, $format);
-		$this->writeJs = false;
-		$view->addTemplatePath( VMPATH_SITE.DS.'views'.DS.$viewName.DS.'tmpl' );
 
-		if(!class_exists('VmTemplate')) require(VMPATH_SITE.DS.'helpers'.DS.'vmtemplate.php');
-		$template = VmTemplate::loadVmTemplateStyle();
-		$templateName = VmTemplate::setTemplate($template);
-
-		if(!empty($templateName)){
-			$TemplateOverrideFolder = JPATH_SITE.DS."templates".DS.$templateName.DS."html".DS."com_virtuemart".DS."invoice";
-			if(file_exists($TemplateOverrideFolder)){
-				$view->addTemplatePath( $TemplateOverrideFolder);
-			}
-		}
+		$view = $this->getViewWithTemplate($viewName, $format);
 
 		$view->invoiceNumber = $invoiceNumberDate[0];
 		$view->invoiceDate = $invoiceNumberDate[1];

@@ -25,6 +25,7 @@ defined('_JEXEC') or die('Restricted access'); ?>
 		echo VmHTML::row('checkbox','COM_VIRTUEMART_CFG_SEO_SUFFIX','use_seo_suffix', VmConfig::get('use_seo_suffix', true));
 		echo VmHTML::row('input','COM_VIRTUEMART_ADMIN_CFG_SEO_SUFIX','seo_sufix', VmConfig::get('seo_sufix', '-detail'));
 		echo VmHTML::row('checkbox','COM_VIRTUEMART_ADMIN_CFG_SEO_TRANSLATE','seo_translate', VmConfig::get('seo_translate', 1));
+		echo VmHTML::row('checkbox','COM_VM_CFG_TRANSLITERATE_SLUGS','transliterateSlugs', VmConfig::get('transliterateSlugs', 0));
 		echo VmHTML::row('checkbox','COM_VIRTUEMART_ADMIN_CFG_SEO_USE_ID','seo_use_id', VmConfig::get('seo_use_id',0));
 		echo VmHTML::row('checkbox','COM_VIRTUEMART_CFG_SEO_FULL','seo_full', VmConfig::get('seo_full',1));
 		echo VmHTML::row('checkbox','COM_VM_CFG_SEO_STRICT','router_by_menu', VmConfig::get('router_by_menu',0));

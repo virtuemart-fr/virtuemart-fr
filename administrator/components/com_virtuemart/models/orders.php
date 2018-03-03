@@ -16,7 +16,7 @@
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
- * @version $Id: orders.php 9622 2017-08-14 21:20:30Z kkmediaproduction $
+ * @version $Id: orders.php 9684 2017-12-04 17:36:17Z Milbo $
  */
 
 // Check to ensure this file is included in Joomla!
@@ -139,23 +139,27 @@ class VirtueMartModelOrders extends VmModel {
 	 */
 	public function getMyOrderDetails($orderID = 0, $orderNumber = false, $orderPass = false, $userlang=false){
 
-		$_currentUser = JFactory::getUser();
-		$cuid = $_currentUser->get('id');
+		if(VmConfig::get('ordertracking','guests') == 'none' and !vmAccess::manager('orders')){
+			return false;
+		}
 
 		$virtuemart_order_id = vRequest::getInt('virtuemart_order_id',$orderID) ;
 		$orderNumber = vRequest::getString('order_number',$orderNumber);
 
 		$sess = JFactory::getSession();
-		$tries = $sess->get('getOrderDetails.'.$orderNumber.$virtuemart_order_id,0);
-		if($tries>5){
+		if(empty($orderNumber)) $h = $virtuemart_order_id; else $h = $orderNumber;
+		$tries = $sess->get('getOrderDetails.'.$h,0);
+		if($tries>6){
 			vmDebug ('Too many tries, Invalid order_number/password '.vmText::_('COM_VIRTUEMART_RESTRICTED_ACCESS'));
 			vmError ('Too many tries, Invalid order_number/password guest '.$orderNumber.' '.$orderPass , 'COM_VIRTUEMART_RESTRICTED_ACCESS');
 			return false;
+		} else {
+			$tries++;
+			$sess->set('getOrderDetails.'.$h,$tries);
 		}
 
-		/*if($userlang){
-			shopFunctionsF::loadOrderLanguages($userlang);
-		}*/
+		$_currentUser = JFactory::getUser();
+		$cuid = $_currentUser->get('id');
 
 		//Extra check, when a user is logged in, else we use the guest method
 		if(!empty($cuid)){
@@ -165,29 +169,41 @@ class VirtueMartModelOrders extends VmModel {
 			if(!empty($virtuemart_order_id)){
 				$orderDetails = $this->getOrder($virtuemart_order_id);
 				if($orderDetails['details']['BT']->virtuemart_user_id == $cuid or vmAccess::manager('orders')) {
-					$sess->set('getOrderDetails.'.$orderNumber.$virtuemart_order_id,0);
+					$sess->set('getOrderDetails.'.$h,0);
 					return $orderDetails;
+				}
+			}
+		} else if(VmConfig::get('ordertracking','guests') == 'registered' and empty($cuid)){
+			return true;
+		}
+
+		if( (VmConfig::get('ordertracking','guests') == 'guestlink' or VmConfig::get('ordertracking','guests') == 'guests') and !empty( $orderNumber )){
+			$orderPass = vRequest::getString( 'order_pass', $orderPass );
+
+			if( empty( $orderPass )) {
+				return true;
+			} else {
+
+				$orderId = $this->getOrderIdByOrderPass( $orderNumber, $orderPass );
+				if($orderId) {
+
+					if(VmConfig::get('ordertracking','guests') == 'guestlink' or vmAccess::manager('orders')){
+						$sess->set('getOrderDetails.'.$h,0);
+						return $this->getOrder( $orderId );
+					} //Guest case
+					else {
+						$o = $this->getOrder( $orderId );
+						if(empty( $o['details']['BT']->virtuemart_user_id ) ) {
+							$sess->set('getOrderDetails.'.$h,0);
+							return $o;
+						} else {
+							return true;
+						}
+					}
 				}
 			}
 		}
 
-		$orderPass = vRequest::getString('order_pass',$orderPass);
-
-		if (!empty($orderNumber) and !empty($orderPass)){
-
-			$orderId = $this->getOrderIdByOrderPass($orderNumber,$orderPass);
-			if($orderId){
-				$sess->set('getOrderDetails.'.$orderNumber.$virtuemart_order_id,0);
-				return $this->getOrder($orderId);
-			}
-		}
-		$tries++;
-		$sess->set('getOrderDetails.'.$orderNumber.$virtuemart_order_id,$tries);
-
-		vmdebug('getMyOrderDetails COM_VIRTUEMART_RESTRICTED_ACCESS',$orderNumber, $orderPass, $tries);
-		vmError(vmText::_('COM_VIRTUEMART_RESTRICTED_ACCESS').' by guest '.$orderNumber.' '.$orderPass, 'COM_VIRTUEMART_RESTRICTED_ACCESS');
-
-		//echo vmText::_('COM_VIRTUEMART_RESTRICTED_ACCESS');
 		return false;
 	}
 
@@ -250,6 +266,12 @@ class VirtueMartModelOrders extends VmModel {
 				LEFT JOIN #__virtuemart_product_categories c
 				ON p.virtuemart_product_id = c.virtuemart_product_id
 			WHERE `virtuemart_order_id`="'.$virtuemart_order_id.'" group by `virtuemart_order_item_id`';
+
+		$orderBy = VmConfig::get('order_item_ordering','virtuemart_order_item_id');
+        if (!empty ( $orderBy)) {
+        	$orderingDir = VmConfig::get('order_item_ordering_dir','ASC');
+            $q .= ' ORDER BY `'.$orderBy.'` ' . $orderingDir;
+        }
 //group by `virtuemart_order_id`'; Why ever we added this, it makes trouble, only one order item is shown then.
 // without group by we get the product 3 times, when it is in 3 categories and similar, so we need a group by
 //lets try group by `virtuemart_order_item_id`
@@ -743,6 +765,9 @@ vmdebug('my prices',$data);
 
 	public function updateBill($virtuemart_order_id, $vattax){
 
+		if (!class_exists('CurrencyDisplay')) {
+			require(VMPATH_ADMIN . DS . 'helpers' . DS . 'currencydisplay.php');
+		}
 		$this->_currencyDisplay = CurrencyDisplay::getInstance();
 		$rounding = $this->_currencyDisplay->_priceConfig['salesPrice'][1];
 		//OSP update cartRules/shipment/payment
@@ -1930,12 +1955,9 @@ vmdebug('my prices',$data);
 		//always be in the database, so using getOrder is the right method
 
 		$vendorModel = VmModel::getModel('vendor');
-		//Lets set the language to the BE default of the main vendor
-		$vendorUserId = $vendorModel->getUserIdByVendorId(1);
-		$vu = JFactory::getUser($vendorUserId);
-		$vLang = $vu->getParam('admin_language',VmConfig::$jDefLangTag);
+		//Lets set the language to the Shop default
 
-		shopFunctionsF::loadOrderLanguages($vLang);
+		shopFunctionsF::loadOrderLanguages(VmConfig::$jDefLangTag);
 		$order = $this->getOrder($virtuemart_order_id);
 
 

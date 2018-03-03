@@ -359,25 +359,25 @@ class vmJsApi{
 		static $e = true;
 		if($e){
 			$v = 'if (typeof Virtuemart === "undefined"){
-	Virtuemart = {};}'."\n";
-			$v .= "vmSiteurl = '".JURI::root()."' ;\n";
+	var Virtuemart = {};}'."\n";
+			$v .= "var vmSiteurl = '".JURI::root()."' ;\n";
 			$v .= "Virtuemart.vmSiteurl = vmSiteurl;\n";
-			$v .= "vmLang = '&lang=".VmConfig::$vmlangSef."';\n";
+			$v .= "var vmLang = '&lang=".VmConfig::$vmlangSef."';\n";
 			$v .= "Virtuemart.vmLang = vmLang; \n";
-			$v .= "vmLangTag = '".VmConfig::$vmlangSef."';\n";
+			$v .= "var vmLangTag = '".VmConfig::$vmlangSef."';\n";
 			$v .= "Virtuemart.vmLangTag = vmLangTag;\n";
 			$itemId = vRequest::getInt('Itemid',false,'GET');
 			if(!empty($itemId)){
-				$v .= "Itemid = '&Itemid=".$itemId."';\n";
+				$v .= "var Itemid = '&Itemid=".$itemId."';\n";
 			} else {
-				$v .= 'Itemid = "";'."\n";
+				$v .= 'var Itemid = "";'."\n";
 			}
 			$v .= 'Virtuemart.addtocart_popup = "'.VmConfig::get('addtocart_popup',1).'"'." ; \n";
 			if(VmConfig::get('usefancy',1)) {
-				$v .= "usefancy = true;\n";
+				$v .= "var usefancy = true;\n";
 			} else {//This is just there for the backward compatibility
-				$v .= "vmCartText = '". addslashes( vmText::_('COM_VIRTUEMART_CART_PRODUCT_ADDED') )."' ;\n" ;
-				$v .= "vmCartError = '". addslashes( vmText::_('COM_VIRTUEMART_MINICART_ERROR_JS') )."' ;\n" ;
+				$v .= "var vmCartText = '". addslashes( vmText::_('COM_VIRTUEMART_CART_PRODUCT_ADDED') )."' ;\n" ;
+				$v .= "var vmCartError = '". addslashes( vmText::_('COM_VIRTUEMART_MINICART_ERROR_JS') )."' ;\n" ;
 				//This is necessary though and should not be removed without rethinking the whole construction
 				$v .= "usefancy = false;\n";
 			}
@@ -813,7 +813,9 @@ jQuery(document).ready(function($) {
 		$jsDateFormat = str_replace($search, $replace, $dateFormat);
 
 		if ($date) {
-			$formatedDate = JHtml::_('date', $date, $dateFormat );
+			$formatedDate = JHtml::_('date', $date, $dateFormat, false );
+			/*$date1 = new DateTime($date);
+			$formatedDate = $date1->format($dateFormat);*/
 		}
 		else {
 			$formatedDate = vmText::_('COM_VIRTUEMART_NEVER');
@@ -851,10 +853,13 @@ jQuery(document).ready(function($) {
 		vmJsApi::css('ui/jquery.ui.all');
 		$lg = JFactory::getLanguage();
 		$lang = $lg->getTag();
-
+		$sh_lang = substr($lang, 0, 2);
 		$vlePath = vmJsApi::setPath('i18n/jquery.ui.datepicker-'.$lang, FALSE , '' ,$minified = NULL ,   'js', true);
 		if(!file_exists($vlePath) or is_dir($vlePath)){
-			$lang = 'en-GB';
+			$vlePath = vmJsApi::setPath('i18n/jquery.ui.datepicker-'.$sh_lang, FALSE , '' ,$minified = NULL ,   'js', true);
+			if(!file_exists($vlePath) or is_dir($vlePath)){
+				$lang = 'en-GB';
+			}
 		}
 		vmJsApi::addJScript( 'i18n/jquery.ui.datepicker-'.$lang );
 
@@ -865,23 +870,23 @@ jQuery(document).ready(function($) {
 
 	/*
 	 * Convert formated date;
-	 * @ $date the date to convert
-	 * @ $format Joomla DATE_FORMAT Key endding eg. 'LC2' for DATE_FORMAT_LC2
-	 * @ revert date format for database- TODO ?
+	 * @$date the date to convert
+	 * @$format Joomla DATE_FORMAT Key endding eg. 'LC2' for DATE_FORMAT_LC2
+	 * @tz Timezone offset, defaults to false, which is the general joomla timezone
 	 */
 
-	static function date($date , $format ='LC2', $joomla=FALSE ,$revert=FALSE ){
+	static function date($date , $format ='LC2', $joomla=FALSE , $tz=false ){
 
 		if (!strcmp ($date, '0000-00-00 00:00:00')) {
 			return vmText::_ ('COM_VIRTUEMART_NEVER');
 		}
 		If ($joomla) {
-			$formatedDate = JHtml::_('date', $date, vmText::_('DATE_FORMAT_'.$format));
+			$formatedDate = JHtml::_('date', $date, vmText::_('DATE_FORMAT_'.$format),$tz);
 		} else {
 
 			$J16 = "_J16";
 
-			$formatedDate = JHtml::_('date', $date, vmText::_('COM_VIRTUEMART_DATE_FORMAT_'.$format.$J16));
+			$formatedDate = JHtml::_('date', $date, vmText::_('COM_VIRTUEMART_DATE_FORMAT_'.$format.$J16),$tz);
 		}
 		return $formatedDate;
 	}

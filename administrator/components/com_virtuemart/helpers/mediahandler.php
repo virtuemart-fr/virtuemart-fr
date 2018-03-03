@@ -618,7 +618,8 @@ class VmMediaHandler {
 			$image = '<img src="' . $root.$file_url . '" alt="' . $file_alt . '" ' . $args . ' />';//JHtml::image($file_url, $file_alt, $imageArgs);
 			if ($file_alt ) $file_alt = 'title="'.$file_alt.'"';
 			if ($this->file_url and pathinfo($this->file_url, PATHINFO_EXTENSION) and substr( $this->file_url, 0, 4) != "http") $href = JURI::root() .$this->file_url ;
-			else $href = $file_url ;
+			else $href = $root.$file_url ;
+
 			if ($this->file_is_downloadable) {
 				$lightboxImage = '<a '.$file_alt.' '.$effect.' href="'.$href.'">'.$image.$desc.'</a>';
 			} else {
@@ -652,15 +653,32 @@ class VmMediaHandler {
 	 *
 	 * @param string $url relative Url, gets adjusted to path
 	 */
-	function deleteFile($url){
+	function deleteFile($url, $absPathGiv = 0){
 
 		if(!vmAccess::manager('media.delete')){
 			vmWarn('Insufficient permissions to delete the media');
 			return false;
 		}
 
+		if(empty($url)){
+			vmTrace('deleteFile empty url was given');
+			return false;
+		}
 		if(!class_exists('JFile')) require(VMPATH_LIBS.DS.'joomla'.DS.'filesystem'.DS.'file.php');
-		$file_path = VMPATH_ROOT.DS.str_replace('/',DS,$url);
+
+		$file_path = str_replace('/',DS,$url);
+		if($absPathGiv){
+			//vmdebug('deleteFile absolut Path given',$file_path);
+		} else {
+			$file_path = VMPATH_ROOT.DS.$file_path;
+			//vmdebug('deleteFile relative Path given',$file_path);
+		}
+
+		if(is_dir($file_path)){
+			vmTrace('deleteFile path given '.$file_path);
+			return false;
+		}
+
 		$app = JFactory::getApplication();
 
 		$msg_path = '';
@@ -669,12 +687,55 @@ class VmMediaHandler {
 			$msg_path = $file_path;
 		}
 
+
 		if($res = JFile::delete( $file_path )){
 			$app->enqueueMessage(vmText::sprintf('COM_VIRTUEMART_FILE_DELETE_OK',$msg_path));
+			return true;
 		} else {
 			$app->enqueueMessage(vmText::sprintf('COM_VIRTUEMART_FILE_DELETE_ERR',$res.' '.$msg_path));
 		}
-		return ;
+		return false;
+	}
+
+	function deleteThumbs(){
+
+		$oldFileUrlThumb = $this->getFileUrlThumb();
+
+		if(empty($oldFileUrlThumb)) return true;
+		$filename = $this->file_name;
+		if($this->file_is_forSale!=1){
+
+			$dir = VMPATH_ROOT.DS.$this->file_url_folder.'resized';
+			if($p = strpos($this->file_name,'/')){
+				$dir .= DS.substr($this->file_name,0,$p);
+				$filename = substr($this->file_name,$p+1);
+			}
+
+		} else {
+			$dir = VmConfig::get('forSale_path_thumb', false);
+			$dir = VMPATH_ROOT.DS.rtrim($dir,'/');
+		}
+
+		if(!is_dir($dir)){
+			$m = 'deleteThumbs: Attention directoy is not accessible (does not exists or wrong rights) ';
+			vmError($m.$dir,$m);
+			//continue;
+		}
+
+		if ($handle = opendir($dir)) {
+			while (false !== ($file = readdir($handle))) {
+				if(!empty($file) and strpos($file,'.')!==0 and $file != 'index.html' and !is_dir($dir.DS.$file)){
+					$hits = array();
+					$regex = "/".$filename.'_\d{1,4}x\d{1,4}.\S{1,3}'."/";
+					$res = preg_match($regex, $file, $hits);
+					foreach($hits as $name){
+						$this->deleteFile($dir.DS.$name,true);
+					}
+				}
+			}
+		}
+
+		$this->deleteFile($oldFileUrlThumb, false);
 	}
 
 	/**
@@ -699,18 +760,21 @@ class VmMediaHandler {
 			$this->file_url = $this->file_url_folder.$this->file_name;
 		}
 		else if( $data['media_action'] == 'replace' ){
+
+			//always delete the thumb
+			$this->deleteThumbs();
+
 			$oldFileUrl = $this->file_url;
-			$oldFileUrlThumb = $this->getFileUrlThumb();
 			$file_name = $this->uploadFile($this->file_url_folder,true);
 			if ($file_name===false) return false;
 			$this->file_name = $file_name;
 			$this->file_url = $this->file_url_folder.$this->file_name;
 
 			if($this->file_url!=$oldFileUrl && !empty($this->file_name)){
-				$this->deleteFile($oldFileUrl);
+				$this->deleteFile($oldFileUrl,$this->file_is_forSale);
 			}
-			//always delete the thumb
-			$this->deleteFile($oldFileUrlThumb);
+
+
 		}
 		else if( $data['media_action'] == 'replace_thumb' ){
 
@@ -726,7 +790,9 @@ class VmMediaHandler {
 		}
 		else if( $data['media_action'] == 'delete' ){
 			//TODO this is complex, we must assure that the media entry gets also deleted.
-			unset($data['active_media_id']);
+			$mediaM = VmModel::getModel('media');
+			$mediaM->removeFiles($this->virtuemart_media_id);
+			//unset($data['active_media_id']);
 
 		}
 
@@ -910,7 +976,7 @@ class VmMediaHandler {
 
 
 		$j = 'if (typeof Virtuemart === "undefined")
-	Virtuemart = {};
+	var Virtuemart = {};
 	Virtuemart.medialink = "'. JURI::root(false) .'administrator/index.php?option=com_virtuemart&view=media&task=viewJson&format=json&mediatype='.$type.'";';
 		$j .= "jQuery(document).ready(function(){ jQuery('#ImagesContainer').vmmedia('media','".$type."','0') }); " ;
 		vmJsApi::addJScript('mediahandler.vars',$j);

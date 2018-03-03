@@ -50,9 +50,10 @@ $customs = $this->customs->items;
 	<thead>
 	<tr>
 		<th class="admin-checkbox"><input type="checkbox" name="toggle" value="" onclick="Joomla.checkAll(this)" /></th>
-		<th width="10%"><?php echo vmText::_('COM_VIRTUEMART_CUSTOM_GROUP'); ?></th>
+		<th width="8%"><?php echo vmText::_('COM_VIRTUEMART_CUSTOM_GROUP'); ?></th>
 		<th width="30%"><?php echo vmText::_('COM_VIRTUEMART_TITLE'); ?></th>
 		<th width="35%"><?php echo vmText::_('COM_VIRTUEMART_CUSTOM_FIELD_DESCRIPTION'); ?></th>
+        <th width="8%"><?php echo vmText::_('COM_VIRTUEMART_CUSTOM_LAYOUT_POS'); ?></th>
 		<th><?php echo vmText::_('COM_VIRTUEMART_CUSTOM_FIELD_TYPE'); ?></th>
 		<th><?php echo vmText::_('COM_VIRTUEMART_CUSTOM_IS_CART_ATTRIBUTE'); ?></th>
 		<th><?php echo vmText::_('COM_VIRTUEMART_CUSTOM_ADMIN_ONLY'); ?></th>
@@ -102,6 +103,7 @@ $customs = $this->customs->items;
 				?>
 				<td><?php echo JHtml::_('link', JRoute::_($link, FALSE), vmText::_($custom->custom_title), array('title' => vmText::_('COM_VIRTUEMART_EDIT').' '.htmlentities($custom->custom_title))); ?></td>
 				<td><?php echo vmText::_($custom->custom_desc); ?></td>
+                <td><?php echo vmText::_($custom->layout_pos); ?></td>
 				<td><?php echo vmText::_($custom->field_type_display); ?></td>
 				<td><span class="vmicon vmicon-16-<?php echo $cartIcon ?>"></span></td>
 				<td>

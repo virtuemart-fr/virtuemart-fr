@@ -168,7 +168,7 @@ class plgVmPaymentHeidelpay extends vmPSPlugin {
 
 		$params['PRESENTATION.AMOUNT'] = $totalInPaymentCurrency;
 		$params['PRESENTATION.CURRENCY'] = $currency_code_3;
-		$params['FRONTEND.LANGUAGE'] = strtolowerr(substr(vmConfig::$vmlangTag, 0,2));
+		$params['FRONTEND.LANGUAGE'] = strtolower(substr(vmConfig::$vmlangTag, 0,2));
 		$params['CRITERION.LANG'] = $params['FRONTEND.LANGUAGE'];
 		$params['IDENTIFICATION.TRANSACTIONID'] = $order['details']['BT']->order_number;
 		/*

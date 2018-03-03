@@ -241,8 +241,11 @@ class PaypalHelperPayPalStd extends PaypalHelperPaypal {
 		$post_variables['email'] = $this->order['details']['BT']->email;
 		$post_variables['night_phone_b'] = $address->phone_1;
 
-
-		$post_variables['return'] = JURI::root() . 'index.php?option=com_virtuemart&view=vmplg&task=pluginresponsereceived&on=' . $this->order['details']['BT']->order_number . '&pm=' . $this->order['details']['BT']->virtuemart_paymentmethod_id . '&Itemid=' . vRequest::getInt('Itemid') . '&lang=' . vRequest::getCmd('lang', '');
+		$lang = vRequest::getCmd('lang', '');
+		if(!empty($lang)){
+			$lang = '&lang='.$lang;
+		}
+		$post_variables['return'] = JURI::root() . 'index.php?option=com_virtuemart&view=vmplg&task=pluginresponsereceived&on=' . $this->order['details']['BT']->order_number . '&pm=' . $this->order['details']['BT']->virtuemart_paymentmethod_id . '&Itemid=' . vRequest::getInt('Itemid') . $lang;
 		//Keep this line, needed when testing
 		//$post_variables['return'] 		= JRoute::_(JURI::root().'index.php?option=com_virtuemart&view=vmplg&task=notify&tmpl=component'),
 		$post_variables['notify_url'] = JURI::root() . 'index.php?option=com_virtuemart&view=vmplg&task=notify&tmpl=component' . '&lang=' . vRequest::getCmd('lang', '');

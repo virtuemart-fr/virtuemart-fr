@@ -4,19 +4,18 @@
  *
  * @package	VirtueMart
  * @subpackage Helpers
+ * @author Max Milberes
  * @author Valerie Isaksen
  * @copyright Copyright (c) 2014 VirtueMart Team and author. All rights reserved.
  */
 defined('_JEXEC') or die('Restricted access');
 defined('DS') or define('DS', DIRECTORY_SEPARATOR);
-//defined('_JEXEC') or define('_JEXEC', 1);
-
 
 class vmRSS{
 
 	/**
 	 * Get cached feed
-	 * @author valerie isaksen
+	 * @author valerie isaksen, Max Milbers
 	 * @param $rssUrl
 	 * @param $max
 	 * @param $cache_time in minutes
@@ -34,7 +33,6 @@ class vmRSS{
 	}
 
 	/**
-	 * @author Valerie Isaksen
 	 * Returns the RSS feed from Extensions.virtuemart.net
 	 * @return mixed
 	 */
@@ -42,7 +40,7 @@ class vmRSS{
 	static public function getExtensionsRssFeed($items =15, $cache_time = 2880) {
 		if (empty(self::$extFeeds)) {
 			try {
-				self::$extFeeds = self::getCPsRssFeed( "http://extensions.virtuemart.net/?format=feed&type=rss", $items,$cache_time );
+				self::$extFeeds = self::getCPsRssFeed( "https://extensions.virtuemart.net/?format=feed&type=rss", $items,$cache_time );
 				//self::$extFeeds =  self::getRssFeed("http://extensions.virtuemart.net/?format=feed&type=rss", 15);
 			} catch (Exception $e) {
 				echo 'Were not able to parse extension feed';
@@ -52,7 +50,6 @@ class vmRSS{
 	}
 
 	/**
-	 * @author Valerie Isaksen
 	 * Returns the RSS feed from virtuemart.net
 	 * @return mixed
 	 */
@@ -60,7 +57,7 @@ class vmRSS{
 	static public function getVirtueMartRssFeed() {
  		if (empty(self::$vmFeeds)) {
 			try {
-				self::$vmFeeds =  self::getCPsRssFeed("http://virtuemart.net/news/list-all-news?format=feed&type=rss", 5, 240);
+				self::$vmFeeds =  self::getCPsRssFeed("https://virtuemart.net/news/list-all-news?format=feed&type=rss", 5, 240);
 			} catch (Exception $e) {
 				echo 'Where not able to parse news feed';
 			}
@@ -75,50 +72,24 @@ class vmRSS{
 	 */
 	static public function getRssFeed($rssURL, $max, $cache_time) {
 
-		//if (JVM_VERSION < 3){
-			$erRep = VmConfig::setErrRepDefault(true);
-			jimport('simplepie.simplepie');
-			$rssFeed = new SimplePie($rssURL);
+		$rssFeedFact = new JFeedFactory();
+		$rssFeed = $rssFeedFact->getFeed($rssURL);
+		$i = 0;
+		$feeds = array();
+		while($rssFeed->offsetExists($i) and $item = $rssFeed->offsetGet($i) and $i<$max){
+			$feed = new StdClass();
+			$feed->link = $item->uri;
+			$feed->title = $item->title;
+			$feed->description = $item->content;
+			$feeds[] = $feed;
+			$i++;
+		}
 
-			$feeds = array();
-			$count = $rssFeed->get_item_quantity();
-			$limit=min($max,$count);
-			for ($i = 0; $i < $limit; $i++) {
-				$feed = new StdClass();
-				$item = $rssFeed->get_item($i);
-				$feed->link = $item->get_link();
-				$feed->title = $item->get_title();
-				$feed->description = $item->get_description();
-				$feeds[] = $feed;
-			}
-
-			if($erRep[0]) ini_set('display_errors', $erRep[0]);
-			if($erRep[1]) error_reporting($erRep[1]);
-			return $feeds;
-
-		/*} else {
-			jimport('joomla.feed.factory');
-			$feed = new JFeedFactory;
-			$rssFeed = $feed->getFeed($rssURL,$cache_time);
-
-			if (empty($rssFeed) or !is_object($rssFeed)) return false;
-
-			for ($i = 0; $i < $max; $i++) {
-				if (!$rssFeed->offsetExists($i)) {
-					break;
-				}
-				$feed = new StdClass();
-				$uri = (!empty($rssFeed[$i]->uri) || !is_null($rssFeed[$i]->uri)) ? $rssFeed[$i]->uri : $rssFeed[$i]->guid;
-				$text = !empty($rssFeed[$i]->content) || !is_null($rssFeed[$i]->content) ? $rssFeed[$i]->content : $rssFeed[$i]->description;
-				$feed->link = $uri;
-				$feed->title = $rssFeed[$i]->title;
-				$feed->description = $text;
-				$feeds[] = $feed;
-			}
-			return $feeds;
-		}*/
+		return $feeds;
 
 	}
+
+
 }
 
 

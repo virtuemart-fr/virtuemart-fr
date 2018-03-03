@@ -13,7 +13,7 @@
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
- * @version $Id: view.html.php 9621 2017-08-14 12:20:48Z Milbo $
+ * @version $Id: view.html.php 9659 2017-10-26 22:06:20Z Milbo $
  */
 
 // Check to ensure this file is included in Joomla!
@@ -42,9 +42,9 @@ class VirtuemartViewUpdatesMigration extends VmViewAdmin {
 			require(VMPATH_ADMIN . DS . 'helpers' . DS . 'image.php');
 		if (!class_exists('VmHTML'))
 			require(VMPATH_ADMIN . DS . 'helpers' . DS . 'html.php');
+		if(!class_exists('vmCrypt'))
+			require(VMPATH_ADMIN.'/helpers/vmcrypt.php');
 
-		$this->assignRef('checkbutton_style', $checkbutton_style);
-		$this->assignRef('downloadbutton_style', $downloadbutton_style);
 		$this->assignRef('latestVersion', $latestVersion);
 
 		$freshInstall = vRequest::getInt('redirected',0);

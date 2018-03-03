@@ -12,7 +12,7 @@
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses
- * @version $Id: coupon.php 9413 2017-01-04 17:20:58Z Milbo $
+ * @version $Id: coupon.php 9647 2017-10-15 19:29:12Z Milbo $
  */
 
 // Check to ensure this file is included in Joomla!
@@ -42,7 +42,6 @@ abstract class CouponHelper
 		if(!empty($returnValues)){
 			foreach ($returnValues as $returnValue) {
 				if ($returnValue !== null  ) {
-					//Take a look on this seyi, I am not sure about that, but it should work at least simular note by Max
 					return $returnValue;
 				}
 			}
@@ -124,8 +123,6 @@ abstract class CouponHelper
 		if(!empty($returnValues)){
 			foreach ($returnValues as $returnValue) {
 				if ($returnValue !== null  ) {
-					//Take a look on this seyi, I am not sure about that, but it should work at least simular note by Max
-					//$couponData = $returnValue;
 					return $returnValue;
 				}
 			}

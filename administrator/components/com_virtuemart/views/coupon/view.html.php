@@ -14,7 +14,7 @@
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
-* @version $Id: view.html.php 9440 2017-02-01 12:49:35Z Milbo $
+* @version $Id: view.html.php 9681 2017-11-30 12:12:54Z Milbo $
 */
 
 // Check to ensure this file is included in Joomla!
@@ -89,7 +89,7 @@ class VirtuemartViewCoupon extends VmViewAdmin {
 				} else {
 					$_expDate = new DateTime();
 					$_expDate->add(new DateInterval('P'.$_expTime[0].$_expTime[1]));
-					$coupon->coupon_expiry_date = $_expDate->format("U");
+					$coupon->coupon_expiry_date = $_expDate->format("Y-m-d H:i:s");
 				}
 			}
 

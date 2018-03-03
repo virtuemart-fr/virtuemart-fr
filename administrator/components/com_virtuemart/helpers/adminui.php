@@ -108,8 +108,7 @@ class AdminUIHelper {
 			<?php }
 			AdminUIHelper::showAdminMenu($vmView);
 
-            echo self::writeVmm();
-
+			echo self::writeVmm();
 
 			?>
 		</div>
@@ -118,12 +117,9 @@ class AdminUIHelper {
 
 	}
 
-    private static function writeVmm(){
+    public static function writeVmm(){
 
 		$token = vRequest::getFormToken();
-		if (!class_exists('ShopFunctions'))
-			require(VMPATH_ADMIN . DS . 'helpers' . DS . 'shopfunctions.php');
-
 
 		preg_match('/[a-z]/', $token, $matches);
 		if(!empty($matches[0][0])){
@@ -137,22 +133,26 @@ class AdminUIHelper {
 		$ackey = VmConfig::get('member_access_number','');
 		//$host = JUri::getInstance()->getHost();
 
-		$safePath = ShopFunctions::checkSafePath();
+		if(!class_exists('vmCrypt'))
+			require(VMPATH_ADMIN.DS.'helpers'.DS.'vmcrypt.php');
 
-		if(!empty($safePath) and JFile::exists($safePath)){
-			$safePath .= '/vmm.ini';
-			$content = parse_ini_file($safePath);
-			if(!empty($content) and !empty($content['key']) and !empty($content['unixtime']) and !empty($content['html']) ){
-				// if(true){
-				if($content['key']==$ackey){
-					$date = JFactory::getDate();
-					$today = $date->toUnix();
-					$diff = $today-$content['unixtime'];
-					$spread = (int)substr((string)$diff,-1) * 4320;
-					//$d = 8 * 24 * 3600;
-					if($diff>0 and $diff<((4 * 86400)+$spread)){  //4 days
-						$nag = htmlspecialchars_decode($content['html']);
-						if($content['res']=='valid') $dplyVer = '';
+		$keyPath = vmCrypt::getEncryptSafepath();
+
+		if(!empty($keyPath)){
+			$keyPath .= DS.'vmm.ini';
+			if (JFile::exists($keyPath)){
+				$content = parse_ini_file($keyPath);
+				if(!empty($content) and !empty($content['key']) and !empty($content['unixtime']) and !empty($content['html']) ){
+					if($content['key']==$ackey){
+						$date = JFactory::getDate();
+						$today = $date->toUnix();
+						$diff = $today-$content['unixtime'];
+						$spread = (int)substr((string)$diff,-1) * 4320;
+						//$d = 8 * 24 * 3600;
+						if($diff>0 and $diff<((4 * 86400)+$spread)){  //4 days
+							$nag = htmlspecialchars_decode($content['html']);
+							if($content['res']=='valid') $dplyVer = '';
+						}
 					}
 				}
 			}
@@ -169,7 +169,7 @@ class AdminUIHelper {
                     <p style="text-align:left;">Like VirtueMart?</p>
                     <p style="text-align:center;font-weight:bold;">Become a Supporter</p>
                     <p style="text-align:center;">Reliable Security and Advanced Development thanks to our members</p>
-                    <p style="text-align:center;"><a href="http://extensions.virtuemart.net/support/virtuemart-supporter-membership-detail" target="_blank" ><button style="width:100%;background:#FF6A00;padding:5px 5px 5px 5px;font-size:15px;">VirtueMart membership<br>Buy now</button></a></p>
+                    <p style="text-align:center;"><a href="http://extensions.virtuemart.net/support-updates/virtuemart-membership" target="_blank" ><button style="width:100%;background:#FF6A00;padding:5px 5px 5px 5px;font-size:15px;">VirtueMart membership<br>Buy now</button></a></p>
                 </div>';
 
 			if(!empty( $ackey )) {

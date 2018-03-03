@@ -13,7 +13,7 @@
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
-* @version $Id: product_edit.php 9563 2017-05-30 18:43:57Z Milbo $
+* @version $Id: product_edit.php 9650 2017-10-18 10:52:18Z Milbo $
 */
 
 // Check to ensure this file is included in Joomla!
@@ -67,7 +67,7 @@ if($app->isAdmin()){
 }
 
 $j = 'if (typeof Virtuemart === "undefined")
-	Virtuemart = {};
+	var Virtuemart = {};
 	Virtuemart.nextCustom ="'.count($this->product->customfields).'";
 	Virtuemart.jsonLink ="'.$jsonLink.'";
 	Virtuemart.virtuemart_product_id ="'.$this->product->virtuemart_product_id.'";

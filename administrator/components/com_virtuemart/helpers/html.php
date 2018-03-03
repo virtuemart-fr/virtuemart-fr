@@ -114,7 +114,9 @@ class VmHtml{
 		} else {
 			$label = vmText::_($label);
 		}
-
+		if ($func[1]=="checkbox" OR $func[1]=="input") {
+			$label = "\n\t" . '<label for="' . $args[0] . '" id="' . $args[0] . '-lbl"  >'.$label."</label>";
+		}
 		$html = '
 		<tr>
 			<td class="key">
@@ -159,7 +161,7 @@ class VmHtml{
      */
     static function checkbox($name, $value, $checkedValue=1, $uncheckedValue=0, $extraAttribs = '', $id = null) {
 		if (!$id){
-			$id ='';
+			$id ='id="' . $name.'"';
 		} else {
 			$id = 'id="' . $id.'"';
 		}
@@ -580,7 +582,7 @@ class VmHtml{
 					$checked = 'checked="checked"';
 				}
 			}
-			$id = $name.$i;
+			$id = $name.$key;
 			$html .= "\n\t" . '<label for="' . $id . '" id="' . $id . '-lbl" class="radio">';
 			$html .= "\n\t\n\t" . '<input type="radio" name="' . $name . '" id="' . $id . '" value="' . htmlspecialchars($key, ENT_QUOTES) . '" '.$checked.' ' . $extra. ' />' . $val;
 			$html .= "\n\t" . "</label>".$separator."\n";

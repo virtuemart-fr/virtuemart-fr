@@ -101,14 +101,20 @@ if ($this->doctype == 'invoice') {
 	</td>
 	<td valign="top" ><strong>
 	    <?php echo vmText::_('COM_VIRTUEMART_ORDER_PRINT_SHIP_TO_LBL') ?></strong><br/>
-	    <table border="0"><?php
-	    foreach ($this->shipmentfields['fields'] as $field) {
-		if (!empty($field['value'])) {
-		    echo '<tr><td class="key">' . $field['title'] . '</td>'
-		    . '<td>' . $field['value'] . '</td></tr>';
-		}
-	    }
-	    ?></table>
-	</td>
+			<?php if(!empty($this->orderDetails['details']['has_ST'])){
+				echo "<table border='0'>";
+				foreach ($this->shipmentfields['fields'] as $field) {
+					if (!empty($field['value'])) {
+						echo '<tr><td class="key">' . $field['title'] . '</td>'
+						. '<td>' . $field['value'] . '</td></tr>';
+					}
+				}
+				echo "</table>";
+			} else {
+				echo "<br/>".vmText::_('COM_VM_ST_SAME_AS_BT');
+			}
+
+			?>
+        </td>
     </tr>
 </table>

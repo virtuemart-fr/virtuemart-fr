@@ -658,25 +658,26 @@ class VmModel extends vObject{
 
 	var $_validOrderingFieldName = array();
 
-	function checkFilterOrder($toCheck){
+	function checkFilterOrder($toCheck, $view = 0, $task = ''){
 
 		if(empty($toCheck)) return $this->_selectedOrdering;
 
 		if(!in_array($toCheck, $this->_validOrderingFieldName)){
 
-			$break = false;
-			foreach($this->_validOrderingFieldName as $name){
-				if(!empty($name) and strpos($name,$toCheck)!==FALSE){
-					$this->_selectedOrdering = $name;
-					$break = true;
-					break;
-				}
-			}
-			if(!$break){
+			$found = $this->checkValidOrderingFieldName($toCheck);
+			if(!$found){
 				$app = JFactory::getApplication();
-				$view = vRequest::getCmd('view');
-				if (empty($view)) $view = 'virtuemart';
-				$app->setUserState( 'com_virtuemart.'.$view.'.filter_order',$this->_selectedOrdering);
+				if (empty($view)) $view = vRequest::getCmd('view','virtuemart');
+				if (!empty($task)) $task = '.'.$task.'.';
+				$filter_order = strtolower ($app->getUserStateFromRequest ('com_virtuemart.'. $view . $task.'.filter_order', 'filter_order', $this->_selectedOrdering, 'cmd'));
+				if(!empty($filter_order)){
+					$found = $this->checkValidOrderingFieldName($filter_order);
+					if($found){
+						$this->_selectedOrdering = $filter_order;
+					}
+				}
+				$app->setUserState( 'com_virtuemart.'. $view . $task.'.filter_order',$this->_selectedOrdering);
+				//vmdebug('checkFilterOrder ',$toCheck,$filter_order,$this->_validOrderingFieldName,$this->_selectedOrdering);
 			}
 		} else {
 			$this->_selectedOrdering = $toCheck;
@@ -685,17 +686,29 @@ class VmModel extends vObject{
 		return $this->_selectedOrdering;
 	}
 
+	function checkValidOrderingFieldName($toCheck){
+		$break = false;
+		foreach($this->_validOrderingFieldName as $name){
+			if(!empty($name) and strpos($name,$toCheck)!==FALSE){
+				$this->_selectedOrdering = $name;
+				$break = true;
+				break;
+			}
+		}
+		return $break;
+	}
+
 	var $_validFilterDir = array('ASC','DESC');
-	function checkFilterDir($toCheck){
+	function checkFilterDir($toCheck, $view = 0, $task = ''){
 
 		$filter_order_Dir = strtoupper($toCheck);
 
 		if(empty($filter_order_Dir) or !in_array($filter_order_Dir, $this->_validFilterDir)){
 			$filter_order_Dir = $this->_selectedOrderingDir;
-			$view = vRequest::getCmd('view');
-			if (empty($view)) $view = 'virtuemart';
+			if (empty($view)) $view = vRequest::getCmd('view','virtuemart');
+			if (!empty($task)) $task = '.'.$task.'.';
 			$app = JFactory::getApplication();
-			$app->setUserState( 'com_virtuemart.'.$view.'.filter_order_Dir',$filter_order_Dir);
+			$app->setUserState( 'com_virtuemart.'.$view . $task.'.filter_order_Dir',$filter_order_Dir);
 		}
 
 		$this->_selectedOrderingDir = $filter_order_Dir;
@@ -848,7 +861,7 @@ class VmModel extends vObject{
 		if($err=$db->getErrorMsg()){
 			vmError('exeSortSearchListQuery '.$err);
 		}
-
+		if($this->debug === 1) vmdebug('exeSortSearchListQuery result ',$this->ids );
 		if($this->_withCount){
 
 			$db->setQuery('SELECT FOUND_ROWS()');
@@ -892,12 +905,12 @@ class VmModel extends vObject{
 
 	static public function joinLangTables($tablename, $prefix, $on, $method = 0){
 
-		static $useFb = null, $useFb2 = null, $isSite = null;
-		if($useFb === null){
-			$useFb = vmLanguage::getUseLangFallback();
-			$useFb2 = vmLanguage::getUseLangFallbackSecondary();
-			$isSite = vmConfig::isSite();
-		}
+		static $isSite = null;
+
+		$useFb = vmLanguage::getUseLangFallback();
+		$useFb2 = vmLanguage::getUseLangFallbackSecondary();
+		$isSite = vmConfig::isSite();
+
 
 		if($method===0){
 			$method = 'LEFT JOIN';
@@ -943,11 +956,9 @@ class VmModel extends vObject{
 
 	static public function joinLangSelectFields($langFields, $as = true){
 
-		static $useFb = null, $useFb2 = null;
-		if($useFb === null){
-			$useFb = vmLanguage::getUseLangFallback();
-			$useFb2 = vmLanguage::getUseLangFallbackSecondary();
-		}
+		$useFb = vmLanguage::getUseLangFallback();
+		$useFb2 = vmLanguage::getUseLangFallbackSecondary();
+
 
 		$langFields = array_unique($langFields);
 		$fields = array();
@@ -980,11 +991,9 @@ class VmModel extends vObject{
 
 	static public function joinLangLikeField($searchField, $keyword){
 
-		static $useFb = null, $useFb2 = null;
-		if($useFb === null){
-			$useFb = vmLanguage::getUseLangFallback();
-			$useFb2 = vmLanguage::getUseLangFallbackSecondary();
-		}
+		$useFb = vmLanguage::getUseLangFallback();
+		$useFb2 = vmLanguage::getUseLangFallbackSecondary();
+
 
 		if (strpos ($searchField, '`') !== FALSE){
 			$searchField = str_replace('`','',$searchField);

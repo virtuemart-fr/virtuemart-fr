@@ -13,7 +13,7 @@
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
-* @version $Id: view.html.php 9612 2017-07-31 07:52:19Z Milbo $
+* @version $Id: view.html.php 9637 2017-09-21 16:40:35Z Milbo $
 */
 
 // Check to ensure this file is included in Joomla!
@@ -60,10 +60,10 @@ class VirtuemartViewConfig extends VmViewAdmin {
 
 		$this->vmLayoutList = $model->getLayoutList('virtuemart');
 
-		$this->cartLayoutList = $model->getLayoutList('cart',array('padded.php','perror.php'));
-		$this->categoryLayoutList = $model->getLayoutList('category');
+		$this->cartLayoutList = $model->getLayoutList('cart',array('padded.php','perror.php','orderdone.php'), false);
+		$this->categoryLayoutList = $model->getLayoutList('category', 0, false);
 
-		$this->productLayoutList = $model->getLayoutList('productdetails');
+		$this->productLayoutList = $model->getLayoutList('productdetails', 0, false);
 
 		$this->productsFieldList  = $model->getFieldList('products');
 

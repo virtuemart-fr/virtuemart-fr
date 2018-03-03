@@ -14,7 +14,7 @@
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
- * @version $Id: view.html.php 9593 2017-06-28 18:19:30Z Milbo $
+ * @version $Id: view.html.php 9654 2017-10-24 07:57:06Z Milbo $
  */
 // Check to ensure this file is included in Joomla!
 defined('_JEXEC') or die('Restricted access');
@@ -276,7 +276,8 @@ class VirtueMartViewProductdetails extends VmView {
 
 			$superVendor = vmAccess::isSuperVendor();
 
-			if($superVendor == 1 or $superVendor==$product->virtuemart_vendor_id or ($superVendor)){
+
+			if($superVendor == 1 or (vmAccess::manager('product') and $superVendor==$product->virtuemart_vendor_id)){
 				$edit_link = JURI::root() . 'index.php?option=com_virtuemart&tmpl=component&manage=1&view=product&task=edit&virtuemart_product_id=' . $product->virtuemart_product_id;
 				$this->edit_link = $this->linkIcon($edit_link, 'COM_VIRTUEMART_PRODUCT_FORM_EDIT_PRODUCT', 'edit', false, false);
 			} else {

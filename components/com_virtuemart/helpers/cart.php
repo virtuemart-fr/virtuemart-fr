@@ -15,7 +15,7 @@
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
- * @version $Id: cart.php 9619 2017-08-09 10:05:16Z Milbo $
+ * @version $Id: cart.php 9656 2017-10-25 11:20:38Z Milbo $
  */
 // Check to ensure this file is included in Joomla!
 defined('_JEXEC') or die('Restricted access');
@@ -178,6 +178,7 @@ class VirtueMartCart {
 				self::$_cart->virtuemart_paymentmethod_id = self::$_cart->user->virtuemart_paymentmethod_id;
 			}
 
+			//Todo must be removed
 			if((!empty(self::$_cart->user->tos) || !empty(self::$_cart->BT['tos'])) && !VmConfig::get('agree_to_tos_onorder',0) ){
 				self::$_cart->BT['tos'] = 1;
 			}
@@ -190,7 +191,9 @@ class VirtueMartCart {
 				$firstName = empty(self::$_cart->BT['first_name'])? '':self::$_cart->BT['first_name'];
 				$lastName = empty(self::$_cart->BT['last_name'])? '':self::$_cart->BT['last_name'];
 				$email = empty(self::$_cart->BT['email'])? '':self::$_cart->BT['email'];
-				self::$_cart->customer_number = 'nonreg_'.$firstName.$lastName.$email;
+				$qdate = date("Ymd_His_");
+				if (!class_exists ('shopFunctionsF')) require(VMPATH_SITE . DS . 'helpers' . DS . 'shopfunctionsf.php');
+				self::$_cart->customer_number = 'nonreg_'.shopFunctionsF::vmSubstr($firstName,0,2).shopFunctionsF::vmSubstr($lastName,0,2).shopFunctionsF::vmSubstr($email,0,2).$qdate;
 			}
 
 			$multixcart = VmConfig::get('multixcart',0);
@@ -1187,7 +1190,8 @@ class VirtueMartCart {
 				}
 			}
 
-			$orderDetails = $orderModel->getMyOrderDetails($this->virtuemart_order_id,$this->order_number,$this->order_pass);
+			//$orderDetails = $orderModel->getMyOrderDetails($this->virtuemart_order_id,$this->order_number,$this->order_pass);
+			$orderDetails = $orderModel->getOrder($this->virtuemart_order_id);
 
 			if(!$orderDetails or empty($orderDetails['details'])){
 				echo vmText::_('COM_VIRTUEMART_CART_ORDER_NOTFOUND');
@@ -1277,7 +1281,7 @@ class VirtueMartCart {
 		$cart->totalProduct=false;
 		$cart->productsQuantity=array();
 		$cart->virtuemart_order_id = null;
-
+		$cart->layout = VmConfig::get('cartlayout','default');
 		if($session){
 			$cart->deleteCart();
 			$cart->setCartIntoSession(false,true);

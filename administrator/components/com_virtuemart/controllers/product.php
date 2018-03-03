@@ -13,7 +13,7 @@
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
- * @version $Id: product.php 9478 2017-03-16 09:33:17Z Milbo $
+ * @version $Id: product.php 9651 2017-10-18 12:16:59Z Milbo $
  */
 
 // Check to ensure this file is included in Joomla!
@@ -141,7 +141,7 @@ class VirtuemartControllerProduct extends VmController {
 
 		$model = VmModel::getModel('product');
 
-		$cids = vRequest::getInt($this->_cidName, vRequest::getint('virtuemart_product_id',false));
+		$cids = vRequest::getInt($this->_cidName, vRequest::getInt('virtuemart_product_id',vRequest::getInt('product_parent_id',false)));
 		if(!is_array($cids) and $cids > 0){
 			$cids = array($cids);
 		} else {

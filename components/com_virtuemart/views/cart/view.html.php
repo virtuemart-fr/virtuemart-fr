@@ -16,7 +16,7 @@
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
- * @version $Id: view.html.php 9615 2017-08-01 17:05:28Z Milbo $
+ * @version $Id: view.html.php 9637 2017-09-21 16:40:35Z Milbo $
  */
 // Check to ensure this file is included in Joomla!
 defined('_JEXEC') or die('Restricted access');
@@ -81,7 +81,7 @@ class VirtueMartViewCart extends VmView {
 			$pathway->addItem(vmText::_('COM_VIRTUEMART_CART_OVERVIEW'), JRoute::_('index.php?option=com_virtuemart&view=cart', FALSE));
 			$pathway->addItem(vmText::_('COM_VIRTUEMART_CART_SELECTPAYMENT'));
 			$document->setTitle(vmText::_('COM_VIRTUEMART_CART_SELECTPAYMENT'));
-		} else if ($this->layoutName == 'order_done') {
+		} else if ($this->layoutName == 'orderdone' or $this->layoutName == 'order_done') {
 			vmLanguage::loadJLang( 'com_virtuemart_shoppers', true );
 			$this->lOrderDone();
 

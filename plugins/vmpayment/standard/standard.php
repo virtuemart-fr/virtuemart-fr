@@ -164,7 +164,8 @@ class plgVmPaymentStandard extends vmPSPlugin {
 			'order_number' =>$order['details']['BT']->order_number,
 			'order_pass' =>$order['details']['BT']->order_pass,
 			'payment_name' => $dbValues['payment_name'],
-			'displayTotalInPaymentCurrency' => $totalInPaymentCurrency['display']
+			'displayTotalInPaymentCurrency' => $totalInPaymentCurrency['display'],
+			'order_user_id' => $order['details']['BT']->virtuemart_user_id
 		));
 		$modelOrder = VmModel::getModel ('orders');
 		$order['order_status'] = $this->getNewStatus ($method);

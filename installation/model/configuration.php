@@ -376,7 +376,7 @@ class InstallationModelConfiguration extends JModelBase
 			$db->setQuery($q);
 			$res = $db->loadResult();
 			if($res){
-				$q = 'UPDATE `#__extensions` SET `params`="{\"admin_language\":\"'.$langTag.'\",\"language\":\"'.$langTag.'\"}" WHERE  `extension_id`='.$res;
+				$q = 'UPDATE `#__extensions` SET `params`="{\"administrator\":\"'.$langTag.'\",\"site\":\"'.$langTag.'\"}" WHERE  `extension_id`='.$res;
 				$db->setQuery($q);
 				$db->query();
 			}

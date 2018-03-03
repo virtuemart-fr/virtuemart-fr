@@ -9,7 +9,7 @@
  */
 
 if (typeof Virtuemart === "undefined")
-	Virtuemart = {};
+	var Virtuemart = {};
 
 Virtuemart.findContainers = function(event){
 	var runs= 0, maxruns = 20;

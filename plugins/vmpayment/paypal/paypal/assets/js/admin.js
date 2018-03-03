@@ -99,8 +99,12 @@ jQuery().ready(function ($) {
         var paypalproduct = $('#params_paypalproduct').val();
         var currentval = $('#params_payment_type').val();
         $('.payment_type').parents('.control-group').hide();
+        $('.check_ips').parents('.control-group').hide();
         if (paypalproduct == 'std') {
             $('.payment_type').parents('.control-group').show();
+        }
+        if (paypalproduct == 'std' || paypalproduct == 'hosted') {
+            $('.check_ips').parents('.control-group').show();
         }
 
         if (paypalproduct == 'exp' || paypalproduct == 'api' || paypalproduct == 'hosted') {

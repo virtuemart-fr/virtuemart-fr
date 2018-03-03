@@ -1,5 +1,5 @@
 if (typeof Virtuemart === "undefined")
-	Virtuemart = {};
+	var Virtuemart = {};
 
 Virtuemart.stopSendtocart = false;
 
@@ -29,7 +29,7 @@ Virtuemart.setproducttype = function(form, id) {
         type: "POST",
         cache: false,
         dataType: "json",
-        url: Virtuemart.vmSiteurl + "index.php?&option=com_virtuemart&view=productdetails&task=recalculate&format=json&nosef=1" + Virtuemart.vmLang,
+        url: Virtuemart.vmSiteurl + "index.php?option=com_virtuemart&view=productdetails&task=recalculate&format=json&nosef=1" + Virtuemart.vmLang,
         data: datas
     }).done(
         function (data, textStatus) {

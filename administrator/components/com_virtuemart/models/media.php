@@ -13,7 +13,7 @@
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
- * @version $Id: media.php 9591 2017-06-27 13:24:53Z Milbo $
+ * @version $Id: media.php 9660 2017-10-27 08:01:38Z Milbo $
  */
 
 // Check to ensure this file is included in Joomla!
@@ -435,7 +435,36 @@ class VirtueMartModelMedia extends VmModel {
 			vmWarn('Insufficient permissions to delete media');
 			return false;
 		}
+
 		return parent::remove($ids);
+	}
+
+	function removeFiles($ids){
+
+		if(!vmAccess::manager('media.delete')){
+			vmWarn('Insufficient permissions to delete media');
+			return false;
+		}
+
+		if(!is_array($ids)) $ids = array($ids);
+		$rids = array();
+		foreach($ids as $id){
+			$file = $this->getFile($id);
+
+			$image = $this->createMediaByIds($id,$file->file_type,$file->file_mimetype,1);
+			if(empty($image[0])){
+
+			} else {
+				$image[0]->deleteThumbs();
+				$r = $image[0]->deleteFile($image[0]->file_url,$image[0]->file_is_forSale);
+				if($r){
+					$rids[] = $id;
+				}
+			}
+
+		}
+
+		return parent::remove($rids);
 	}
 
 }

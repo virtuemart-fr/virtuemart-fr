@@ -2,7 +2,7 @@
 if( !defined( '_JEXEC' ) ) die( 'Direct Access to '.basename(__FILE__).' is not allowed.' );
 /**
 *
-* @version $Id: version.php 9200 2016-04-04 17:22:51Z Milbo $
+* @version $Id: version.php 9702 2017-12-20 13:26:06Z Milbo $
 * @package VirtueMart
 * @subpackage core
 * @copyright Copyright (C) 2005-2011 VirtueMart Team - All rights reserved.
@@ -23,19 +23,19 @@ if( !defined( '_JEXEC' ) ) die( 'Direct Access to '.basename(__FILE__).' is not 
 		/** @var string Product */
 		static $PRODUCT = 'VirtueMart';
 		/** @var int Release Number */
-		static $RELEASE = '3.2.4';
+		static $RELEASE = '3.2.12';
 		/** @var string Development Status */
 		static $DEV_STATUS = 'MAYOR';
 		/** @var string Codename */
-		static $CODENAME = 'Black Corvus';
+		static $CODENAME = 'Blue Corvus';
 		/** @var string Date */
-		static $RELDATE = 'August 23 2017';
+		static $RELDATE = 'December 21 2017';
 		/** @var string Time */
-		static $RELTIME = '1537';
+		static $RELTIME = '1503';
 		/** @var string Timezone */
 		static $RELTZ = 'GMT';
 		/** @var string Revision */
-		static $REVISION = '9629';
+		static $REVISION = '9708';
 		/** @var string Copyright Text */
 		static $COPYRIGHT = 'Copyright (C) 2004 - 2017 Virtuemart Team. All rights reserved.';
 		/** @var string URL */

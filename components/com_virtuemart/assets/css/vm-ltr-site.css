@@ -926,19 +926,17 @@ ul.VMmenu,.VMmenu ul,.VMmenu li{
 
 .main-image img {
   max-width: 100%;
-  max-height: 260px;
+  height:auto;
 }
 /*.main-image img.product-image,.featured-view .spacer img,.discontinued-view .spacer img,.latest-view .spacer img,.topten-view .spacer img,.recent-view .spacer img{max-width:100%;height:auto;width:auto;}*/
 
 .browseProductImage {
-  max-height: 90px;
-  width: auto;
+  height: auto;
   max-width: 100%;
 }
 
 .browseCategoryImage {
-  max-height: 90px;
-  width: auto;
+  height: auto;
   max-width: 100%;
 }
 

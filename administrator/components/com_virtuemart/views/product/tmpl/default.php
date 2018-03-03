@@ -34,7 +34,6 @@ if ($product_parent_id=vRequest::getInt('product_parent_id', false))   $col_prod
 			<?php echo vmText::_('COM_VIRTUEMART_FILTER') ?>:
 				<select class="inputbox" id="virtuemart_category_id" name="virtuemart_category_id" onchange="this.form.submit(); return false;">
 					<option value=""><?php echo vmText::sprintf( 'COM_VIRTUEMART_SELECT' ,  vmText::_('COM_VIRTUEMART_CATEGORY')) ; ?></option>
-					<?php echo $this->category_tree; ?>
 				</select>
 					 <?php echo JHtml::_('select.genericlist', $this->manufacturers, 'virtuemart_manufacturer_id', 'class="inputbox" onchange="document.adminForm.submit(); return false;"', 'value', 'text',
 					 	$this->model->virtuemart_manufacturer_id );
@@ -63,8 +62,7 @@ if ($product_parent_id=vRequest::getInt('product_parent_id', false))   $col_prod
 $mediaLimit = (int)VmConfig::get('mediaLimit',20);
 $totalList = count($this->productlist);
 if($this->pagination->limit<=$mediaLimit or $totalList<=$mediaLimit){
-	$imgWidth = VmConfig::get('img_width');
-	if(empty($imgWidth)) $imgWidth = 80;
+	$imgWidth = 90;
 } else {
 	$imgWidth = 30;
 }

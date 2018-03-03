@@ -14,7 +14,7 @@
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
- * @version $Id: view.html.php 9592 2017-06-28 18:04:13Z Milbo $
+ * @version $Id: view.html.php 9646 2017-10-15 18:52:42Z Milbo $
  */
 
 // Check to ensure this file is included in Joomla!
@@ -82,24 +82,12 @@ class VirtuemartViewCategory extends VmViewAdmin {
 			$this->jTemplateList = ShopFunctions::renderTemplateList(vmText::_('COM_VIRTUEMART_ADMIN_CFG_JOOMLA_TEMPLATE_DEFAULT'));
 
 			$cmodel = VmModel::getModel('config');
-			$this->vmLayoutList = $cmodel->getLayoutList('virtuemart');
 
-			$this->cartLayoutList = $cmodel->getLayoutList('cart',array('padded.php','perror.php'));
 			$this->categoryLayoutList = $cmodel->getLayoutList('category');
 
 			$this->productLayoutList = $cmodel->getLayoutList('productdetails');
 
 			$this->productsFieldList  = $cmodel->getFieldList('products');
-
-
-			//$templateList = ShopFunctions::renderTemplateList(vmText::_('COM_VIRTUEMART_CATEGORY_TEMPLATE_DEFAULT'));
-			//$this->assignRef('jTemplateList', $templateList);
-
-			//$categoryLayoutList = VirtueMartModelConfig::getLayoutList('category');
-			//$this->assignRef('categoryLayouts', $categoryLayoutList);
-
-			//$productLayouts = VirtueMartModelConfig::getLayoutList('productdetails');
-			//$this->assignRef('productLayouts', $productLayouts);
 
 			//Nice fix by Joe, the 4. param prevents setting an category itself as child
 			$categorylist = '';//ShopFunctions::categoryListTree(array($parent->virtuemart_category_id), 0, 0, (array) $category->virtuemart_category_id);
@@ -129,8 +117,11 @@ class VirtuemartViewCategory extends VmViewAdmin {
 			$this->addStandardDefaultViewCommands();
 			$this->addStandardDefaultViewLists($model,'category_name');
 
-			$topCategory=vRequest::getInt('top_category_id',0);
+			$app = JFactory::getApplication ();
 
+			//$topCategory=vRequest::getInt('top_category_id',0);
+			$topCategory = $app->getUserStateFromRequest ( 'com_virtuemart.category.top_category_id', 'top_category_id', '', 'int');
+			$app->setUserState( 'com_virtuemart.category.top_category_id',$topCategory);
 			$param = '';
 			if(!empty($topCategory)){
 				$param = '&top_category_id='.$topCategory;

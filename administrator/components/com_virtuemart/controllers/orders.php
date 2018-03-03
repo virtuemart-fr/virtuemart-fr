@@ -13,7 +13,7 @@
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
- * @version $Id: orders.php 9607 2017-07-26 10:11:27Z Milbo $
+ * @version $Id: orders.php 9653 2017-10-18 12:59:33Z Milbo $
  */
 
 // Check to ensure this file is included in Joomla!
@@ -39,6 +39,17 @@ class VirtuemartControllerOrders extends VmController {
 	function __construct() {
 		vmLanguage::loadJLang('com_virtuemart_orders',TRUE);
 		parent::__construct();
+
+	}
+
+	/**
+	 * Calls the FE Invoice view, to generate invoices from the BE using the FE views
+	 */
+	public function callInvoiceView(){
+
+		if(!class_exists( 'VirtueMartControllerInvoice' )) require(VMPATH_SITE.DS.'controllers'.DS.'invoice.php');
+		$controller = new VirtueMartControllerInvoice();
+		$controller->display();
 
 	}
 

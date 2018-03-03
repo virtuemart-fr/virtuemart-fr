@@ -14,7 +14,7 @@
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
- * @version $Id: updatesmigration.php 9621 2017-08-14 12:20:48Z Milbo $
+ * @version $Id: updatesmigration.php 9651 2017-10-18 12:16:59Z Milbo $
  */
 // Check to ensure this file is included in Joomla!
 defined('_JEXEC') or die('Restricted access');
@@ -458,17 +458,15 @@ class VirtuemartControllerUpdatesMigration extends VmController{
 	function optimizeDatabase(){
 		vRequest::vmCheckToken();
 		$db = JFactory::getDbo();
-		$q = $db->getQuery(true);
-		$q = 'OPTIMIZE TABLE' . $db->quoteName('#__virtuemart_products');
-		$db->setQuery($q);
-		$db->execute();
-		$q = $db->getQuery(true);
-		$q = 'OPTIMIZE TABLE' . $db->quoteName('#__virtuemart_product_categories');
-		$db->setQuery($q);
-		$db->execute();
-		$q = 'OPTIMIZE TABLE' . $db->quoteName('#__virtuemart_categories');
-		$db->setQuery($q);
-		$db->execute();
+
+		$tables = array('virtuemart_products','virtuemart_product_categories','virtuemart_product_manufacturers','virtuemart_categories');
+
+		foreach($tables as $table){
+			$q = 'OPTIMIZE TABLE' . $db->quoteName('#__'.$table);
+			$db->setQuery($q);
+			$db->execute();
+		}
+
 		$this->setRedirect($this->redirectPath, 'Database updated');
 	}
 

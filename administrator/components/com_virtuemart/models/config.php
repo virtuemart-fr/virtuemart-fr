@@ -14,7 +14,7 @@
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
- * @version $Id: config.php 9621 2017-08-14 12:20:48Z Milbo $
+ * @version $Id: config.php 9683 2017-11-30 12:30:24Z Milbo $
  */
 
 // Check to ensure this file is included in Joomla!
@@ -59,7 +59,7 @@ class VirtueMartModelConfig extends VmModel {
 	 * @param name of the view
 	 * @return object List of flypage objects
 	 */
-	static function getLayoutList($view,$ignore=0) {
+	static function getLayoutList($view, $ignore=0, $emptyOption = true) {
 
 		$dirs = array();
 		$com = strpos($view,'mod_');
@@ -88,13 +88,13 @@ class VirtueMartModelConfig extends VmModel {
 			}
 		}
 
-		return self::getLayouts($dirs,0,$ignore);
+		return self::getLayouts($dirs,0,$ignore, $emptyOption);
 	}
 
 	static function getLayouts($dirs,$type=0,$ignore=0, $emptyOption = true){
 
 		$result = array();
-		if($emptyOption){
+		if(!empty($emptyOption)){
 			$emptyOption = JHtml::_('select.option', '', vmText::_('COM_VIRTUEMART_ADMIN_CFG_NO_OVERRIDE'));
 			$result[] = $emptyOption;
 		}
@@ -119,7 +119,13 @@ class VirtueMartModelConfig extends VmModel {
 							}
 							if ($path_info['extension'] == 'php' && !in_array($file,$alreadyAddedFile)) {
 								$alreadyAddedFile[] = $file;
-								$result[] = JHtml::_('select.option', $path_info['filename'], $path_info['filename']);
+								$add = JHtml::_('select.option', $path_info['filename'], $path_info['filename']);
+								if($path_info['filename'] == 'default'){
+									array_unshift($result,$add);
+								} else {
+									$result[] = $add;
+								}
+
 							}
 						}
 
@@ -378,7 +384,7 @@ class VirtueMartModelConfig extends VmModel {
 			return false;
 		}
 		//$oldLangs = $config->get('active_languages');
-		$oldLangs = VmConfig::get('active_languages');
+		$oldLangs = VmConfig::get('active_languages', array());
 
 		foreach($data as $k => $dat){
 			if(is_array($dat)){
@@ -492,18 +498,14 @@ class VirtueMartModelConfig extends VmModel {
 			}
 		}
 
-		$conf_langs = self::getContentLanguages();
-		$active_langs = $config->get('active_languages');
-
-		if(empty($active_langs)){
-			$active_langs = $conf_langs;
-		}
-
 		if(empty($data['vmDefLang'])){
 			$defl = VmConfig::$jDefLangTag;
 		} else {
 			$defl = $data['vmDefLang'];
 		}
+
+		$active_langs = self::getActiveVmLanguages();
+
 		$active_langs[] = $defl;
 		$active_langs = array_unique($active_langs);
 		$config->set('active_languages',$active_langs);
@@ -527,6 +529,7 @@ class VirtueMartModelConfig extends VmModel {
 
 		$cache = VmConfig::getCache();
 		//$cache = JFactory::getCache();
+		$cache->clean('com_virtuemart_admin');
 		$cache->clean('com_virtuemart_cats');
 		$cache->clean('com_virtuemart_cat_childs');
 		$cache->clean('mod_virtuemart_product');
@@ -543,20 +546,11 @@ class VirtueMartModelConfig extends VmModel {
 		return true;
 	}
 
-	static public function getContentLanguages(){
+	static public function getActiveVmLanguages(){
 		$langs = VmConfig::get('active_languages',false);
 		if(empty($langs)){
-			if (class_exists('JLanguageHelper') && (method_exists('JLanguageHelper', 'getLanguages'))) {
-				$languages = JLanguageHelper::getLanguages('lang_code');
-				foreach($languages as $k=>$v){
-					if($v->published==1 and $v->access==1){
-						$langs[] = $k;
-					}
-				}
-			}
-			if(empty($langs)){
-				$langs = array(VmConfig::$jDefLangTag);
-			}
+			$langs = vmLanguage::getShopDefaultSiteLangTagByJoomla();
+			$langs = (array)strtolower(strtr($langs,'-','_'));
 		}
 		return $langs;
 	}
@@ -565,7 +559,7 @@ class VirtueMartModelConfig extends VmModel {
 
 		if(!class_exists('GenericTableUpdater')) require(VMPATH_ADMIN .'/helpers/tableupdater.php');
 		$updater = new GenericTableUpdater();
-		$langs = self::getContentLanguages();
+		$langs = self::getActiveVmLanguages();
 
 		$updater->createLanguageTables($langs);
 	}

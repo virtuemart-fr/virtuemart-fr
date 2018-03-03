@@ -96,7 +96,9 @@ class VmImage extends VmMediaHandler {
 			vmdebug('createThumbFileUrl empty file_name_thumb ',$this);
 			return false;
 		}
-		$file_url_thumb = $this->file_url_folder.'resized/'.$this->file_name_thumb.'.'.$this->file_extension;
+		$file_url_thumb = $this->file_url_folder_thumb.$this->file_name_thumb.'.'.$this->file_extension;
+
+
 		return $file_url_thumb;
 	}
 

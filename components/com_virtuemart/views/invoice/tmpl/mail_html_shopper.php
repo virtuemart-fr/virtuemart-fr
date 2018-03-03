@@ -29,6 +29,12 @@
 
 // Check to ensure this file is included in Joomla!
 defined('_JEXEC') or die('Restricted access');
+$orderlink = JURI::root().'index.php?option=com_virtuemart&view=orders&layout=details&order_number='.$this->orderDetails['details']['BT']->order_number;
+$ordertracking = VmConfig::get('ordertracking','guests');
+if( VmConfig::get('ordertracking','guests') == 'guestlink' or (VmConfig::get('ordertracking','guests') == 'guests' and empty($this->orderDetails['details']['BT']->virtuemart_user_id))){
+	$orderlink .= '&order_pass='.$this->orderDetails['details']['BT']->order_pass;
+}
+
 ?>
 
 <table width="100%" border="0" cellpadding="0" cellspacing="0" class="html-email">
@@ -40,12 +46,15 @@ defined('_JEXEC') or die('Restricted access');
 
 	</td>
     <td width="30%">
-		<?php echo vmText::_('COM_VIRTUEMART_MAIL_SHOPPER_YOUR_PASSWORD'); ?><br />
-		<strong><?php echo $this->orderDetails['details']['BT']->order_pass ?></strong>
+		<?php
+		if( VmConfig::get('ordertracking','guests') == 'guestlink' or (VmConfig::get('ordertracking','guests') == 'guests' and empty($this->orderDetails['details']['BT']->virtuemart_user_id))){
+		    echo vmText::_('COM_VIRTUEMART_MAIL_SHOPPER_YOUR_PASSWORD'); ?><br />
+		    <strong><?php echo $this->orderDetails['details']['BT']->order_pass ?></strong>
+		<?php } ?>
 	</td>
     <td width="40%">
     	<p>
- 			<a class="default" title="<?php echo $this->vendor->vendor_store_name ?>" href="<?php echo JURI::root().'index.php?option=com_virtuemart&view=orders&layout=details&order_number='.$this->orderDetails['details']['BT']->order_number.'&order_pass='.$this->orderDetails['details']['BT']->order_pass; ?>">
+ 			<a class="default" title="<?php echo $this->vendor->vendor_store_name ?>" href="<?php echo $orderlink ?>">
 			<?php echo vmText::_('COM_VIRTUEMART_MAIL_SHOPPER_YOUR_ORDER_LINK'); ?></a>
 		</p>
 	</td>

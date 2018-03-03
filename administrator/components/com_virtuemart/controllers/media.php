@@ -13,7 +13,7 @@
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
-* @version $Id: media.php 9420 2017-01-12 09:35:36Z Milbo $
+* @version $Id: media.php 9660 2017-10-27 08:01:38Z Milbo $
 */
 
 // Check to ensure this file is included in Joomla!
@@ -137,5 +137,31 @@ class VirtuemartControllerMedia extends VmController {
 		}
 
 	}
+
+	function deleteFiles(){
+
+		vRequest::vmCheckToken();
+
+		$ids = vRequest::getVar($this->_cidName, vRequest::getInt('cid', array() ));
+
+		$type = 'notice';
+		if(count($ids) < 1) {
+			$msg = vmText::_('COM_VIRTUEMART_SELECT_ITEM_TO_DELETE');
+
+		} else {
+			$model = $this->getModel($this->_cname);
+			$ret = $model->removeFiles($ids);
+
+			$msg = vmText::sprintf('COM_VIRTUEMART_STRING_DELETED',$this->mainLangKey);
+			if($ret==false) {
+				$msg = vmText::sprintf('COM_VIRTUEMART_STRING_COULD_NOT_BE_DELETED',$this->mainLangKey);
+				$type = 'error';
+			}
+		}
+
+		$this->setRedirect($this->redirectPath, $msg,$type);
+	}
+
+
 }
 // pure php no closing tag

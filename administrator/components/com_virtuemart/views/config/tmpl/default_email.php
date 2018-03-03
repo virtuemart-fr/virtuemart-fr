@@ -19,32 +19,25 @@ defined('_JEXEC') or die('Restricted access');
 <fieldset>
 	<legend><?php echo vmText::_('COM_VIRTUEMART_ADMIN_CFG_SHOP_EMAILS'); ?></legend>
 	<table class="admintable">
-		<tr>
-			<td class="key">
-					<span class="hasTip" title="<?php echo vmText::_('COM_VIRTUEMART_ADMIN_CFG_MAIL_FORMAT_EXPLAIN'); ?>">
-						<?php echo vmText::_('COM_VIRTUEMART_ADMIN_CFG_MAIL_FORMAT'); ?>
-					</span>
-			</td>
-			<td>
-				<select name="order_mail_html" id="order_mail_html">
-					<option value="0" <?php if (VmConfig::get('order_mail_html') == '0') {
-						echo 'selected="selected"';
-					} ?>>
-						<?php echo vmText::_('COM_VIRTUEMART_ADMIN_CFG_MAIL_FORMAT_TEXT'); ?>
-					</option>
-					<option value="1" <?php if (VmConfig::get('order_mail_html') == '1') {
-						echo 'selected="selected"';
-					} ?>>
-						<?php echo vmText::_('COM_VIRTUEMART_ADMIN_CFG_MAIL_FORMAT_HTML'); ?>
-					</option>
-				</select>
-			</td>
-		</tr>
+
 		<?php
+		$optOrderMail = array(
+			'0' => vmText::_('COM_VIRTUEMART_ADMIN_CFG_MAIL_FORMAT_TEXT'),
+			'1' => vmText::_('COM_VIRTUEMART_ADMIN_CFG_MAIL_FORMAT_HTML'),
+		);
+		echo VmHTML::row('genericlist','COM_VIRTUEMART_ADMIN_CFG_MAIL_FORMAT',$optOrderMail, 'order_mail_html', '', 'value', 'text', VmConfig::get('order_mail_html',0));
 		echo VmHTML::row('checkbox','COM_VIRTUEMART_ADMIN_CFG_MAIL_USEVENDOR','useVendorEmail',VmConfig::get('useVendorEmail',0));
 		echo VmHTML::row('checkbox','COM_VM_CFG_INVOICE_IN_USER_LANG','invoiceInUserLang',VmConfig::get('invoiceInUserLang',0));
-		echo VmHTML::row('checkbox','COM_VM_CFG_DEBUG_MAIL','debug_mail',VmConfig::get('debug_mail',0));
+		$optDebugEmail = array(
+			'0' => vmText::_('COM_VIRTUEMART_NO'),
+			'debug_email' => vmText::_('COM_VM_CFG_DEBUG_MAIL_YES'),
+			'debug_email_send' => vmText::_('COM_VM_CFG_DEBUG_MAIL_SEND'),
+		);
+		echo VmHTML::row('genericlist','COM_VM_CFG_DEBUG_MAIL',$optDebugEmail, 'debug_mail', '', 'value', 'text', VmConfig::get('debug_mail',0));
+
 		?>
+
+
 
 		<?php /*?>		<!-- NOT YET -->
  		echo VmHTML::row('checkbox','COM_VIRTUEMART_ADMIN_CFG_MAIL_FROM_RECIPIENT','mail_from_recipient',VmConfig::get('mail_from_recipient',0));

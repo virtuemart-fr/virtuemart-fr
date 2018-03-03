@@ -342,7 +342,7 @@ class Migrator extends VmModel{
 									$filesInDir[] = array('filename' => $file, 'url' => $relUrl);
 								}
 							}else {
-								if($filetype == 'dir' && $file != 'resized' && $file != 'invoices'){
+								if($filetype == 'dir' && $file != 'resized' && $file != 'invoices' && $file != 'keys'){
 									$subfoldersInDir[] = $dir.$file.DS;
 									// 									vmdebug('my sub folder ',$dir.$file);
 								}

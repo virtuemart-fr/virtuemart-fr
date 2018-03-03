@@ -94,8 +94,9 @@ class VirtueMartCustomFieldRenderer {
 					$db = JFactory::getDbo();
 					$db->setQuery($q);
 					$avail = $db->loadColumn();
-					array_unshift($avail,$product->virtuemart_product_id);
-
+					if(!in_array($customfield->virtuemart_product_id,$avail)){
+						array_unshift($avail,$customfield->virtuemart_product_id);
+					}
 
 					foreach($customfield->options as $product_id=>$variants){
 						static $counter = 0;
@@ -512,7 +513,7 @@ class VirtueMartCustomFieldRenderer {
 							foreach ($customfields[$selectList[$customfield->virtuemart_custom_id]]->options as &$productCustom) {
 								if(!isset($productCustom->customfield_price)) $productCustom->customfield_price = 0.0;
 								if(!isset($productCustom->customfield_value)) $productCustom->customfield_value = '';
-								$price = VirtueMartModelCustomfields::_getCustomPrice($productCustom->customfield_price, $currency, $calculator);
+								$price = VirtueMartModelCustomfields::renderCustomfieldPrice($productCustom, $product, $calculator);
 								if($type == 'M'){
 									$productCustom->text = VirtueMartModelCustomfields::displayCustomMedia ($productCustom->customfield_value,'product',$customfield->width,$customfield->height).' '.$price;
 								} else {

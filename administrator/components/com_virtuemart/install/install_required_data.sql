@@ -431,7 +431,7 @@ INSERT IGNORE INTO `#__virtuemart_currencies` (`virtuemart_currency_id`, `virtue
 	(171, 1, 'Nicaraguan córdoba', '', 'NIO', 558, 0.00000, 'C$', '2', ',', '', '{number} {symbol}', '{sign}{number} {symbol}'),
 	(172, 1, 'Ugandan shilling', '', 'UGX', 800, 0.00000, 'Sh', '2', ',', '', '{number} {symbol}', '{sign}{number} {symbol}'),
 	(173, 1, 'Macedonian denar', '', 'MKD', 807, 0.00000, 'ден', '2', ',', '', '{number} {symbol}', '{sign}{number} {symbol}'),
-	(174, 1, 'Uruguayan peso', '', 'UYU', 858, 0.00000, '$', '0', '', '', '{symbol}number}', '{symbol}{sign}{number}'),
+	(174, 1, 'Uruguayan peso', '', 'UYU', 858, 0.00000, '$', '0', '', '', '{symbol}{number}', '{symbol}{sign}{number}'),
 	(175, 1, 'Uzbekistani som', '', 'UZS', 860, 0.00000, 'лв', '2', ',', '', '{number} {symbol}', '{sign}{number} {symbol}'),
 	(176, 1, 'Azerbaijani manat', '', 'AZN', 934, 0.00000, 'ман', '2', ',', '', '{number} {symbol}', '{sign}{number} {symbol}'),
 	(177, 1, 'Ghanaian cedi', '', 'GHS', 936, 0.00000, '₵', '2', ',', '', '{number} {symbol}', '{sign}{number} {symbol}'),
@@ -444,7 +444,7 @@ INSERT IGNORE INTO `#__virtuemart_currencies` (`virtuemart_currency_id`, `virtue
 	(184, 1, 'Central African CFA franc', '', 'XAF', 950, 0.00000, 'Fr', '0', '', '', '{number} {symbol}', '{sign}{number} {symbol}'),
 	(185, 1, 'East Caribbean dollar', '', 'XCD', 951, 0.00000, '$', '2', ',', '', '{number} {symbol}', '{sign}{number} {symbol}'),
 	(186, 1, 'West African CFA franc', '', 'XOF', 952, 0.00000, 'Fr', '2', ',', '', '{number} {symbol}', '{sign}{number} {symbol}'),
-	(187, 1, 'CFP franc', '', 'XPF', 953, 0.00000, 'Fr', '2', ',', '', '{number} {symbol}', '{sign}{number} {symbol}'),
+	(187, 1, 'CFP franc', '', 'XPF', 953, 0.00000, 'F', '0', ',', '', '{number} {symbol}', '{sign}{number} {symbol}'),
 	(188, 1, 'Surinamese dollar', '', 'SRD', 968, 0.00000, '$', '2', ',', '', '{number} {symbol}', '{sign}{number} {symbol}'),
 	(189, 1, 'Malagasy ariary', '', 'MGA', 969, 0.00000, 'MGA', '2', ',', '', '{number} {symbol}', '{sign}{number} {symbol}'),
 	(190, 1, 'Unidad de Valor Real', '', 'COU', 970, 0.00000, 'COU', '2', ',', '', '{number} {symbol}', '{sign}{number} {symbol}'),
@@ -464,7 +464,6 @@ INSERT IGNORE INTO `#__virtuemart_currencies` (`virtuemart_currency_id`, `virtue
 
 
 
--- Dumping data for table #__virtuemart_states: 801 rows
 /*!40000 ALTER TABLE `#__virtuemart_states` DISABLE KEYS */;
 
 INSERT IGNORE INTO `#__virtuemart_states` (`virtuemart_state_id`, `virtuemart_country_id`, `virtuemart_worldzone_id`, `state_name`, `state_3_code`, `state_2_code`, `published`) VALUES
@@ -1296,6 +1295,42 @@ INSERT IGNORE INTO `#__virtuemart_states` (`virtuemart_state_id`, `virtuemart_co
 	(856, 33, 0, 'Хасково', 'ХСВ', 'ХС', 1),
 	(857, 33, 0, 'Шумен', 'ШМН', 'ШН', 1),
 	(858, 33, 0, 'Ямбол', 'ЯМБ', 'ЯМ', 1);
+
+INSERT INTO `#__virtuemart_states`
+(`virtuemart_state_id`, `virtuemart_vendor_id`, `virtuemart_country_id`, `state_name`, `state_3_code`, `state_2_code`) VALUES
+(NULL, 1, 47,'Amazonas','AMA', 'AM'),
+(NULL, 1, 47,'Antioquia','ANT','AN'),
+(NULL, 1, 47,'Arauca','ARA','AR'),
+(NULL, 1, 47,'Atlantico','ATL','AT'),
+(NULL, 1, 47,'Boyaca','BOY','BO'),
+(NULL, 1, 47,'Caldas','CAL','CA'),
+(NULL, 1, 47,'Caqueta','CAQ','CQ'),
+(NULL, 1, 47,'Cauca','CAU','CC'),
+(NULL, 1, 47,'Cesar','CES','CE'),
+(NULL, 1, 47,'Chocó','CHO','CH'),
+(NULL, 1, 47,'Cordoba','COR','CO'),
+(NULL, 1, 47,'Guaviare','GUA','GU'),
+(NULL, 1, 47,'Guainia','GUI','GI'),
+(NULL, 1, 47,'Huila','HUI','HU'),
+(NULL, 1, 47,'La Guajira','LAG','LA'),
+(NULL, 1, 47,'Magdalena','MAG','MG'),
+(NULL, 1, 47,'Meta','MET','ME'),
+(NULL, 1, 47,'Nariño','NAR','NA'),
+(NULL, 1, 47,'Norte de Santander','NOR','NO'),
+(NULL, 1, 47,'Putumayo','PUT','PU'),
+(NULL, 1, 47,'Quindio','QUI','QU'),
+(NULL, 1, 47,'Risaralda','RIS','RI'),
+(NULL, 1, 47,'San Andres y Providencia','SAN','SA'),
+(NULL, 1, 47,'Santander','STR','ST'),
+(NULL, 1, 47,'Sucre','SUC','SU'),
+(NULL, 1, 47,'Tolima','TOL','TO'),
+(NULL, 1, 47,'Valle del Cauca','VAL','VC'),
+(NULL, 1, 47,'Vaupés','VAU','VA'),
+(NULL, 1, 47,'Vichada','VIC','VI'),
+(NULL, 1, 47,'Casanare','CAS','CS'),
+(NULL, 1, 47,'Cundinamarca','CUN','CU'),
+(NULL, 1, 47,'Bolivar','BOL','BV'),
+(NULL, 1, 47,'Bogotá D.C.','BOG','BG');
 
 /*!40000 ALTER TABLE `#__virtuemart_states` ENABLE KEYS */;
 
